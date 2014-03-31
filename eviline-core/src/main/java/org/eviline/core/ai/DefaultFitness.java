@@ -4,6 +4,12 @@ import org.eviline.core.Field;
 
 public class DefaultFitness implements Fitness {
 
+	protected double[] c = new double[] {
+			1,1,
+			10,3.2,
+			10,1.5
+	};
+	
 	@Override
 	public double badness(Field before, Field after) {
 		after = after.clone();
@@ -43,11 +49,19 @@ public class DefaultFitness implements Fitness {
 		}
 		
 		return 
-				(blocksAfter - blocksBefore) 
-				+ Math.pow(10*(vtxAfter + htxAfter), 3.2)
-				- Math.pow(10*(vtxBefore + htxBefore), 3.2)
-				+ Math.pow(10*Math.abs(mhAfter - mhBefore), 1.5) * Math.signum(mhAfter - mhBefore)
+				Math.pow(c[0] * Math.abs(blocksAfter - blocksBefore), c[1]) * Math.signum(blocksAfter - blocksBefore) 
+				+ Math.pow(c[2]*(vtxAfter + htxAfter), c[3])
+				- Math.pow(c[2]*(vtxBefore + htxBefore), c[3])
+				+ Math.pow(c[4]*Math.abs(mhAfter - mhBefore), c[5]) * Math.signum(mhAfter - mhBefore)
 				;
+	}
+
+	public double[] getC() {
+		return c;
+	}
+
+	public void setC(double[] c) {
+		this.c = c;
 	}
 
 }
