@@ -19,6 +19,7 @@ public class FieldTableCellRenderer extends DefaultTableCellRenderer {
 		JLabel c = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		
 		c.setText(" ");
+		c.setBorder(null);
 
 		if(value == null)
 			c.setBackground(Color.WHITE);
