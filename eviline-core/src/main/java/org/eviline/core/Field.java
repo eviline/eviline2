@@ -15,7 +15,7 @@ public class Field {
 		reset();
 	}
 	
-	protected void reset() {
+	public void reset() {
 		// reset the mask
 		mask = new long[7];
 		for(int y = -4; y < 20; y++)
