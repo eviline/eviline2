@@ -54,6 +54,24 @@ public class XYShape {
 		return id;
 	}
 	
+	@Override
+	public int hashCode() {
+		return shape.hashCode() + 29 * x + 31 * y * Field.WIDTH;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null)
+			return false;
+		if(obj == this)
+			return true;
+		if(obj instanceof XYShape) {
+			XYShape o = (XYShape) obj;
+			return shape == o.shape && x == o.x && y == o.y;
+		}
+		return false;
+	}
+	
 	public Block block() {
 		if(block == null)
 			block = new Block(shape, id);
@@ -78,6 +96,10 @@ public class XYShape {
 	
 	public XYShape shiftedDown() {
 		return new XYShape(shape, x, y+1, id);
+	}
+	
+	public XYShape shiftedUp() {
+		return new XYShape(shape, x, y-1, id);
 	}
 	
 	public XYShape[] kickedLeft() {
