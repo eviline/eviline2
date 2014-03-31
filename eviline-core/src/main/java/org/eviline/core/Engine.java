@@ -182,8 +182,10 @@ public class Engine {
 				if(respawnFramesRemaining <= 0) {
 					shape = new XYShape(shapes.next(this).up(), 3, 0);
 					respawnFramesRemaining = null;
-					if(field.intersects(shape))
+					if(field.intersects(shape)) {
 						over = true;
+						shape = null;
+					}
 				} else
 					respawnFramesRemaining = respawnFramesRemaining - 1;
 			}

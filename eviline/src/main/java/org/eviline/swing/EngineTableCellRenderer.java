@@ -29,7 +29,7 @@ public class EngineTableCellRenderer extends DefaultTableCellRenderer {
 		c.setBorder(null);
 
 		if(value == null)
-			c.setBackground(Color.WHITE);
+			c.setBackground(Color.BLACK);
 		else
 			c.setBackground(color.get(((Block) value).shape().type()));
 			
