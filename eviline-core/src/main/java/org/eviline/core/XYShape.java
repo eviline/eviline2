@@ -61,4 +61,16 @@ public class XYShape {
 	public XYShape rotatedLeft() {
 		return new XYShape(shape.rotatedLeft(), x, y, id);
 	}
+	
+	public XYShape shiftedLeft() {
+		return new XYShape(shape, x-1, y, id);
+	}
+	
+	public XYShape shiftedRight() {
+		return new XYShape(shape, x+1, y, id);
+	}
+	
+	public XYShape shiftedDown() {
+		return new XYShape(shape, x, y+1, id);
+	}
 }

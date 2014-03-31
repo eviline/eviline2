@@ -9,8 +9,17 @@ public class Configuration {
 			return 60;
 		}
 	};
+	protected EngineFactory<Integer> respawnFramesRemaining = new EngineFactory<Integer>() {
+		@Override
+		public Integer newInstance(Engine e) {
+			return 10;
+		}
+	};
 	protected EngineFactory<ShapeSource> shapes = BagShapeSource.FACTORY;
 	
+	public Integer respawnFramesRemaining(Engine e) {
+		return respawnFramesRemaining.newInstance(e);
+	}
 	
 	public Integer downFramesRemaining(Engine e) {
 		return downFramesRemaining.newInstance(e);
