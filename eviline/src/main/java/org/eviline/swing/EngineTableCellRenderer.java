@@ -10,6 +10,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import org.eviline.core.Block;
 
 public class EngineTableCellRenderer extends DefaultTableCellRenderer {
+	protected ShapeTypeColor color = new ShapeTypeColor();
+	
 	@Override
 	public Component getTableCellRendererComponent(
 			JTable table, 
@@ -29,7 +31,7 @@ public class EngineTableCellRenderer extends DefaultTableCellRenderer {
 		if(value == null)
 			c.setBackground(Color.WHITE);
 		else
-			c.setBackground(Color.GRAY);
+			c.setBackground(color.get(((Block) value).shape().type()));
 			
 		
 		return c;
