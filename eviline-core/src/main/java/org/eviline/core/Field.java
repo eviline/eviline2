@@ -124,6 +124,10 @@ public class Field {
 		Arrays.fill(blocks, 0, WIDTH, null);
 	}
 	
+	/**
+	 * Find and clear any solid lines, and return the number of lines cleared
+	 * @return
+	 */
 	public int clearLines() {
 		int cleared = 0;
 		for(int y = HEIGHT - 1; y >= -4; y--) {
@@ -136,8 +140,23 @@ public class Field {
 		return cleared;
 	}
 	
+	/**
+	 * Returns whether the block at row {@code y} col {@code x} is masked
+	 * @param x
+	 * @param y
+	 * @return
+	 */
 	public boolean masked(int x, int y) {
 		return (get(y) & (1L << (12 - x))) != 0;
+	}
+	
+	/**
+	 * Returns a mask of cols 0-9 at row {@code y}
+	 * @param y
+	 * @return
+	 */
+	public long mask(int y) {
+		return (get(y) >>> BUFFER) & 0b1111111111;
 	}
 	
 	/**
