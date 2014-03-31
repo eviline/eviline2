@@ -1,7 +1,5 @@
 package org.eviline.core.ai;
 
-import java.util.Map;
-
 import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
 import org.eviline.core.XYShape;
@@ -50,6 +48,14 @@ public class DefaultAIKernel implements AIKernel {
 		}
 		
 		return worst;
+	}
+
+	public Fitness getFitness() {
+		return fitness;
+	}
+
+	public void setFitness(Fitness fitness) {
+		this.fitness = fitness;
 	}
 
 }

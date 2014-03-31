@@ -2,8 +2,6 @@ package org.eviline.core.ai;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
-
 import org.eviline.core.Command;
 import org.eviline.core.Engine;
 import org.eviline.core.ai.CommandGraph.Vertex;
