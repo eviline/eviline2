@@ -18,6 +18,13 @@ public class XYShape {
 		id = nextId.incrementAndGet();
 	}
 	
+	public XYShape(Shape shape, int x, int y, long id) {
+		this.shape = shape;
+		this.x = x;
+		this.y = y;
+		this.id = id;
+	}
+	
 	public Shape shape() {
 		return shape;
 	}
@@ -45,5 +52,13 @@ public class XYShape {
 		if(block == null)
 			block = new Block(shape, id);
 		return block;
+	}
+	
+	public XYShape rotatedRight() {
+		return new XYShape(shape.rotatedRight(), x, y, id);
+	}
+	
+	public XYShape rotatedLeft() {
+		return new XYShape(shape.rotatedLeft(), x, y, id);
 	}
 }

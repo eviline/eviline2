@@ -1,0 +1,14 @@
+package org.eviline.core;
+
+public enum Command {
+	NOP,
+	SHIFT_LEFT,
+	AUTOSHIFT_LEFT,
+	SHIFT_RIGHT,
+	AUTOSHIFT_RIGHT,
+	SHIFT_DOWN,
+	SOFT_DROP,
+	HARD_DROP,
+	ROTATE_RIGHT,
+	ROTATE_LEFT,
+}

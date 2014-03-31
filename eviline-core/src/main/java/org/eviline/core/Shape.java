@@ -156,4 +156,72 @@ public enum Shape {
 	public long mask(int x) {
 		return mask >> (Field.BUFFER + x);
 	}
+	
+	public Shape rotatedRight() {
+		switch(this) {
+		case S_UP: return S_RIGHT;
+		case S_RIGHT: return S_DOWN;
+		case S_DOWN: return S_LEFT;
+		case S_LEFT: return S_UP;
+		case Z_UP: return Z_RIGHT;
+		case Z_RIGHT: return Z_DOWN;
+		case Z_DOWN: return Z_LEFT;
+		case Z_LEFT: return Z_UP;
+		case J_UP: return J_RIGHT;
+		case J_RIGHT: return J_DOWN;
+		case J_DOWN: return J_LEFT;
+		case J_LEFT: return J_UP;
+		case L_UP: return L_RIGHT;
+		case L_RIGHT: return L_DOWN;
+		case L_DOWN: return L_LEFT;
+		case L_LEFT: return L_UP;
+		case T_UP: return T_RIGHT;
+		case T_RIGHT: return T_DOWN;
+		case T_DOWN: return T_LEFT;
+		case T_LEFT: return T_UP;
+		case I_UP: return I_RIGHT;
+		case I_RIGHT: return I_DOWN;
+		case I_DOWN: return I_LEFT;
+		case I_LEFT: return I_UP;
+		case O_UP: return O_RIGHT;
+		case O_RIGHT: return O_DOWN;
+		case O_DOWN: return O_LEFT;
+		case O_LEFT: return O_UP;
+		}
+		throw new InternalError("impossible switch fallthrough");
+	}
+	
+	public Shape rotatedLeft() {
+		switch(this) {
+		case S_UP: return S_LEFT;
+		case S_LEFT: return S_DOWN;
+		case S_DOWN: return S_RIGHT;
+		case S_RIGHT: return S_UP;
+		case Z_UP: return Z_LEFT;
+		case Z_LEFT: return Z_DOWN;
+		case Z_DOWN: return Z_RIGHT;
+		case Z_RIGHT: return Z_UP;
+		case J_UP: return J_LEFT;
+		case J_LEFT: return J_DOWN;
+		case J_DOWN: return J_RIGHT;
+		case J_RIGHT: return J_UP;
+		case L_UP: return L_LEFT;
+		case L_LEFT: return L_DOWN;
+		case L_DOWN: return L_RIGHT;
+		case L_RIGHT: return L_UP;
+		case T_UP: return T_LEFT;
+		case T_LEFT: return T_DOWN;
+		case T_DOWN: return T_RIGHT;
+		case T_RIGHT: return T_UP;
+		case I_UP: return I_LEFT;
+		case I_LEFT: return I_DOWN;
+		case I_DOWN: return I_RIGHT;
+		case I_RIGHT: return I_UP;
+		case O_UP: return O_LEFT;
+		case O_LEFT: return O_DOWN;
+		case O_DOWN: return O_RIGHT;
+		case O_RIGHT: return O_UP;
+		}
+		throw new InternalError("impossible switch fallthrough");
+	}
 }
