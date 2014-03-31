@@ -9,6 +9,9 @@ public class Field {
 	
 	protected long[] mask = new long[7];
 	
+	public Field() {
+		reset();
+	}
 	
 	protected void reset() {
 		mask = new long[7];
@@ -17,7 +20,7 @@ public class Field {
 		mask[6] = -1L; // floor
 	}
 	
-	protected void blit(int y, int m) {
+	protected void blit(int y, long m) {
 		int i = (y + 4) >> 2;
 		int o = (y + 4) & 0b11;
 		mask[i] |= (m << (o * 16));
@@ -33,4 +36,9 @@ public class Field {
 		return imask | ((mask[i+1] & m) << ((4-o) * 16));
 	}
 	
+	public boolean intersects(XYShape s) {
+		long imask = imask(s.y());
+		long smask = s.shape().mask(s.x());
+		return imask != (imask & ~smask);
+	}
 }

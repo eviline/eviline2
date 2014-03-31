@@ -140,7 +140,7 @@ public enum Shape {
 	private ShapeType type;
 	private long mask;
 	
-	private Shape(ShapeType type, int... rowMasks) {
+	private Shape(ShapeType type, long... rowMasks) {
 		for(int i = 0; i < rowMasks.length; i++)
 			mask |= (rowMasks[i] << (12 + i * 16));
 	}
