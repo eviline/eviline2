@@ -59,7 +59,7 @@ public class Field {
 	protected long get(int y) {
 		int i = (y + 4) >> 2;
 		int o = (y + 4) & 0b11;
-		long imask = mask[i] << (o * 16);
+		long imask = mask[i] >>> (o * 16);
 		return imask & 0xffff;
 	}
 	
@@ -71,11 +71,12 @@ public class Field {
 	protected long imask(int y) {
 		int i = (y + 4) >> 2;
 		int o = (y + 4) & 0b11;
-		long imask = mask[i] << (o * 16);
+		long imask = mask[i] >>> (o * 16);
 		if(o == 0)
 			return imask;
-		long m = ~(-1 << (o * 16));
-		return imask | ((mask[i+1] & m) << ((4-o) * 16));
+		long jmask = mask[i+1] & ~(-1L << (o * 16));
+		jmask = jmask << ((4-o) * 16);
+		return imask | jmask;
 	}
 	
 	/**
