@@ -37,6 +37,15 @@ public class Engine {
 		over = false;
 	}
 	
+	public Block block(int x, int y) {
+		Block b = field.block(x, y);
+		if(b != null || shape == null || y < shape.y() || y >= shape.y() + 4)
+			return b;
+		if(shape.has(x, y))
+			return shape.block();
+		return null;
+	}
+	
 	public boolean tick(Command c) {
 		boolean success = false;
 		boolean locked = false;

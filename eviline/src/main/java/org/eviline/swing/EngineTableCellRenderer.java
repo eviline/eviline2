@@ -9,7 +9,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.eviline.core.Block;
 
-public class FieldTableCellRenderer extends DefaultTableCellRenderer {
+public class EngineTableCellRenderer extends DefaultTableCellRenderer {
 	@Override
 	public Component getTableCellRendererComponent(
 			JTable table, 

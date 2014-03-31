@@ -25,6 +25,12 @@ public class XYShape {
 		this.id = id;
 	}
 	
+	public boolean has(int x, int y) {
+		if(y < this.y || y >= this.y + 4 || x < this.x || x >= this.x + 4)
+			return false;
+		return shape.has(x - this.x, y - this.y);
+	}
+	
 	public Shape shape() {
 		return shape;
 	}

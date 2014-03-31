@@ -2,14 +2,15 @@ package org.eviline.swing;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.eviline.core.Engine;
 import org.eviline.core.Field;
 
-public class FieldTableModel extends AbstractTableModel {
+public class EngineTableModel extends AbstractTableModel {
 	
-	protected Field field;
+	protected Engine engine;
 	
-	public FieldTableModel(Field field) {
-		this.field = field;
+	public EngineTableModel(Engine engine) {
+		this.engine = engine;
 	}
 
 	@Override
@@ -24,7 +25,7 @@ public class FieldTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		return field.block(columnIndex, rowIndex);
+		return engine.block(columnIndex, rowIndex);
 	}
 
 }
