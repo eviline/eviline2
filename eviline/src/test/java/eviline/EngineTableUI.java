@@ -33,18 +33,24 @@ public class EngineTableUI {
 		final AIPlayer ai = new AIPlayer(engine);
 		
 		EventQueue.invokeLater(new Runnable() {
-			private boolean drawn = false;
+			private int drawn = 0;
 			@Override
 			public void run() {
 				engine.tick(ai.tick());
-				if(engine.getShape() == null && !drawn) {
-					((EngineTableModel) table.getModel()).fireTableDataChanged();
-					frame.setTitle("" + engine.getLines());
-					drawn = true;
-				} else
-					drawn = false;
+				if(engine.getShape() == null) {
+					if(drawn == 0) {
+						((EngineTableModel) table.getModel()).fireTableDataChanged();
+						frame.setTitle("" + engine.getLines());
+						drawn = 10;
+					} else
+						drawn--;
+				}
 				if(!engine.isOver())
 					EventQueue.invokeLater(this);
+				else {
+					((EngineTableModel) table.getModel()).fireTableDataChanged();
+					frame.setTitle("" + engine.getLines());
+				}
 			}
 		});
 	}
