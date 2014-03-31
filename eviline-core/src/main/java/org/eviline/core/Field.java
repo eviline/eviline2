@@ -1,11 +1,13 @@
 package org.eviline.core;
 
+import java.util.Arrays;
+
 public class Field {
 	public static final int WIDTH = 10;
 	public static final int HEIGHT = 20;
 	public static final int BUFFER = 3;
 	
-	protected static final int WALL = 0b1110000000000111;
+	protected static final long WALL = 0b1110000000000111;
 	
 	protected long[] mask;
 	
@@ -35,6 +37,30 @@ public class Field {
 		int i = (y + 4) >> 2;
 		int o = (y + 4) & 0b11;
 		mask[i] |= (m << (o * 16));
+	}
+	
+	/**
+	 * Sets the lower 16 bits of {@code m} onto row {@code y}
+	 * @param y
+	 * @param m
+	 */
+	protected void set(int y, long m) {
+		int i = (y + 4) >> 2;
+		int o = (y + 4) & 0b11;
+		mask[i] &= ~(0xffffL << (o * 16));
+		mask[i] |= (m << (o * 16));
+	}
+	
+	/**
+	 * Returns row {@code y} as the lower 16 bits of the returned {@code long}
+	 * @param y
+	 * @return
+	 */
+	protected long get(int y) {
+		int i = (y + 4) >> 2;
+		int o = (y + 4) & 0b11;
+		long imask = mask[i] << (o * 16);
+		return imask & 0xffff;
 	}
 	
 	/**
@@ -79,6 +105,34 @@ public class Field {
 					blocks[x + (y+4) * WIDTH] = s.block();
 			}
 		}
+	}
+	
+	/**
+	 * Clears row {@code y}, shifting all above rows down
+	 * @param y
+	 */
+	public void clear(int y) {
+		// shift the masks
+		for(int i = y-1; i >= -4; i--)
+			set(i+1, get(i));
+		set(-4, WALL);
+		
+		// shift the blocks
+		if(y+4-1 > 0)
+			System.arraycopy(blocks, 0, blocks, WIDTH, WIDTH * (y+4-1));
+		Arrays.fill(blocks, 0, WIDTH, null);
+	}
+	
+	public int clearLines() {
+		int cleared = 0;
+		for(int y = HEIGHT - 1; y >= -4; y--) {
+			if(get(y) == 0xffff) {
+				clear(y);
+				y++;
+				cleared++;
+			}
+		}
+		return cleared;
 	}
 	
 	/**

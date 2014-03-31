@@ -36,6 +36,7 @@ public class Engine {
 	
 	public boolean tick(Command c) {
 		boolean success = false;
+		boolean locked = false;
 		switch(c) {
 		case NOP:
 			success = true;
@@ -105,6 +106,7 @@ public class Engine {
 			} else {
 				field.blit(shape);
 				shape = null;
+				locked = true;
 			}
 			downFramesRemaining = null;
 			success = true;
@@ -130,6 +132,7 @@ public class Engine {
 			}
 			field.blit(shape);
 			shape = null;
+			locked = true;
 			downFramesRemaining = null;
 			success = true;
 			break;
@@ -147,11 +150,16 @@ public class Engine {
 					else {
 						field.blit(shape);
 						shape = null;
+						locked = true;
 						downFramesRemaining = null;
 					}
 				} else
 					downFramesRemaining = downFramesRemaining - 1;
 			}
+		}
+		
+		if(locked) {
+			lines += field.clearLines();
 		}
 		
 		if(shape == null) {
