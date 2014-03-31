@@ -15,9 +15,18 @@ public class DefaultFitness implements Fitness {
 		int vtxBefore = 0;
 		int vtxAfter = 0;
 		
+		int htxBefore = 0;
+		int htxAfter = 0;
+		
 		for(int y = -4; y < Field.HEIGHT; y++) {
-			blocksBefore += Long.bitCount(before.mask(y)) * (20 - y);
-			blocksAfter += Long.bitCount(after.mask(y)) * (20 - y);
+			long bm = before.mask(y);
+			long am = after.mask(y);
+			
+			blocksBefore += Long.bitCount(bm) * (20 - y);
+			blocksAfter += Long.bitCount(am) * (20 - y);
+			
+			htxBefore += Long.bitCount(bm ^ (bm << 1));
+			htxAfter += Long.bitCount(am ^ (am << 1));
 		}
 
 		for(int y = -3; y < Field.HEIGHT; y++) {
@@ -25,7 +34,10 @@ public class DefaultFitness implements Fitness {
 			vtxAfter += Long.bitCount(after.mask(y-1) ^ after.mask(y));
 		}
 		
-		return (blocksAfter - blocksBefore) + (vtxAfter - vtxBefore) * 30;
+		return 
+				(blocksAfter - blocksBefore) + 
+				Math.pow(20*(vtxAfter + htxAfter), 2)
+				- Math.pow(20*(vtxBefore + htxBefore), 2);
 	}
 
 }
