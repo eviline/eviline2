@@ -2,7 +2,7 @@ package org.eviline.core;
 
 import java.util.Arrays;
 
-public class Field {
+public class Field implements Cloneable {
 	public static final int WIDTH = 10;
 	public static final int HEIGHT = 20;
 	public static final int BUFFER = 3;
@@ -15,6 +15,17 @@ public class Field {
 	
 	public Field() {
 		reset();
+	}
+	
+	public Field clone() {
+		try {
+			Field f = (Field) super.clone();
+			f.mask = mask.clone();
+			f.blocks = blocks.clone();
+			return f;
+		} catch(CloneNotSupportedException e) {
+			throw new InternalError("clone not supported?");
+		}
 	}
 	
 	public void reset() {
