@@ -229,4 +229,80 @@ public enum Shape {
 		}
 		throw new InternalError("impossible switch fallthrough");
 	}
+	
+	public KickTable rightKick() {
+		switch(this) {
+		case S_UP: 
+		case Z_UP:
+		case J_UP:
+		case L_UP:
+		case T_UP:
+		case I_UP:
+		case O_UP:
+			return KickTable.UP_RIGHT;
+		case S_RIGHT:
+		case Z_RIGHT:
+		case J_RIGHT:
+		case L_RIGHT:
+		case T_RIGHT:
+		case I_RIGHT:
+		case O_RIGHT:
+			return KickTable.RIGHT_DOWN;
+		case S_DOWN:
+		case Z_DOWN:
+		case J_DOWN:
+		case L_DOWN:
+		case T_DOWN:
+		case I_DOWN:
+		case O_DOWN:
+			return KickTable.DOWN_LEFT;
+		case S_LEFT:
+		case Z_LEFT:
+		case J_LEFT:
+		case L_LEFT:
+		case T_LEFT:
+		case I_LEFT:
+		case O_LEFT:
+			return KickTable.LEFT_UP;
+		}
+		throw new InternalError("impossible switch fallthrough");
+	}
+	
+	public KickTable leftKick() {
+		switch(this) {
+		case S_UP: 
+		case Z_UP:
+		case J_UP:
+		case L_UP:
+		case T_UP:
+		case I_UP:
+		case O_UP:
+			return KickTable.UP_LEFT;
+		case S_RIGHT:
+		case Z_RIGHT:
+		case J_RIGHT:
+		case L_RIGHT:
+		case T_RIGHT:
+		case I_RIGHT:
+		case O_RIGHT:
+			return KickTable.RIGHT_UP;
+		case S_DOWN:
+		case Z_DOWN:
+		case J_DOWN:
+		case L_DOWN:
+		case T_DOWN:
+		case I_DOWN:
+		case O_DOWN:
+			return KickTable.DOWN_RIGHT;
+		case S_LEFT:
+		case Z_LEFT:
+		case J_LEFT:
+		case L_LEFT:
+		case T_LEFT:
+		case I_LEFT:
+		case O_LEFT:
+			return KickTable.LEFT_DOWN;
+		}
+		throw new InternalError("impossible switch fallthrough");
+	}
 }

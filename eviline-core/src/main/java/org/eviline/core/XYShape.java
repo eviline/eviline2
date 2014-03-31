@@ -79,4 +79,20 @@ public class XYShape {
 	public XYShape shiftedDown() {
 		return new XYShape(shape, x, y+1, id);
 	}
+	
+	public XYShape[] kickedLeft() {
+		KickTable kt = shape.leftKick();
+		XYShape[] kicked = new XYShape[kt.table().length];
+		for(int i = 0; i < kicked.length; i++)
+			kicked[i] = new XYShape(shape, x + kt.table()[i][0], y + kt.table()[i][1], id);
+		return kicked;
+	}
+	
+	public XYShape[] kickedRight() {
+		KickTable kt = shape.rightKick();
+		XYShape[] kicked = new XYShape[kt.table().length];
+		for(int i = 0; i < kicked.length; i++)
+			kicked[i] = new XYShape(shape, x + kt.table()[i][0], y + kt.table()[i][1], id);
+		return kicked;
+	}
 }

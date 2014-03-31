@@ -96,6 +96,14 @@ public class Engine {
 			if(!field.intersects(moved)) {
 				shape = moved;
 				success = true;
+			} else {
+				for(XYShape kicked : moved.kickedLeft()) {
+					if(!field.intersects(kicked)) {
+						shape = kicked;
+						success = true;
+						break;
+					}
+				}
 			}
 			break;
 		case ROTATE_RIGHT:
@@ -105,6 +113,14 @@ public class Engine {
 			if(!field.intersects(moved)) {
 				shape = moved;
 				success = true;
+			} else {
+				for(XYShape kicked : moved.kickedRight()) {
+					if(!field.intersects(kicked)) {
+						shape = kicked;
+						success = true;
+						break;
+					}
+				}
 			}
 			break;
 		case SHIFT_DOWN:
