@@ -38,6 +38,7 @@ public class Engine {
 		boolean success = false;
 		switch(c) {
 		case NOP:
+			success = true;
 			break;
 		case SHIFT_LEFT:
 			if(shape == null)
