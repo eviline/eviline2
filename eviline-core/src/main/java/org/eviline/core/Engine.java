@@ -8,6 +8,7 @@ public class Engine {
 	
 	protected ShapeSource shapes;
 	protected int lines;
+	protected boolean over;
 	
 	protected XYShape shape;
 	protected Integer downFramesRemaining;
@@ -20,6 +21,7 @@ public class Engine {
 	
 	public Engine(Field field, Configuration conf) {
 		this.field = field;
+		this.conf = conf;
 		shapes = conf.shapes(this);
 		downFramesRemaining = conf.downFramesRemaining(this);
 		respawnFramesRemaining = conf.respawnFramesRemaining(this);
@@ -32,6 +34,7 @@ public class Engine {
 		shapes = conf.shapes(this);
 		downFramesRemaining = conf.downFramesRemaining(this);
 		respawnFramesRemaining = conf.respawnFramesRemaining(this);
+		over = false;
 	}
 	
 	public boolean tick(Command c) {
@@ -170,12 +173,30 @@ public class Engine {
 				if(respawnFramesRemaining <= 0) {
 					shape = new XYShape(shapes.next(this).up(), 3, 0);
 					respawnFramesRemaining = null;
+					if(field.intersects(shape))
+						over = true;
 				} else
 					respawnFramesRemaining = respawnFramesRemaining - 1;
 			}
 		}
 		
 		return success;
+	}
+
+	public Field getField() {
+		return field;
+	}
+
+	public int getLines() {
+		return lines;
+	}
+
+	public boolean isOver() {
+		return over;
+	}
+
+	public XYShape getShape() {
+		return shape;
 	}
 	
 }

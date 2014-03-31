@@ -141,6 +141,7 @@ public enum Shape {
 	private long mask;
 	
 	private Shape(ShapeType type, long... rowMasks) {
+		this.type = type;
 		for(int i = 0; i < rowMasks.length; i++)
 			mask |= (rowMasks[i] << (12 + i * 16));
 	}

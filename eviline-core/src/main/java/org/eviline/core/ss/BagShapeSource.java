@@ -18,7 +18,7 @@ public class BagShapeSource implements ShapeSource {
 		}
 	};
 	
-	protected Random random;
+	protected Random random = new Random();
 	
 	protected List<ShapeType> bag = new ArrayList<>();
 	

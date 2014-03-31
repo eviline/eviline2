@@ -7,6 +7,8 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.eviline.core.Block;
+
 public class FieldTableCellRenderer extends DefaultTableCellRenderer {
 	@Override
 	public Component getTableCellRendererComponent(
@@ -18,13 +20,16 @@ public class FieldTableCellRenderer extends DefaultTableCellRenderer {
 			int column) {
 		JLabel c = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		
-		c.setText(" ");
+		if(value != null)
+			c.setText(((Block) value).shape().type().name());
+		else
+			c.setText(" ");
 		c.setBorder(null);
 
 		if(value == null)
 			c.setBackground(Color.WHITE);
 		else
-			c.setBackground(Color.BLACK);
+			c.setBackground(Color.GRAY);
 			
 		
 		return c;
