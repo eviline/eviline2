@@ -18,7 +18,7 @@ import org.eviline.swing.EngineTableModel;
 public class EngineTableUI {
 
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("test");
+		final JFrame frame = new JFrame("test");
 		
 		Field f = new Field();
 		final Engine engine = new Engine(f, new Configuration());
@@ -37,7 +37,7 @@ public class EngineTableUI {
 			public void run() {
 				engine.tick(ai.tick());
 				((EngineTableModel) table.getModel()).fireTableDataChanged();
-				table.repaint();
+				frame.setTitle("" + engine.getLines());
 				if(!engine.isOver())
 					EventQueue.invokeLater(this);
 			}
