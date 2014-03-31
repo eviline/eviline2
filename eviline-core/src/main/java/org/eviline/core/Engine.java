@@ -1,7 +1,5 @@
 package org.eviline.core;
 
-import org.eviline.core.ss.BagShapeSource;
-
 public class Engine {
 	protected Configuration conf;
 	protected Field field;

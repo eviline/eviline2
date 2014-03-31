@@ -8,8 +8,6 @@ import org.eviline.core.Command;
 import org.eviline.core.Configuration;
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
-import org.eviline.core.Shape;
-import org.eviline.core.XYShape;
 import org.eviline.swing.EngineTable;
 import org.eviline.swing.EngineTableModel;
 
