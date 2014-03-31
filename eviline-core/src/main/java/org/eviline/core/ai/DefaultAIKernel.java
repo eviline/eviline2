@@ -12,13 +12,15 @@ public class DefaultAIKernel implements AIKernel {
 	protected Fitness fitness = new DefaultFitness();
 	
 	@Override
-	public Vertex bestPlacement(Field field, ShapeType type) {
-		CommandGraph g = new CommandGraph(field, new XYShape(type.up(), type.startX(), type.startY()));
+	public Vertex bestPlacement(Field field, XYShape current) {
+		CommandGraph g = new CommandGraph(field, current);
 		double badness = Double.POSITIVE_INFINITY;
 		
 		Vertex best = null;
 		
 		for(XYShape shape : g.getVertices().keySet()) {
+			if(!field.intersects(shape.shiftedDown()))
+				continue;
 			Field after = field.clone();
 			after.blit(shape);
 			double shapeBadness = fitness.badness(field, after);
@@ -38,7 +40,7 @@ public class DefaultAIKernel implements AIKernel {
 		
 		for(ShapeType type : ShapeType.values()) {
 			Field after = field.clone();
-			Vertex best = bestPlacement(field, type);
+			Vertex best = bestPlacement(field, new XYShape(type.up(), type.startX(), type.startY()));
 			after.blit(best.shape);
 			double typeBadness = fitness.badness(field, after);
 			if(typeBadness > badness) {

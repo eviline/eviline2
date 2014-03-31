@@ -39,31 +39,34 @@ public class CommandGraph {
 			XYShape next;
 			
 			next = shape.shiftedLeft();
-			if(!f.intersects(next))
+			if(!f.intersects(next)) {
 				out.add(new Vertex(this, Command.SHIFT_LEFT, next));
+
+				while(!f.intersects(next))
+					next = next.shiftedLeft();
+				next = next.shiftedRight();
+				out.add(new Vertex(this, Command.AUTOSHIFT_LEFT, next));
+			}
 			
-			while(!f.intersects(next))
-				next = next.shiftedLeft();
 			next = shape.shiftedRight();
-			out.add(new Vertex(this, Command.AUTOSHIFT_LEFT, next));
-			
-			next = shape.shiftedRight();
-			if(!f.intersects(next))
+			if(!f.intersects(next)) {
 				out.add(new Vertex(this, Command.SHIFT_RIGHT, next));
 			
-			while(!f.intersects(next))
-				next = next.shiftedRight();
-			next = shape.shiftedLeft();
-			out.add(new Vertex(this, Command.AUTOSHIFT_RIGHT, next));
+				while(!f.intersects(next))
+					next = next.shiftedRight();
+				next = next.shiftedLeft();
+				out.add(new Vertex(this, Command.AUTOSHIFT_RIGHT, next));
+			}
 			
 			next = shape.shiftedDown();
-			if(!f.intersects(next))
+			if(!f.intersects(next)) {
 				out.add(new Vertex(this, Command.SHIFT_DOWN, next));
-			
-			while(!f.intersects(next))
-				next = next.shiftedDown();
-			next = next.shiftedUp();
-			out.add(new Vertex(this, Command.SOFT_DROP, next));
+
+				while(!f.intersects(next))
+					next = next.shiftedDown();
+				next = next.shiftedUp();
+				out.add(new Vertex(this, Command.SOFT_DROP, next));
+			}
 			
 			for(XYShape kicked : shape.rotatedLeft().kickedLeft()) {
 				if(!f.intersects(kicked)) {

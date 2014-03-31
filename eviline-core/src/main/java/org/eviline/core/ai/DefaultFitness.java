@@ -13,8 +13,8 @@ public class DefaultFitness implements Fitness {
 		int blocksAfter = 0;
 		
 		for(int y = -4; y < Field.HEIGHT; y++) {
-			blocksBefore += Long.bitCount(before.mask(y));
-			blocksAfter += Long.bitCount(after.mask(y));
+			blocksBefore += Long.bitCount(before.mask(y)) * (20 - y);
+			blocksAfter += Long.bitCount(after.mask(y)) * (20 - y);
 		}
 		
 		return blocksAfter - blocksBefore;

@@ -96,6 +96,8 @@ public class Field implements Cloneable {
 	 * @return
 	 */
 	public boolean intersects(XYShape s) {
+		if(s.y() < -4)
+			return true;
 		long imask = imask(s.y());
 		long smask = s.shape().mask(s.x());
 		return imask != (imask & ~smask);
@@ -130,8 +132,8 @@ public class Field implements Cloneable {
 		set(-4, WALL);
 		
 		// shift the blocks
-		if(y+4-1 > 0)
-			System.arraycopy(blocks, 0, blocks, WIDTH, WIDTH * (y+4-1));
+		if(y+4 > 0)
+			System.arraycopy(blocks, 0, blocks, WIDTH, WIDTH * (y+4));
 		Arrays.fill(blocks, 0, WIDTH, null);
 	}
 	
