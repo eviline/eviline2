@@ -110,7 +110,5 @@ public class Field {
 			sb.append('\n');
 		}
 		return sb.toString();
-	}
-	
-	
+	}	
 }
