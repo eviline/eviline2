@@ -36,8 +36,8 @@ public class DefaultFitness implements Fitness {
 		
 		return 
 				(blocksAfter - blocksBefore) + 
-				Math.pow(20*(vtxAfter + htxAfter), 2)
-				- Math.pow(20*(vtxBefore + htxBefore), 2);
+				Math.pow(20*(vtxAfter + htxAfter), 3)
+				- Math.pow(20*(vtxBefore + htxBefore), 3);
 	}
 
 }
