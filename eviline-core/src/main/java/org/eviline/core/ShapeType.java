@@ -19,4 +19,14 @@ public enum ShapeType {
 		throw new InternalError("impossible switch fallthrough");
 	}
 	
+	public int startX() {
+		if(this == O)
+			return 4;
+		return 3;
+	}
+	
+	public int startY() {
+		return -2;
+	}
+	
 }

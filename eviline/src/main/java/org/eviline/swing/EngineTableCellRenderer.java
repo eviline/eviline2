@@ -22,10 +22,7 @@ public class EngineTableCellRenderer extends DefaultTableCellRenderer {
 			int column) {
 		JLabel c = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		
-		if(value != null)
-			c.setText(((Block) value).shape().type().name());
-		else
-			c.setText(" ");
+		c.setText(" ");
 		c.setBorder(null);
 
 		if(value == null)

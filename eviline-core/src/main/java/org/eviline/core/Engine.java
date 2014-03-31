@@ -180,7 +180,8 @@ public class Engine {
 			}
 			if(respawnFramesRemaining != null) {
 				if(respawnFramesRemaining <= 0) {
-					shape = new XYShape(shapes.next(this).up(), 3, 0);
+					ShapeType next = shapes.next(this);
+					shape = new XYShape(next.up(), next.startX(), next.startY());
 					respawnFramesRemaining = null;
 					if(field.intersects(shape)) {
 						over = true;
