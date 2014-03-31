@@ -136,6 +136,10 @@ public class Field {
 		return cleared;
 	}
 	
+	public boolean masked(int x, int y) {
+		return (get(y) & (1L << (12 - x))) != 0;
+	}
+	
 	/**
 	 * Returns the block at the specified row {@code y} and col {@code x}
 	 * @param x 0 <= x < WIDTH

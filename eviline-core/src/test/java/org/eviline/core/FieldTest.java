@@ -26,4 +26,12 @@ public class FieldTest {
 		
 		System.out.println(f);
 	}
+	
+	@Test
+	public void testMasked() {
+		Field f = new Field();
+		f.blit(new XYShape(Shape.O_DOWN, 0, 0));
+		Assert.assertTrue(f.masked(0, 0));
+		Assert.assertFalse(f.masked(2, 0));
+	}
 }
