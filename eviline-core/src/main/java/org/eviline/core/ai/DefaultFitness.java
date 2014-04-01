@@ -7,8 +7,8 @@ public class DefaultFitness implements Fitness {
 	protected double[] c = new double[] {
 			1,1,
 			10,3.2,
-			10,1.5,
-			200,1
+			30,1.8,
+			1, 1.5
 	};
 	
 	@Override
@@ -56,17 +56,17 @@ public class DefaultFitness implements Fitness {
 			vtxBefore += Long.bitCount(before.mask(y-1) ^ before.mask(y));
 			vtxAfter += Long.bitCount(after.mask(y-1) ^ after.mask(y));
 			
-			holesBefore += Long.bitCount(bhm & (bhm ^ before.mask(y)));
-			holesAfter = Long.bitCount(ahm & (ahm ^ after.mask(y)));
+			holesBefore += (y+Field.HEIGHT) * Long.bitCount(bhm & (bhm ^ before.mask(y)));
+			holesAfter = (y+Field.HEIGHT) * Long.bitCount(ahm & (ahm ^ after.mask(y)));
 		}
 		
 		return 
 				Math.pow(c[0] * Math.abs(blocksAfter - blocksBefore), c[1]) * Math.signum(blocksAfter - blocksBefore) 
 				+ Math.pow(c[2]*(vtxAfter + htxAfter), c[3])
 				- Math.pow(c[2]*(vtxBefore + htxBefore), c[3])
-				+ Math.pow(c[4]*Math.abs(mhAfter - mhBefore), c[5]) * Math.signum(mhAfter - mhBefore)
-				+ Math.pow(c[6]*holesAfter, c[7])
-				- Math.pow(c[6]*holesBefore, c[7])
+				+ Math.pow(c[4]*mhAfter, c[5])
+				- Math.pow(c[4]*mhBefore, c[5])
+				+ Math.pow(c[6]*Math.abs(holesAfter-holesBefore), c[7]) * Math.signum(holesAfter - holesBefore)
 				;
 	}
 
