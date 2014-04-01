@@ -1,7 +1,11 @@
 package eviline;
 
 import java.awt.EventQueue;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.JFrame;
+
 import org.eviline.core.Configuration;
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
@@ -16,17 +20,11 @@ public class EngineTableUI {
 		
 		Field f = new Field();
 		final Engine engine = new Engine(f, new Configuration());
-		
+		final AIPlayer ai = new AIPlayer(engine);
 		final EngineTable table = new EngineTable(engine);
 		frame.add(table);
 		
-		frame.pack();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
-		
-		final AIPlayer ai = new AIPlayer(engine);
-		
-		EventQueue.invokeLater(new Runnable() {
+		final Runnable task = new Runnable() {
 			private int drawn = 0;
 			@Override
 			public void run() {
@@ -46,7 +44,23 @@ public class EngineTableUI {
 					frame.setTitle("" + engine.getLines());
 				}
 			}
+		};
+		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(!engine.isOver())
+					return;
+				engine.reset();
+				EventQueue.invokeLater(task);
+			}
 		});
+		
+		frame.pack();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+		
+		EventQueue.invokeLater(task);
 	}
 
 }
