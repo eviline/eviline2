@@ -7,8 +7,7 @@ public class DefaultFitness implements Fitness {
 	protected double[] c = new double[] {
 			1,1,
 			10,3.2,
-			10,1.5,
-			20,3.5,
+			10,1.5
 	};
 	
 	@Override
@@ -28,9 +27,6 @@ public class DefaultFitness implements Fitness {
 		int htxBefore = 0;
 		int htxAfter = 0;
 		
-		int ovhBefore = 0;
-		int ovhAfter = 0;
-		
 		for(int y = -4; y < Field.HEIGHT; y++) {
 			long bm = before.mask(y);
 			long am = after.mask(y);
@@ -48,13 +44,8 @@ public class DefaultFitness implements Fitness {
 		}
 
 		for(int y = -3; y < Field.HEIGHT; y++) {
-			long pbm = before.mask(y-1), bm = before.mask(y);
-			long pam = after.mask(y-1), am = after.mask(y);
-			long vb = pbm ^ bm, va = pam ^ am;
-			vtxBefore += Long.bitCount(vb);
-			vtxAfter += Long.bitCount(va);
-			ovhBefore = Long.bitCount(pbm & vb);
-			ovhAfter = Long.bitCount(pam & va);
+			vtxBefore += Long.bitCount(before.mask(y-1) ^ before.mask(y));
+			vtxAfter += Long.bitCount(after.mask(y-1) ^ after.mask(y));
 		}
 		
 		return 
@@ -62,7 +53,6 @@ public class DefaultFitness implements Fitness {
 				+ Math.pow(c[2]*(vtxAfter + htxAfter), c[3])
 				- Math.pow(c[2]*(vtxBefore + htxBefore), c[3])
 				+ Math.pow(c[4]*Math.abs(mhAfter - mhBefore), c[5]) * Math.signum(mhAfter - mhBefore)
-				+ Math.pow(c[6]*Math.abs(ovhAfter - ovhBefore), c[7]) * Math.signum(ovhAfter - ovhBefore)
 				;
 	}
 
