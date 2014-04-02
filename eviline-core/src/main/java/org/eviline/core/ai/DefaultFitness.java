@@ -8,7 +8,8 @@ public class DefaultFitness implements Fitness {
 			1,1,
 			10,3.2,
 			30,1.8,
-			1, 1.5
+			2.1, 1.95,
+			11,3.2
 	};
 	
 	@Override
@@ -31,6 +32,9 @@ public class DefaultFitness implements Fitness {
 		int holesBefore = 0;
 		int holesAfter = 0;
 		
+		int pitsBefore = 0;
+		int pitsAfter = 0;
+		
 		for(int y = -4; y < Field.HEIGHT; y++) {
 			long bm = before.mask(y);
 			long am = after.mask(y);
@@ -45,6 +49,9 @@ public class DefaultFitness implements Fitness {
 			
 			htxBefore += Long.bitCount(0b1111111110 & (bm ^ (bm << 1)));
 			htxAfter += Long.bitCount(0b1111111110 & (am ^ (am << 1)));
+			
+			pitsBefore += Long.bitCount((bm ^ (bm << 1)) & (bm ^ (bm >>> 1)));
+			pitsAfter += Long.bitCount((am ^ (am << 1)) & (am ^ (am >>> 1)));
 		}
 
 		long bhm = 0;
@@ -56,8 +63,8 @@ public class DefaultFitness implements Fitness {
 			vtxBefore += Long.bitCount(before.mask(y-1) ^ before.mask(y));
 			vtxAfter += Long.bitCount(after.mask(y-1) ^ after.mask(y));
 			
-			holesBefore += (y+Field.HEIGHT) * Long.bitCount(bhm & (bhm ^ before.mask(y)));
-			holesAfter = (y+Field.HEIGHT) * Long.bitCount(ahm & (ahm ^ after.mask(y)));
+			holesBefore += (y+Field.HEIGHT/2) * Long.bitCount(bhm & (bhm ^ before.mask(y)));
+			holesAfter = (y+Field.HEIGHT/2) * Long.bitCount(ahm & (ahm ^ after.mask(y)));
 		}
 		
 		return 
@@ -67,6 +74,8 @@ public class DefaultFitness implements Fitness {
 				+ Math.pow(c[4]*mhAfter, c[5])
 				- Math.pow(c[4]*mhBefore, c[5])
 				+ Math.pow(c[6]*Math.abs(holesAfter-holesBefore), c[7]) * Math.signum(holesAfter - holesBefore)
+				+ Math.pow(c[8]*pitsAfter, c[9])
+				- Math.pow(c[8]*pitsAfter, c[9])
 				;
 	}
 
