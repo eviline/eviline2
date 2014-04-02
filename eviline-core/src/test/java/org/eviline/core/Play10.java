@@ -1,6 +1,7 @@
 package org.eviline.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eviline.core.ai.AIPlayer;
@@ -12,7 +13,7 @@ public class Play10 {
 		AIPlayer ai = new AIPlayer(engine);
 		
 		List<Integer> lines = new ArrayList<>();
-		for(int i = 0; i < 10; i++) {
+		for(int i = 0; i < 20; i++) {
 			engine.reset();
 			while(!engine.isOver())
 				engine.tick(ai.tick());
@@ -21,7 +22,13 @@ public class Play10 {
 			System.out.flush();
 		}
 		System.out.println();
+		
+		Collections.sort(lines);
+		lines.remove(0);
+		lines.remove(lines.size()-1);
+		
 		System.out.println(lines);
+
 		int sum = 0;
 		for(int l : lines)
 			sum += l;
