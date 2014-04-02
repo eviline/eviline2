@@ -8,8 +8,8 @@ public class DefaultFitness implements Fitness {
 			1,1,
 			10,3.2,
 			30,1.8,
-			2.1, 1.95,
-			11,3.2
+			2.1, 1.35,
+			8.2,1.1
 	};
 	
 	@Override
@@ -75,7 +75,7 @@ public class DefaultFitness implements Fitness {
 				- Math.pow(c[4]*mhBefore, c[5])
 				+ Math.pow(c[6]*Math.abs(holesAfter-holesBefore), c[7]) * Math.signum(holesAfter - holesBefore)
 				+ Math.pow(c[8]*pitsAfter, c[9])
-				- Math.pow(c[8]*pitsAfter, c[9])
+				- Math.pow(c[8]*pitsBefore, c[9])
 				;
 	}
 
