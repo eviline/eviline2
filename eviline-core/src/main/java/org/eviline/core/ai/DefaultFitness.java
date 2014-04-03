@@ -69,7 +69,7 @@ public class DefaultFitness implements Fitness {
 		
 		return 
 				c[0] * (blocksAfter - blocksBefore) 
-				+ c[1] * ((vtxAfter + htxAfter) - (vtxBefore + htxBefore))
+				+ c[1] * ((vtxAfter * htxAfter) - (vtxBefore * htxBefore))
 				+ c[2] * (mhAfter - mhBefore)
 				+ c[3] * (holesAfter-holesBefore)
 				+ c[4] * (pitsAfter - pitsBefore)
