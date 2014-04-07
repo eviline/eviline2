@@ -5,11 +5,7 @@ import org.eviline.core.Field;
 public class DefaultFitness implements Fitness {
 
 	protected double[] c = new double[] {
-			1,
-			1,
-			1,
-			1,
-			1,
+			4.529605309211182, 0.8883015405057677, 4.552975975818732, 9.766913212671248, -0.733521432526716
 	};
 	
 	@Override
