@@ -225,4 +225,8 @@ public class Engine {
 		return shape;
 	}
 	
+	public void setShape(XYShape shape) {
+		this.shape = shape;
+	}
+	
 }

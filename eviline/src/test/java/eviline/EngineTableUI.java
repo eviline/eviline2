@@ -6,6 +6,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JFrame;
 
+import org.eviline.core.Command;
 import org.eviline.core.Configuration;
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
@@ -17,26 +18,29 @@ public class EngineTableUI {
 
 	public static void main(String[] args) {
 		final JFrame frame = new JFrame("test");
-		
+
 		Field f = new Field();
 		final Engine engine = new Engine(f, new Configuration());
 		final AIPlayer ai = new AIPlayer(engine);
 		final EngineTable table = new EngineTable(engine);
 		frame.add(table);
-		
+
 		final Runnable task = new Runnable() {
 			private int drawn = 0;
 			@Override
 			public void run() {
-				engine.tick(ai.tick());
-				if(engine.getShape() == null) {
-					if(drawn == 0) {
-						((EngineTableModel) table.getModel()).fireTableDataChanged();
-						frame.setTitle("" + engine.getLines());
-						drawn = 10;
-					} else
-						drawn--;
-				}
+				ai.tick();
+				engine.setShape(ai.getDest());
+				engine.tick(Command.SHIFT_DOWN);
+				ai.getCommands().clear();
+				while(engine.getShape() == null)
+					engine.tick(Command.NOP);
+				if(drawn == 0) {
+					((EngineTableModel) table.getModel()).fireTableDataChanged();
+					frame.setTitle("" + engine.getLines());
+					drawn = 10;
+				} else
+					drawn--;
 				if(!engine.isOver())
 					EventQueue.invokeLater(this);
 				else {
@@ -45,7 +49,7 @@ public class EngineTableUI {
 				}
 			}
 		};
-		
+
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -55,11 +59,11 @@ public class EngineTableUI {
 				EventQueue.invokeLater(task);
 			}
 		});
-		
+
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-		
+
 		EventQueue.invokeLater(task);
 	}
 
