@@ -33,14 +33,14 @@ public class EngineTableUI {
 				engine.setShape(ai.getDest());
 				engine.tick(Command.SHIFT_DOWN);
 				ai.getCommands().clear();
-				while(engine.getShape() == null)
-					engine.tick(Command.NOP);
 				if(drawn == 0) {
 					((EngineTableModel) table.getModel()).fireTableDataChanged();
 					frame.setTitle("" + engine.getLines());
 					drawn = 10;
 				} else
 					drawn--;
+				while(engine.getShape() == null && !engine.isOver())
+					engine.tick(Command.NOP);
 				if(!engine.isOver())
 					EventQueue.invokeLater(this);
 				else {
