@@ -10,7 +10,7 @@ public class DefaultAIKernel implements AIKernel {
 	protected Fitness fitness = new DefaultFitness();
 	
 	@Override
-	public Vertex bestPlacement(Field field, XYShape current) {
+	public Vertex bestPlacement(Field field, XYShape current, ShapeType[] next) {
 		CommandGraph g = new CommandGraph(field, current);
 		double badness = Double.POSITIVE_INFINITY;
 		
@@ -21,7 +21,7 @@ public class DefaultAIKernel implements AIKernel {
 				continue;
 			Field after = field.clone();
 			after.blit(shape);
-			double shapeBadness = fitness.badness(field, after);
+			double shapeBadness = fitness.badness(field, after, next);
 			if(shapeBadness < badness) {
 				best = g.getVertices().get(shape);
 				badness = shapeBadness;
@@ -32,15 +32,17 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	@Override
-	public ShapeType worstNext(Field field) {
+	public ShapeType worstNext(Field field, ShapeType[] next) {
 		ShapeType worst = null;
 		double badness = Double.NEGATIVE_INFINITY;
 		
+		// FIXME: This totally ignores the 'next' argument
+		
 		for(ShapeType type : ShapeType.values()) {
 			Field after = field.clone();
-			Vertex best = bestPlacement(field, new XYShape(type.up(), type.startX(), type.startY()));
+			Vertex best = bestPlacement(field, new XYShape(type.up(), type.startX(), type.startY()), next);
 			after.blit(best.shape);
-			double typeBadness = fitness.badness(field, after);
+			double typeBadness = fitness.badness(field, after, next);
 			if(typeBadness > badness) {
 				worst = type;
 				badness = typeBadness;

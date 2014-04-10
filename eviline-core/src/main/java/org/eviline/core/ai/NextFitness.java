@@ -3,14 +3,27 @@ package org.eviline.core.ai;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
 
-public class DefaultFitness implements Fitness {
-
+public class NextFitness implements Fitness {
 	protected double[] c = new double[] {
-			0.4336283987124731, 0.36005330744432673, 6.98229343443467, 9.862352551247495, -0.02320808076007677
+			// first row, no lookahead
+			-0.04981645059901735, 0.3741389478656609, 4.420258842311678, 9.064838762028263, -0.17897122888422823,
+			// subsequent rows, one row per ShapeType ordinal
+			-0.04981645059901735, 0.3741389478656609, 4.420258842311678, 9.064838762028263, -0.17897122888422823,
+			-0.04981645059901735, 0.3741389478656609, 4.420258842311678, 9.064838762028263, -0.17897122888422823,
+			-0.04981645059901735, 0.3741389478656609, 4.420258842311678, 9.064838762028263, -0.17897122888422823,
+			-0.04981645059901735, 0.3741389478656609, 4.420258842311678, 9.064838762028263, -0.17897122888422823,
+			-0.04981645059901735, 0.3741389478656609, 4.420258842311678, 9.064838762028263, -0.17897122888422823,
+			-0.04981645059901735, 0.3741389478656609, 4.420258842311678, 9.064838762028263, -0.17897122888422823,
+			-0.04981645059901735, 0.3741389478656609, 4.420258842311678, 9.064838762028263, -0.17897122888422823,
 	};
 	
 	@Override
 	public double badness(Field before, Field after, ShapeType[] next) {
+		int off = 0;
+		if(next.length > 0 && next[0] != null) {
+			off = 5 + 5 * next[0].ordinal();
+		}
+		
 		after = after.clone();
 		after.clearLines();
 		
@@ -65,11 +78,11 @@ public class DefaultFitness implements Fitness {
 		}
 		
 		return 
-				c[0] * (blocksAfter - blocksBefore) 
-				+ c[1] * ((vtxAfter * htxAfter) - (vtxBefore * htxBefore))
-				+ c[2] * (mhAfter - mhBefore)
-				+ c[3] * (holesAfter-holesBefore)
-				+ c[4] * (pitsAfter - pitsBefore)
+				c[off + 0] * (blocksAfter - blocksBefore) 
+				+ c[off + 1] * ((vtxAfter * htxAfter) - (vtxBefore * htxBefore))
+				+ c[off + 2] * (mhAfter - mhBefore)
+				+ c[off + 3] * (holesAfter-holesBefore)
+				+ c[off + 4] * (pitsAfter - pitsBefore)
 				;
 	}
 

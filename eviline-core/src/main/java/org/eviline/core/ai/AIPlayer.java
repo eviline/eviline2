@@ -33,7 +33,7 @@ public class AIPlayer {
 		if(commands.size() == 0) {
 			if(engine.getShape() == null)
 				return Command.NOP;
-			Vertex v = ai.bestPlacement(engine.getField(), engine.getShape());
+			Vertex v = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext());
 			dest = v.shape;
 			while(v.command != null) {
 				commands.offerFirst(v.command);

@@ -1,5 +1,7 @@
 package org.eviline.core;
 
+import java.util.Arrays;
+
 public class Engine {
 	protected Configuration conf;
 	protected Field field;
@@ -11,7 +13,7 @@ public class Engine {
 	protected XYShape shape;
 	protected Integer downFramesRemaining;
 	protected Integer respawnFramesRemaining;
-	
+	protected ShapeType[] next = new ShapeType[1];
 	
 	public Engine() {
 		this(new Field(), new Configuration());
@@ -33,6 +35,7 @@ public class Engine {
 		downFramesRemaining = conf.downFramesRemaining(this);
 		respawnFramesRemaining = conf.respawnFramesRemaining(this);
 		over = false;
+		Arrays.fill(next, null);
 	}
 	
 	public Block block(int x, int y) {
@@ -42,6 +45,13 @@ public class Engine {
 		if(shape.has(x, y))
 			return shape.block();
 		return null;
+	}
+	
+	protected ShapeType enqueue(ShapeType type) {
+		ShapeType ret = next[0];
+		System.arraycopy(next, 1, next, 0, next.length - 1);
+		next[next.length - 1] = type;
+		return ret;
 	}
 	
 	public boolean tick(Command c) {
@@ -194,7 +204,9 @@ public class Engine {
 			}
 			if(respawnFramesRemaining != null) {
 				if(respawnFramesRemaining <= 0) {
-					ShapeType next = shapes.next(this);
+					ShapeType next = enqueue(shapes.next(this));
+					while(next == null)
+						next = enqueue(shapes.next(this));
 					shape = new XYShape(next.up(), next.startX(), next.startY());
 					respawnFramesRemaining = null;
 					if(field.intersects(shape)) {
@@ -227,6 +239,10 @@ public class Engine {
 	
 	public void setShape(XYShape shape) {
 		this.shape = shape;
+	}
+	
+	public ShapeType[] getNext() {
+		return next;
 	}
 	
 }
