@@ -10,7 +10,10 @@ import org.eviline.core.Command;
 import org.eviline.core.Configuration;
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
+import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.AIPlayer;
+import org.eviline.core.ai.DefaultAIKernel;
+import org.eviline.core.ai.NextFitness;
 import org.eviline.swing.EngineTable;
 import org.eviline.swing.EngineTableModel;
 
@@ -21,7 +24,8 @@ public class EngineTableUI {
 
 		Field f = new Field();
 		final Engine engine = new Engine(f, new Configuration());
-		final AIPlayer ai = new AIPlayer(engine);
+		final AIKernel k = new DefaultAIKernel(new NextFitness());
+		final AIPlayer ai = new AIPlayer(k, engine);
 		final EngineTable table = new EngineTable(engine);
 		frame.add(table);
 

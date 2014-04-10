@@ -9,6 +9,12 @@ public class DefaultAIKernel implements AIKernel {
 
 	protected Fitness fitness = new DefaultFitness();
 	
+	public DefaultAIKernel() {}
+	
+	public DefaultAIKernel(Fitness fitness) {
+		this.fitness = fitness;
+	}
+	
 	@Override
 	public Vertex bestPlacement(Field field, XYShape current, ShapeType[] next) {
 		CommandGraph g = new CommandGraph(field, current);
