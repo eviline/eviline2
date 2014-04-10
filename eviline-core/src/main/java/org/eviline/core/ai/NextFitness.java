@@ -3,7 +3,7 @@ package org.eviline.core.ai;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
 
-public class NextFitness implements Fitness {
+public class NextFitness implements CoefficientFitness {
 	protected double[] c = new double[] {
 			// first row, no lookahead
 			-0.04981645059901735, 0.3741389478656609, 4.420258842311678, 9.064838762028263, -0.17897122888422823,
