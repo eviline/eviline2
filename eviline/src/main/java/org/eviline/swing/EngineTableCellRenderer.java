@@ -8,6 +8,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.eviline.core.Block;
+import org.eviline.core.Field;
 
 public class EngineTableCellRenderer extends DefaultTableCellRenderer {
 	protected ShapeTypeColor color = new ShapeTypeColor();
@@ -30,6 +31,11 @@ public class EngineTableCellRenderer extends DefaultTableCellRenderer {
 		else
 			c.setBackground(color.get(((Block) value).shape().type()));
 			
+		if(row < Field.BUFFER) {
+			Color cl = c.getBackground();
+			cl = new Color(Math.min(255, cl.getRed() + 128), Math.min(255, cl.getGreen() + 128), Math.min(255, cl.getBlue() + 128));
+			c.setBackground(cl);
+		}
 		
 		return c;
 	}

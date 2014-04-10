@@ -15,7 +15,7 @@ public class EngineTableModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return Field.HEIGHT;
+		return Field.HEIGHT + Field.BUFFER;
 	}
 
 	@Override
@@ -25,7 +25,7 @@ public class EngineTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		return engine.block(columnIndex, rowIndex);
+		return engine.block(columnIndex, rowIndex - Field.BUFFER);
 	}
 
 }
