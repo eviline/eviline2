@@ -207,7 +207,7 @@ public class Engine {
 					ShapeType next = enqueue(shapes.next(this));
 					while(next == null)
 						next = enqueue(shapes.next(this));
-					shape = new XYShape(next.up(), next.startX(), next.startY());
+					shape = new XYShape(next.start(), next.startX(), next.startY());
 					respawnFramesRemaining = null;
 					if(field.intersects(shape)) {
 						over = true;
