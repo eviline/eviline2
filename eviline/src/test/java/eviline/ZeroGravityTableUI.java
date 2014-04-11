@@ -1,6 +1,5 @@
 package eviline;
 
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -13,10 +12,6 @@ import org.eviline.core.Command;
 import org.eviline.core.Configuration;
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
-import org.eviline.core.ai.AIKernel;
-import org.eviline.core.ai.AIPlayer;
-import org.eviline.core.ai.DefaultAIKernel;
-import org.eviline.core.ai.NextFitness;
 import org.eviline.core.ai.Player;
 import org.eviline.swing.EngineTable;
 import org.eviline.swing.EngineTableModel;

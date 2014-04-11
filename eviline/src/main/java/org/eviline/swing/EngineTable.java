@@ -5,8 +5,6 @@ import java.util.Collections;
 
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
-
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
 
