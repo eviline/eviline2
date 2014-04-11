@@ -2,6 +2,7 @@ package org.eviline.core;
 
 import java.util.Arrays;
 
+
 public class Engine {
 	protected Configuration conf;
 	protected Field field;
@@ -11,6 +12,7 @@ public class Engine {
 	protected boolean over;
 	
 	protected XYShape shape;
+	protected XYShape ghost;
 	protected Integer downFramesRemaining;
 	protected Integer respawnFramesRemaining;
 	protected ShapeType[] next = new ShapeType[1];
@@ -218,6 +220,17 @@ public class Engine {
 			}
 		}
 		
+		if(shape == null)
+			ghost = null;
+		else {
+			ghost = new XYShape(shape.shape(), shape.x(), shape.y());
+			if(!field.intersects(ghost)) {
+				while(!field.intersects(ghost))
+					ghost.setY(ghost.y() + 1);
+				ghost.setY(ghost.y() - 1);
+			}
+		}
+		
 		return success;
 	}
 
@@ -235,6 +248,10 @@ public class Engine {
 
 	public XYShape getShape() {
 		return shape;
+	}
+	
+	public XYShape getGhost() {
+		return ghost;
 	}
 	
 	public void setShape(XYShape shape) {
