@@ -38,13 +38,13 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	@Override
-	public ShapeType worstNext(Field field, ShapeType[] next) {
+	public ShapeType worstNext(Field field, ShapeType[] options, ShapeType[] next) {
 		ShapeType worst = null;
 		double badness = Double.NEGATIVE_INFINITY;
 		
 		// FIXME: This totally ignores the 'next' argument
 		
-		for(ShapeType type : ShapeType.values()) {
+		for(ShapeType type : options) {
 			Field after = field.clone();
 			Vertex best = bestPlacement(field, new XYShape(type.start(), type.startX(), type.startY()), next);
 			after.blit(best.shape);

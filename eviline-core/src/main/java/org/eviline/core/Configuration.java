@@ -1,6 +1,6 @@
 package org.eviline.core;
 
-import org.eviline.core.ss.BagShapeSource;
+import org.eviline.core.ss.Bag7NShapeSource;
 
 public class Configuration {
 	protected EngineFactory<Integer> downFramesRemaining = new EngineFactory<Integer>() {
@@ -15,7 +15,7 @@ public class Configuration {
 			return 10;
 		}
 	};
-	protected EngineFactory<ShapeSource> shapes = BagShapeSource.FACTORY;
+	protected EngineFactory<ShapeSource> shapes = Bag7NShapeSource.FACTORY;
 	
 	public Integer respawnFramesRemaining(Engine e) {
 		return respawnFramesRemaining.newInstance(e);
