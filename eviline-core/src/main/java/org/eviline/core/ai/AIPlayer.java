@@ -8,7 +8,7 @@ import org.eviline.core.Engine;
 import org.eviline.core.XYShape;
 import org.eviline.core.ai.CommandGraph.Vertex;
 
-public class AIPlayer {
+public class AIPlayer implements Player {
 	protected AIKernel ai;
 	protected Engine engine;
 	
