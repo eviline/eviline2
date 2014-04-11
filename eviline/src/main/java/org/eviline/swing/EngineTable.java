@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
@@ -23,5 +24,10 @@ public class EngineTable extends JTable {
 		for(TableColumn c : Collections.list(getColumnModel().getColumns()))
 			c.setPreferredWidth(10);
 		setDefaultRenderer(Object.class, new EngineTableCellRenderer());
+	}
+	
+	@Override
+	public EngineTableModel getModel() {
+		return (EngineTableModel) super.getModel();
 	}
 }

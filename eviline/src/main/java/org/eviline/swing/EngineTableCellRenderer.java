@@ -36,12 +36,14 @@ public class EngineTableCellRenderer extends DefaultTableCellRenderer {
 		
 		if(row < Field.BUFFER || ghost) {
 			Color cl = c.getBackground();
+			Color ocl = cl;
 			if(ghost)
 				cl = Color.BLACK;
 			cl = new Color(Math.min(255, cl.getRed() + 128), Math.min(255, cl.getGreen() + 128), Math.min(255, cl.getBlue() + 128));
 			c.setBackground(cl);
-			if(ghost)
-				c.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+			if(value != null)
+				c.setBorder(BorderFactory.createLineBorder(ghost ? Color.WHITE : ocl));
+			
 		}
 		
 		return c;

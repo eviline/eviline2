@@ -39,6 +39,7 @@ public class ZeroGravityTableUI {
 			}
 		});
 		final EngineTable table = new EngineTable(engine);
+		table.getModel().setGhosting(true);
 		frame.add(table);
 
 		final Player pl = new SwingPlayer(table);
