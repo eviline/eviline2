@@ -1,5 +1,7 @@
 package org.eviline.swing;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayDeque;
@@ -10,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComponent;
+import javax.swing.Timer;
 
 import org.eviline.core.Command;
 import org.eviline.core.ai.Player;
@@ -19,14 +22,20 @@ public class SwingPlayer implements Player {
 	public static class Key {
 		private int keyCode;
 		private int keyMods;
+		private int keyHold;
 		
 		public Key(int keyCode) {
-			this(keyCode, 0);
+			this(keyCode, 0, 0);
 		}
 		
 		public Key(int keyCode, int keyMods) {
+			this(keyCode, keyMods, 0);
+		}
+		
+		public Key(int keyCode, int keyMods, int keyHold) {
 			this.keyCode = keyCode;
 			this.keyMods = keyMods;
+			this.keyHold = keyHold;
 		}
 		
 		public int getKeyCode() {
@@ -35,6 +44,10 @@ public class SwingPlayer implements Player {
 		
 		public int getKeyMods() {
 			return keyMods;
+		}
+		
+		public int getKeyHold() {
+			return keyHold;
 		}
 		
 		@Override
@@ -62,10 +75,34 @@ public class SwingPlayer implements Player {
 	
 	protected class ControlsKeyListener extends KeyAdapter {
 		protected Set<Integer> down = new HashSet<>();
+		protected Map<Integer, Timer> holdTimers = new HashMap<>();
+		
+		public ControlsKeyListener() {
+			for(final Key key : controls.keySet()) {
+				final Command cmd = controls.get(key);
+				if(key.getKeyHold() > 0) {
+					Timer holdTimer = new Timer(key.getKeyHold(), new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							synchronized(commands) {
+								commands.offerLast(cmd);
+							}
+							down.remove(key.getKeyCode());
+							
+						}
+					});
+					holdTimer.setRepeats(false);
+					holdTimers.put(key.getKeyCode(), holdTimer);
+				}
+			}
+		}
 		
 		@Override
 		public void keyPressed(KeyEvent e) {
 			down.add(e.getKeyCode());
+			Timer holdTimer = holdTimers.get(e.getKeyCode());
+			if(holdTimer != null)
+				holdTimer.restart();
 		}
 		
 		@Override
@@ -80,6 +117,9 @@ public class SwingPlayer implements Player {
 				}
 				controlTarget.requestFocus();
 			}
+			Timer holdTimer = holdTimers.get(e.getKeyCode());
+			if(holdTimer != null)
+				holdTimer.stop();
 		}
 	}
 	
@@ -96,9 +136,9 @@ public class SwingPlayer implements Player {
 		controls.put(new Key(KeyEvent.VK_RIGHT), Command.SHIFT_RIGHT);
 		controls.put(new Key(KeyEvent.VK_DOWN), Command.SHIFT_DOWN);
 		controls.put(new Key(KeyEvent.VK_UP), Command.HARD_DROP);
-		controls.put(new Key(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK), Command.AUTOSHIFT_LEFT);
-		controls.put(new Key(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK), Command.AUTOSHIFT_RIGHT);
-		controls.put(new Key(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK), Command.SOFT_DROP);
+		controls.put(new Key(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK, 150), Command.AUTOSHIFT_LEFT);
+		controls.put(new Key(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK, 150), Command.AUTOSHIFT_RIGHT);
+		controls.put(new Key(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK, 150), Command.SOFT_DROP);
 	}
 
 	@Override
