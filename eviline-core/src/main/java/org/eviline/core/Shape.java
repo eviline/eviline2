@@ -139,11 +139,14 @@ public enum Shape {
 	
 	private ShapeType type;
 	private long mask;
+	private int overY;
 	
 	private Shape(ShapeType type, long... rowMasks) {
 		this.type = type;
-		for(int i = 0; i < rowMasks.length; i++)
+		for(int i = 0; i < rowMasks.length; i++) {
 			mask |= (rowMasks[i] << (12 + i * 16));
+			overY--;
+		}
 	}
 	
 	public ShapeType type() {
@@ -160,6 +163,10 @@ public enum Shape {
 	
 	public long mask(int x) {
 		return mask >> (Field.BUFFER + x);
+	}
+	
+	public int overY() {
+		return overY;
 	}
 	
 	public Shape rotatedRight() {
