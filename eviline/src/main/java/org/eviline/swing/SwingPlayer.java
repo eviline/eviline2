@@ -70,6 +70,7 @@ public class SwingPlayer implements Player {
 	}
 	
 	protected Map<Key, Command> controls = new HashMap<>();
+	protected Map<Key, Command> held = new HashMap<>();
 	protected JComponent controlTarget;
 	protected Deque<Command> commands = new ArrayDeque<>();
 	
@@ -86,6 +87,7 @@ public class SwingPlayer implements Player {
 						public void actionPerformed(ActionEvent e) {
 							synchronized(commands) {
 								commands.offerLast(cmd);
+								held.put(new Key(key.getKeyCode()), cmd);
 							}
 							down.remove(key.getKeyCode());
 							
@@ -108,8 +110,8 @@ public class SwingPlayer implements Player {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			boolean fire = down.remove(e.getKeyCode());
+			Key key = new Key(e.getKeyCode(), e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK);
 			if(fire) {
-				Key key = new Key(e.getKeyCode(), e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK);
 				if(controls.containsKey(key)) {
 					synchronized(commands) {
 						commands.offerLast(controls.get(key));
@@ -120,6 +122,7 @@ public class SwingPlayer implements Player {
 			Timer holdTimer = holdTimers.get(e.getKeyCode());
 			if(holdTimer != null)
 				holdTimer.stop();
+			held.remove(key);
 		}
 	}
 	
@@ -147,6 +150,8 @@ public class SwingPlayer implements Player {
 		synchronized(commands) {
 			c = commands.pollFirst();
 		}
+		if(c == null && held.size() > 0)
+			c = held.values().iterator().next();
 		if(c == null)
 			c = Command.NOP;
 		return c;
