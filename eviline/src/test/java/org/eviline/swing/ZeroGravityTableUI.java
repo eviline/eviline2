@@ -33,15 +33,9 @@ import org.eviline.swing.SwingPlayer;
 public class ZeroGravityTableUI {
 
 	public static void main(String[] args) throws Exception {
-		final FontUIResource font = new FontUIResource(
-				Font.createFont(
-						Font.TRUETYPE_FONT, 
-						EngineTableUI.class.getResourceAsStream("Minecrafter_3.ttf")).deriveFont(32f));
-
-		UIManager.put("Label.font", font);
-		
 		final JFrame frame = new JFrame("test");
-
+		frame.getContentPane().setBackground(Color.BLACK);
+		
 		Field f = new Field();
 		final Engine engine = new Engine(f, new Configuration() {
 			@Override
@@ -57,15 +51,14 @@ public class ZeroGravityTableUI {
 				return EvilBag7NShapeSource.FACTORY.newInstance(e);
 			}
 		});
-		final EngineTable table = new EngineTable(engine, 32);
+		final EngineTable table = new EngineTable(engine, 16);
 		table.getModel().setGhosting(true);
 		frame.add(table, BorderLayout.CENTER);
 		JLabel ll;
 		frame.add(ll = new JLabel("eviline2"), BorderLayout.NORTH);
 		ll.setHorizontalAlignment(SwingConstants.CENTER);
-		ll.setBackground(Color.BLACK);
 		ll.setForeground(Color.WHITE);
-		ll.setOpaque(true);
+		ll.setFont(Fonts.getMinecrafter().deriveFont(18f));
 		
 		final Player pl = new SwingPlayer(table);
 
