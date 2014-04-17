@@ -39,7 +39,7 @@ public class ZeroGravityTableUI {
 				return EvilBag7NShapeSource.FACTORY.newInstance(e);
 			}
 		});
-		final EngineTable table = new EngineTable(engine);
+		final EngineTable table = new EngineTable(engine, 16);
 		table.getModel().setGhosting(true);
 		frame.add(table);
 

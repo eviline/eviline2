@@ -26,7 +26,7 @@ public class EngineTableUI {
 		final Engine engine = new Engine(f, new Configuration());
 		final AIKernel k = new DefaultAIKernel(new NextFitness());
 		final AIPlayer ai = new AIPlayer(k, engine);
-		final EngineTable table = new EngineTable(engine);
+		final EngineTable table = new EngineTable(engine, 16);
 		frame.add(table);
 
 		final Runnable task = new Runnable() {
