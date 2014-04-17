@@ -15,8 +15,12 @@ import org.eviline.core.Engine;
 import org.eviline.core.EngineListener;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
+import org.eviline.core.ai.DefaultFitness;
+import org.eviline.core.ai.Fitness;
 
 public class StatisticsTable extends JTable implements EngineListener {
+	
+	protected Fitness fit = new DefaultFitness();
 	
 	public StatisticsTable(Engine engine, int blockSize) {
 		super(new StatisticsTableModel());
@@ -49,6 +53,15 @@ public class StatisticsTable extends JTable implements EngineListener {
 		m.clear();
 		m.write(0, 0, "lines");
 		m.write(0, 1, "" + e.getLines());
+		
+		m.write(0, 2, "badness");
+		if(e.getGhost() != null) {
+			Field after = e.getField().clone();
+			after.blit(e.getGhost());
+			m.write(0, 3, "" + (int) fit.badness(e.getField(), after, e.getNext()));
+		}
+		
 		m.fireTableDataChanged();
+		
 	}
 }
