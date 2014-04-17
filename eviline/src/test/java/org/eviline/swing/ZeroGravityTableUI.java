@@ -2,7 +2,9 @@ package org.eviline.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -10,6 +12,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UIDefaults;
@@ -51,9 +54,17 @@ public class ZeroGravityTableUI {
 				return EvilBag7NShapeSource.FACTORY.newInstance(e);
 			}
 		});
+		JPanel tables = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		tables.setBackground(Color.BLACK);
+		
 		final EngineTable table = new EngineTable(engine, 16);
 		table.getModel().setGhosting(true);
-		frame.add(table, BorderLayout.CENTER);
+		tables.add(table);
+
+		StatisticsTable stats = new StatisticsTable(engine, 16);
+		tables.add(stats);
+		
+		frame.add(tables, BorderLayout.CENTER);
 		JLabel ll;
 		frame.add(ll = new JLabel("eviline2"), BorderLayout.NORTH);
 		ll.setHorizontalAlignment(SwingConstants.CENTER);
