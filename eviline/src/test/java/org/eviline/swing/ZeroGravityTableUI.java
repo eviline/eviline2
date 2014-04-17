@@ -1,12 +1,23 @@
-package eviline;
+package org.eviline.swing;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
+import javax.swing.plaf.metal.DefaultMetalTheme;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.metal.MetalTheme;
 
 import org.eviline.core.Command;
 import org.eviline.core.Configuration;
@@ -21,7 +32,14 @@ import org.eviline.swing.SwingPlayer;
 
 public class ZeroGravityTableUI {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
+		final FontUIResource font = new FontUIResource(
+				Font.createFont(
+						Font.TRUETYPE_FONT, 
+						EngineTableUI.class.getResourceAsStream("Minecrafter_3.ttf")).deriveFont(32f));
+
+		UIManager.put("Label.font", font);
+		
 		final JFrame frame = new JFrame("test");
 
 		Field f = new Field();
@@ -39,10 +57,16 @@ public class ZeroGravityTableUI {
 				return EvilBag7NShapeSource.FACTORY.newInstance(e);
 			}
 		});
-		final EngineTable table = new EngineTable(engine, 16);
+		final EngineTable table = new EngineTable(engine, 32);
 		table.getModel().setGhosting(true);
-		frame.add(table);
-
+		frame.add(table, BorderLayout.CENTER);
+		JLabel ll;
+		frame.add(ll = new JLabel("eviline2"), BorderLayout.NORTH);
+		ll.setHorizontalAlignment(SwingConstants.CENTER);
+		ll.setBackground(Color.BLACK);
+		ll.setForeground(Color.WHITE);
+		ll.setOpaque(true);
+		
 		final Player pl = new SwingPlayer(table);
 
 		Timer ticker = new Timer(1000 / 60, new ActionListener() {

@@ -1,10 +1,12 @@
-package eviline;
+package org.eviline.swing;
 
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JFrame;
+import javax.swing.UIManager;
 
 import org.eviline.core.Command;
 import org.eviline.core.Configuration;
@@ -19,7 +21,7 @@ import org.eviline.swing.EngineTableModel;
 
 public class EngineTableUI {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		final JFrame frame = new JFrame("test");
 
 		Field f = new Field();
