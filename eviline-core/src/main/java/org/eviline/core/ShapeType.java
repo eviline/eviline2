@@ -10,8 +10,8 @@ public enum ShapeType {
 		switch(this) {
 		case S: return S_UP;
 		case Z: return Z_UP;
-		case J: return J_RIGHT;
-		case L: return L_LEFT;
+		case J: return J_UP;
+		case L: return L_UP;
 		case T: return T_UP;
 		case I: return I_UP;
 		case O: return O_UP;
