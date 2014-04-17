@@ -12,6 +12,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.eviline.core.Block;
 import org.eviline.core.Field;
+import org.eviline.swing.StatisticsTableModel.ColoredCharacter;
 
 public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 	@Override
@@ -24,14 +25,16 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 			int column) {
 		JLabel c = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		
+		ColoredCharacter cc = (ColoredCharacter) value;
+		
 		c.setBorder(null);
 		c.setIcon(null);
 
 		c.setBackground(new Color(0,0,0,0));
-		c.setForeground(Color.WHITE);
 		c.setFont(Fonts.getMinecrafter().deriveFont(10f));
 		
-		c.setText(value != null ? value.toString() : null);
+		c.setText(cc.c != null ? cc.c.toString() : null);
+		c.setForeground(cc.color != null ? cc.color : Color.WHITE);
 
 		return c;
 	}

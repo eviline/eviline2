@@ -51,15 +51,16 @@ public class StatisticsTable extends JTable implements EngineListener {
 	public void ticked(Engine e, Command c) {
 		StatisticsTableModel m = getModel();
 		m.clear();
-		m.write(0, 0, "lines");
-		m.write(0, 1, "" + e.getLines());
+		m.write("lines\n");
+		m.write(e.getLines() + "\n", Color.CYAN);
 		
-		m.write(0, 2, "badness");
+		m.write("badness\n");
 		if(e.getGhost() != null) {
 			Field after = e.getField().clone();
 			after.blit(e.getGhost());
-			m.write(0, 3, "" + (int) fit.badness(e.getField(), after, e.getNext()));
-		}
+			m.write(((int) fit.badness(e.getField(), after, e.getNext())) + "\n", Color.CYAN);
+		} else
+			m.write("N/A\n");
 		
 		m.fireTableDataChanged();
 		
