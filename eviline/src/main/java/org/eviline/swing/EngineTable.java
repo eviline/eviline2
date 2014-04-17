@@ -44,6 +44,8 @@ public class EngineTable extends JTable {
 		for(TableColumn c : Collections.list(getColumnModel().getColumns()))
 			c.setPreferredWidth(blockSize);
 		setDefaultRenderer(Object.class, new EngineTableCellRenderer(blockSize));
+		
+		setOpaque(false);
 	}
 	
 	@Override
@@ -53,8 +55,8 @@ public class EngineTable extends JTable {
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-		g.setColor(Color.BLACK);;
-		g.fillRect(0, 0, getWidth(), getHeight());
+//		g.setColor(Color.BLACK);;
+//		g.fillRect(0, 0, getWidth(), getHeight());
 		if(engine.getNext().length > 0) {
 			ShapeType next = engine.getNext()[0];
 			if(next != null) {
