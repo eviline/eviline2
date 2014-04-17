@@ -4,7 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -37,7 +41,19 @@ public class ZeroGravityTableUI {
 
 	public static void main(String[] args) throws Exception {
 		final JFrame frame = new JFrame("test");
-		frame.getContentPane().setBackground(Color.BLACK);
+		
+		JPanel contentPane = new JPanel(new BorderLayout()) {
+			@Override
+			protected void paintComponent(Graphics g) {
+				g.drawImage(
+						Resources.getStork(),
+						0, 0,
+						getWidth(), getHeight(),
+						null);
+			}
+		};
+		
+		frame.setContentPane(contentPane);
 		
 		Field f = new Field();
 		final Engine engine = new Engine(f, new Configuration() {
@@ -54,22 +70,22 @@ public class ZeroGravityTableUI {
 				return EvilBag7NShapeSource.FACTORY.newInstance(e);
 			}
 		});
-		JPanel tables = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		tables.setBackground(Color.BLACK);
+		JPanel tables = new JPanel(new GridBagLayout());
+		tables.setOpaque(false);
 		
 		final EngineTable table = new EngineTable(engine, 16);
 		table.getModel().setGhosting(true);
-		tables.add(table);
+		tables.add(table, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
 
 		StatisticsTable stats = new StatisticsTable(engine, 16);
-		tables.add(stats);
+		tables.add(stats, new GridBagConstraints(1, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0));
 		
 		frame.add(tables, BorderLayout.CENTER);
 		JLabel ll;
 		frame.add(ll = new JLabel("eviline2"), BorderLayout.NORTH);
 		ll.setHorizontalAlignment(SwingConstants.CENTER);
 		ll.setForeground(Color.WHITE);
-		ll.setFont(Fonts.getMinecrafter().deriveFont(18f));
+		ll.setFont(Resources.getMinecrafter().deriveFont(36f));
 		
 		final Player pl = new SwingPlayer(table);
 

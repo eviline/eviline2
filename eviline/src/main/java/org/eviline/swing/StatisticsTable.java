@@ -27,8 +27,6 @@ public class StatisticsTable extends JTable implements EngineListener {
 		
 		engine.addEngineListener(this);
 		
-		setBackground(Color.BLACK);
-		
 		setCellSelectionEnabled(false);
 		setRowSelectionAllowed(false);
 		setColumnSelectionAllowed(false);
@@ -38,6 +36,8 @@ public class StatisticsTable extends JTable implements EngineListener {
 		for(TableColumn c : Collections.list(getColumnModel().getColumns()))
 			c.setPreferredWidth(blockSize);
 		setDefaultRenderer(Object.class, new StatisticsTableCellRenderer());
+		
+		setOpaque(false);
 		
 		ticked(engine, Command.NOP);
 	}

@@ -25,13 +25,14 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 			int column) {
 		JLabel c = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		
+		
 		ColoredCharacter cc = (ColoredCharacter) value;
 		
+		c.setOpaque(false);
 		c.setBorder(null);
 		c.setIcon(null);
 
-		c.setBackground(new Color(0,0,0,0));
-		c.setFont(Fonts.getMinecrafter().deriveFont(10f));
+		c.setFont(Resources.getMinecrafter().deriveFont(10f));
 		
 		c.setText(cc.c != null ? cc.c.toString() : null);
 		c.setForeground(cc.color != null ? cc.color : Color.WHITE);
