@@ -1,6 +1,8 @@
 package org.eviline.core;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 public class Engine {
@@ -17,6 +19,8 @@ public class Engine {
 	protected Integer downFramesRemaining;
 	protected Integer respawnFramesRemaining;
 	protected ShapeType[] next = new ShapeType[1];
+	
+	protected EngineListener[] listeners = null;
 	
 	public Engine() {
 		this(new Field(), new Configuration());
@@ -235,7 +239,32 @@ public class Engine {
 		
 		tickCount++;
 		
+		if(listeners != null) {
+			for(EngineListener l : listeners)
+				l.ticked(this, c);
+		}
+		
 		return success;
+	}
+	
+	public void addEngineListener(EngineListener l) {
+		if(listeners == null) {
+			listeners = new EngineListener[] {l};
+			return;
+		}
+		listeners = Arrays.copyOf(listeners, listeners.length + 1);
+		listeners[listeners.length - 1] = l;
+	}
+	
+	public void removeEngineListener(EngineListener l) {
+		if(listeners == null)
+			return;
+		List<EngineListener> ll = new ArrayList<>(Arrays.asList(listeners));
+		ll.remove(l);
+		if(ll.size() == 0)
+			listeners = null;
+		else
+			listeners = ll.toArray(new EngineListener[ll.size()]);
 	}
 
 	public Field getField() {
