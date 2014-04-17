@@ -10,6 +10,7 @@ public class Engine {
 	protected ShapeSource shapes;
 	protected int lines;
 	protected boolean over;
+	protected long tickCount;
 	
 	protected XYShape shape;
 	protected XYShape ghost;
@@ -33,6 +34,7 @@ public class Engine {
 		field.reset();
 		shape = null;
 		lines = 0;
+		tickCount = 0;
 		shapes = conf.shapes(this);
 		downFramesRemaining = conf.downFramesRemaining(this);
 		respawnFramesRemaining = conf.respawnFramesRemaining(this);
@@ -231,6 +233,8 @@ public class Engine {
 			}
 		}
 		
+		tickCount++;
+		
 		return success;
 	}
 
@@ -262,4 +266,7 @@ public class Engine {
 		return next;
 	}
 	
+	public long getTickCount() {
+		return tickCount;
+	}
 }
