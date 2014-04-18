@@ -73,12 +73,12 @@ public class ZeroGravityTableUI {
 		JPanel tables = new JPanel(new GridBagLayout());
 		tables.setOpaque(false);
 		
-		final EngineTable table = new EngineTable(engine, 16);
+		final EngineTable table = new EngineTable(engine, 24);
 		table.getModel().setGhosting(true);
-		tables.add(table, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
+		tables.add(table, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
 
-		StatisticsTable stats = new StatisticsTable(engine, 16);
-		tables.add(stats, new GridBagConstraints(1, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0));
+		StatisticsTable stats = new StatisticsTable(engine, 24);
+		tables.add(stats, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0));
 		
 		frame.add(tables, BorderLayout.CENTER);
 		JLabel ll;

@@ -43,7 +43,7 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 		public OutlineLabel() {
 			setOpaque(false);;
 			setBorder(null);
-			setFont(Resources.getMinecrafter().deriveFont(10f));
+			setFont(Resources.getMinecrafter().deriveFont(16f));
 		}
 		
 		public void set(JLabel c) {

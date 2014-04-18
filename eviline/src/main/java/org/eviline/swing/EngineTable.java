@@ -67,7 +67,7 @@ public class EngineTable extends JTable {
 			for(int y = 0; y < getHeight(); y++) {
 				long s = engine.getTickCount() - y*8/blockSize;
 				int w = (int)(15 * (1 + Math.sin(blockSize * s / 144.)));
-				g.setColor(new Color(w, w, w, 192));
+				g.setColor(new Color(w, w, w, 164));
 				g.fillRect(x, y, 1, 1);
 			}
 		}
