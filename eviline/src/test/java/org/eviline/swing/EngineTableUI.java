@@ -42,7 +42,7 @@ public class EngineTableUI {
 				if(drawn == 0) {
 					((EngineTableModel) table.getModel()).fireTableDataChanged();
 					frame.setTitle("" + engine.getLines());
-					drawn = 10;
+					drawn = 0;
 				} else
 					drawn--;
 				while(engine.getShape() == null && !engine.isOver())
