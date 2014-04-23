@@ -82,8 +82,11 @@ public class ZeroGravityTableUI {
 		JPanel tables = new JPanel(new GridBagLayout());
 		tables.setOpaque(false);
 		
-		final EngineTable table = new EngineTable(engine, 24);
-		table.getModel().setGhosting(true);
+//		final EngineTable table = new EngineTable(engine, 24);
+//		table.getModel().setGhosting(true);
+		final EngineComponent table = new EngineComponent(engine, 24);
+		table.setGhosting(true);
+		table.setBackground(new Color(0,0,0,64));
 		tables.add(table, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
 		table.addFocusListener(new FocusAdapter() {
 			@Override
@@ -119,7 +122,7 @@ public class ZeroGravityTableUI {
 				EventQueue.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						((EngineTableModel) table.getModel()).fireTableDataChanged();
+						table.repaint();
 						frame.setTitle("" + engine.getLines());
 					}
 				});

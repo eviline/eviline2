@@ -33,7 +33,8 @@ public class EngineTableUI {
 		k.setExec(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
 		
 		final AIPlayer ai = new AIPlayer(k, engine);
-		final EngineTable table = new EngineTable(engine, 16);
+//		final EngineTable table = new EngineTable(engine, 16);
+		final EngineComponent table = new EngineComponent(engine, 16);
 		frame.add(table);
 
 		final Runnable task = new Runnable() {
@@ -45,7 +46,7 @@ public class EngineTableUI {
 				engine.tick(Command.SHIFT_DOWN);
 				ai.getCommands().clear();
 				if(drawn == 0) {
-					((EngineTableModel) table.getModel()).fireTableDataChanged();
+					table.repaint();
 					frame.setTitle("" + engine.getLines());
 					drawn = 0;
 				} else
@@ -55,7 +56,7 @@ public class EngineTableUI {
 				if(!engine.isOver())
 					EventQueue.invokeLater(this);
 				else {
-					((EngineTableModel) table.getModel()).fireTableDataChanged();
+					table.repaint();
 					frame.setTitle("" + engine.getLines());
 				}
 			}
