@@ -11,9 +11,12 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -63,7 +66,7 @@ public class ZeroGravityTableUI {
 			}
 			@Override
 			public Integer respawnFramesRemaining(Engine e) {
-				return 0;
+				return 1;
 			}
 			@Override
 			public ShapeSource shapes(Engine e) {
@@ -78,7 +81,18 @@ public class ZeroGravityTableUI {
 		final EngineTable table = new EngineTable(engine, 24);
 		table.getModel().setGhosting(true);
 		tables.add(table, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
-
+		table.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				engine.setPaused(true);
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				engine.setPaused(false);
+			}
+		});
+		
 		StatisticsTable stats = new StatisticsTable(engine, 24);
 		tables.add(stats, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0));
 		
@@ -89,7 +103,7 @@ public class ZeroGravityTableUI {
 		ll.setForeground(Color.WHITE);
 		ll.setFont(Resources.getMinecrafter().deriveFont(36f));
 		
-		final Player pl = new SwingPlayer(table);
+		final SwingPlayer pl = new SwingPlayer(table);
 
 		Timer ticker = new Timer(1000 / 60, new ActionListener() {
 			@Override
@@ -115,6 +129,8 @@ public class ZeroGravityTableUI {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 
+		table.requestFocusInWindow();
+		
 		ticker.start();
 	}
 

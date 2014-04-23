@@ -2,11 +2,15 @@ package org.eviline.swing;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.IOException;
 import java.util.Collections;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
@@ -57,20 +61,33 @@ public class EngineTable extends JTable {
 	protected void paintComponent(Graphics g) {
 //		g.setColor(Color.BLACK);;
 //		g.fillRect(0, 0, getWidth(), getHeight());
-		if(engine.getNext().length > 0) {
-			ShapeType next = engine.getNext()[0];
-			if(next != null) {
-				g.drawImage(blockImage.get(next), blockSize, blockSize * 4, null);
+		if(!engine.isPaused()) {
+			if(engine.getNext().length > 0) {
+				ShapeType next = engine.getNext()[0];
+				if(next != null) {
+					g.drawImage(blockImage.get(next), blockSize, blockSize * 4, null);
+				}
 			}
-		}
-		for(int y = 0; y < getHeight(); y++) {
-//			for(int x = 0; x < getWidth(); x++) {
+			for(int y = 0; y < getHeight(); y++) {
+				//			for(int x = 0; x < getWidth(); x++) {
 				long s = engine.getTickCount() - y*8/blockSize;
 				int w = (int)(15 * (1 + Math.sin(blockSize * s / 144.)));
 				g.setColor(new Color(w, w, w, 164));
 				g.fillRect(0, y, getWidth(), 1);
-//			}
+				//			}
+			}
+			super.paintComponent(g);
+		} else {
+			g.setColor(new Color(0,0,0,192));
+			g.fillRect(0, 0, getWidth(), getHeight());
+			g.setColor(Color.WHITE);
+			g.setFont(Resources.getMinecrafter().deriveFont(24f));
+			FontMetrics fm = g.getFontMetrics();
+			int pw = fm.stringWidth("PAUSED");
+			int ph = fm.getHeight();
+			
+			g.drawString("PAUSED", (getWidth() - pw) / 2, (getHeight() + ph) / 2);
+			
 		}
-		super.paintComponent(g);
 	}
 }

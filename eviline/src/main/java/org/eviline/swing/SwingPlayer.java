@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
@@ -11,7 +13,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
 import org.eviline.core.Command;
@@ -126,10 +131,13 @@ public class SwingPlayer implements Player {
 		}
 	}
 	
+	protected ControlsKeyListener controlsListener;
+	
 	public SwingPlayer(JComponent controlTarget) {
 		this.controlTarget = controlTarget;
 		initKeys();
-		controlTarget.addKeyListener(new ControlsKeyListener());
+		controlsListener = new ControlsKeyListener();
+		controlTarget.addKeyListener(controlsListener);
 	}
 	
 	protected void initKeys() {
@@ -157,4 +165,7 @@ public class SwingPlayer implements Player {
 		return c;
 	}
 
+	public KeyListener getControlsListener() {
+		return controlsListener;
+	}
 }
