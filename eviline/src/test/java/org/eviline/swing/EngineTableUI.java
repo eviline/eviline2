@@ -51,6 +51,8 @@ public class EngineTableUI {
 					drawn = 0;
 				} else
 					drawn--;
+				if(engine.getShapeCount() % 10 == 0  && engine.getShapeCount() > 0)
+					engine.garbage(1);
 				while(engine.getShape() == null && !engine.isOver())
 					engine.tick(Command.NOP);
 				if(!engine.isOver())

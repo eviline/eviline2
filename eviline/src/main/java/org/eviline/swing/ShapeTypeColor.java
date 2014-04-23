@@ -17,6 +17,7 @@ public class ShapeTypeColor {
 		colors.put(ShapeType.S, new Color(105, 190, 40));
 		colors.put(ShapeType.T, new Color(149, 45, 152));
 		colors.put(ShapeType.Z, new Color(237, 41, 57));
+		colors.put(ShapeType.G, new Color(128, 128, 128));
 	}
 	
 	public Color get(ShapeType t) {

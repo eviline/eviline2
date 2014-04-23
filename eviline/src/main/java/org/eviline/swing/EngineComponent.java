@@ -13,6 +13,7 @@ import javax.swing.JComponent;
 import org.eviline.core.Block;
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
+import org.eviline.core.ShapeType;
 
 public class EngineComponent extends JComponent {
 	private static final long serialVersionUID = 0;
@@ -68,8 +69,16 @@ public class EngineComponent extends JComponent {
 					g.fillRect(x*blockSize, (y+Field.BUFFER)*blockSize, blockSize, blockSize);
 				}
 				
-				if(b != null)
-					g.drawImage(images.get(b.shape().type()), x*blockSize, (y+Field.BUFFER) * blockSize, null);
+				if(b != null) {
+					ShapeType type = null;
+					if(b.shape() != null)
+						type = b.shape().type();
+					else if((b.getFlags() & Block.MASK_GARBAGE) == Block.MASK_GARBAGE)
+						type = ShapeType.G;
+				
+					if(type != null)
+						g.drawImage(images.get(type), x*blockSize, (y+Field.BUFFER) * blockSize, null);
+				}
 				
 				if(ghost) {
 					g.setColor(new Color(255,255,255));

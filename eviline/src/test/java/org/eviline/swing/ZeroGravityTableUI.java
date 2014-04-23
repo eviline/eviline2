@@ -86,7 +86,7 @@ public class ZeroGravityTableUI {
 //		table.getModel().setGhosting(true);
 		final EngineComponent table = new EngineComponent(engine, 24);
 		table.setGhosting(true);
-		table.setBackground(new Color(0,0,0,64));
+		table.setBackground(new Color(0,0,0,96));
 		tables.add(table, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
 		table.addFocusListener(new FocusAdapter() {
 			@Override
