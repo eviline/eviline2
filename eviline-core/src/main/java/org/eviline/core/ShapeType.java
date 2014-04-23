@@ -29,8 +29,6 @@ public enum ShapeType {
 	}
 	
 	public int startY() {
-		if(this == J || this == L)
-			return -3;
 		return -2;
 	}
 	
