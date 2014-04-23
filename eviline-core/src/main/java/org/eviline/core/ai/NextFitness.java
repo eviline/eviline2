@@ -31,8 +31,10 @@ public class NextFitness implements CoefficientFitness {
 	@Override
 	public double badness(Field before, Field after, ShapeType[] next) {
 		int off = 0;
-		if(next.length > 0 && next[0] != null) {
+		if(next != null && next.length > 0 && next[0] != null) {
 			off = 5 + 5 * next[0].ordinal();
+		} else {
+			return new DefaultFitness().badness(before, after, next);
 		}
 		
 		after = after.clone();
