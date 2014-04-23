@@ -16,7 +16,7 @@ import org.eviline.core.ai.DefaultAIKernel;
 
 import com.rits.cloning.Cloner;
 
-public class EvilBag7NShapeSource implements ShapeSource {
+public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 	public static EngineFactory<ShapeSource> FACTORY = new EngineFactory<ShapeSource>() {
 		@Override
 		public ShapeSource newInstance(Engine e) {
@@ -45,7 +45,7 @@ public class EvilBag7NShapeSource implements ShapeSource {
 		try {
 			Set<ShapeType> types = new HashSet<>();
 			types.addAll(bag);
-			ShapeType chosen = ai.worstNext(engine.getField(), this, engine.getNext());
+			ShapeType chosen = ai.worstNext(engine.getField(), this, engine.getNext(), 1);
 			return bag.remove(bag.indexOf(chosen));
 		} finally {
 			if(bag.size() == 0)

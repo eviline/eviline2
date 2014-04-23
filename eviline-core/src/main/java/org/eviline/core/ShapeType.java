@@ -32,6 +32,8 @@ public enum ShapeType {
 		return -2;
 	}
 	
+	public static ShapeType[] NONE = new ShapeType[0];
+	
 	public static Set<ShapeType> types(ShapeType[] types) {
 		Set<ShapeType> ret = EnumSet.noneOf(ShapeType.class);
 		for(ShapeType type : types)

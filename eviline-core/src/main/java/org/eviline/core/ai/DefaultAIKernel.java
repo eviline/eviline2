@@ -21,11 +21,13 @@ public class DefaultAIKernel implements AIKernel {
 		public final Vertex vertex;
 		public final double score;
 		public final Field after;
+		public final ShapeType type;
 		
-		public Best(Vertex vertex, double score, Field after) {
+		public Best(Vertex vertex, double score, Field after, ShapeType type) {
 			this.vertex = vertex;
 			this.score = score;
 			this.after = after;
+			this.type = type;
 		}
 	}
 	
@@ -71,7 +73,7 @@ public class DefaultAIKernel implements AIKernel {
 					Field after = field.clone();
 					after.blit(shape);
 					Best b = bestPlacement(field, after, nextShape, nextNext);
-					return new Best(g.getVertices().get(shape), b.score, b.after);
+					return new Best(g.getVertices().get(shape), b.score, b.after, shape.shape().type());
 				}
 			});
 			futures.add(f);
@@ -96,13 +98,13 @@ public class DefaultAIKernel implements AIKernel {
 	
 	protected Best bestPlacement(Field originalField, Field currentField, XYShape currentShape, ShapeType[] next) {
 		if(next == null)
-			return new Best(null, fitness.badness(originalField, currentField, next), currentField);
+			return new Best(null, fitness.badness(originalField, currentField, next), currentField, null);
 		
 		currentField.clearLines();
 		
 		CommandGraph g = new CommandGraph(currentField, currentShape);
 		
-		Best best = new Best(null, Double.POSITIVE_INFINITY, null);
+		Best best = new Best(null, Double.POSITIVE_INFINITY, null, null);
 
 		XYShape nextShape = null;
 		ShapeType[] nextNext = null;
@@ -125,7 +127,7 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	@Override
-	public ShapeType worstNext(Field field, ShapeSource shapes, ShapeType[] next) {
+	public ShapeType worstNext(Field field, ShapeSource shapes, ShapeType[] next, int lookahead) {
 		Field bestPlayed = field;
 		if(next.length > 0) {
 			XYShape nextShape = new XYShape(next[0].start(), next[0].startX(), next[0].startY());
@@ -134,25 +136,31 @@ public class DefaultAIKernel implements AIKernel {
 		}
 
 		
-		ShapeType worst = null;
-		double badness = Double.NEGATIVE_INFINITY;
+		return worstNext(field, bestPlayed, shapes, lookahead).type;
+	}
+
+	protected Best worstNext(Field originalField, Field currentField, ShapeSource shapes, int lookahead) {
+		if(lookahead == 0) {
+			return new Best(null, fitness.badness(originalField, currentField, ShapeType.NONE), currentField, null);
+		}
 		
-		next = new ShapeType[0];
+		currentField.clearLines();
+		
+		Best worst = new Best(null, Double.NEGATIVE_INFINITY, null, null);
 		
 		for(ShapeType type : ShapeType.types(shapes.getBag())) {
-			Field after = bestPlayed.clone();
-			Vertex best = bestPlacement(field, new XYShape(type.start(), type.startX(), type.startY()), next);
-			after.blit(best.shape);
-			double typeBadness = fitness.badness(bestPlayed, after, next);
-			if(typeBadness > badness) {
-				worst = type;
-				badness = typeBadness;
-			}
+			XYShape currentShape = new XYShape(type.start(), type.startX(), type.startY());
+			Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE);
+			ShapeSource nextShapes = shapes.clone();
+			nextShapes.removeFromBag(type);
+			Best shapeWorst = worstNext(originalField, shapeBest.after, nextShapes, lookahead - 1);
+			if(shapeWorst.score > worst.score)
+				worst = new Best(null, shapeWorst.score, shapeWorst.after, type);
 		}
 		
 		return worst;
 	}
-
+	
 	public Fitness getFitness() {
 		return fitness;
 	}
