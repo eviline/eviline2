@@ -153,6 +153,23 @@ public class Field implements Cloneable {
 		return cleared;
 	}
 	
+	public void shiftUp(long trashMask) {
+		trashMask = trashMask << 3;
+		trashMask = trashMask | 0b11100000000111L;
+		for(int i = -3; i < Field.HEIGHT; i++)
+			set(i-1, get(i));
+		blit(Field.HEIGHT - 1, trashMask);
+		System.arraycopy(blocks, WIDTH, blocks, 0, WIDTH * (Field.HEIGHT + 3));
+		long m = 0b1000;
+		for(int x = WIDTH-1; x >= 0; x--) {
+			Block b = null;
+			if((trashMask & m) == m)
+				b = new Block(Block.MASK_GARBAGE);
+			blocks[x + WIDTH * (Field.HEIGHT + 3)] = b;
+			m = m << 1;
+		}
+	}
+	
 	/**
 	 * Returns whether the block at row {@code y} col {@code x} is masked
 	 * @param x

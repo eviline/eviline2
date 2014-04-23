@@ -6,7 +6,10 @@ import java.util.EnumSet;
 import java.util.Set;
 
 public enum ShapeType {
-	S, Z, J, L, T, I, O
+	// basic types
+	S, Z, J, L, T, I, O,
+	// meta types
+	G, // garbage
 	;
 	
 	public Shape start() {
@@ -20,6 +23,10 @@ public enum ShapeType {
 		case O: return O_UP;
 		}
 		throw new InternalError("impossible switch fallthrough");
+	}
+	
+	public static ShapeType[] blocks() {
+		return new ShapeType[] {S, Z, J, L, T, I, O};
 	}
 	
 	public int startX() {

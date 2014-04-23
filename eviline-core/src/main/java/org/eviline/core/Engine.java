@@ -14,6 +14,7 @@ public class Engine {
 	protected long score;
 	protected boolean over;
 	protected long tickCount;
+	protected long shapeCount;
 	
 	protected XYShape shape;
 	protected XYShape ghost;
@@ -42,6 +43,7 @@ public class Engine {
 		lines = 0;
 		score = 0;
 		tickCount = 0;
+		shapeCount = 0;
 		shapes = conf.shapes(this);
 		downFramesRemaining = conf.downFramesRemaining(this);
 		respawnFramesRemaining = conf.respawnFramesRemaining(this);
@@ -63,6 +65,14 @@ public class Engine {
 		System.arraycopy(next, 1, next, 0, next.length - 1);
 		next[next.length - 1] = type;
 		return ret;
+	}
+	
+	public void garbage(int lines) {
+		long tm = 0b1111111111;
+		long thm = 1L << (int)(Field.WIDTH * Math.random());
+		tm = tm & ~thm;
+		for(int i = 0; i < lines; i++)
+			field.shiftUp(tm);
 	}
 	
 	public boolean tick(Command c) {
@@ -223,6 +233,7 @@ public class Engine {
 					while(next == null)
 						next = enqueue(shapes.next(this));
 					shape = new XYShape(next.start(), next.startX(), next.startY());
+					shapeCount++;
 					respawnFramesRemaining = null;
 					if(field.intersects(shape)) {
 						over = true;
@@ -323,5 +334,9 @@ public class Engine {
 
 	public void setPaused(boolean paused) {
 		this.paused = paused;
+	}
+
+	public long getShapeCount() {
+		return shapeCount;
 	}
 }

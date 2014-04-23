@@ -39,7 +39,7 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 	public EvilBag7NShapeSource(int n) {
 		this.n = n;
 		for(int i = 0; i < n; i++)
-			bag.addAll(Arrays.asList(ShapeType.values()));
+			bag.addAll(Arrays.asList(ShapeType.blocks()));
 	}
 	
 	@Override
@@ -52,7 +52,7 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 		} finally {
 			if(bag.size() == 0)
 				for(int i = 0; i < n; i++)
-					bag.addAll(Arrays.asList(ShapeType.values()));
+					bag.addAll(Arrays.asList(ShapeType.blocks()));
 		}
 	}
 	
@@ -80,7 +80,7 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 		bag.remove(type);
 		if(bag.size() == 0)
 			for(int i = 0; i < n; i++)
-				bag.addAll(Arrays.asList(ShapeType.values()));
+				bag.addAll(Arrays.asList(ShapeType.blocks()));
 	}
 
 	public int getLookahead() {

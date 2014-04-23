@@ -33,7 +33,7 @@ public class Bag7NShapeSource implements ShapeSource, Cloneable {
 	public Bag7NShapeSource(int n) {
 		this.n = n;
 		for(int i = 0; i < n; i++)
-			bag.addAll(Arrays.asList(ShapeType.values()));
+			bag.addAll(Arrays.asList(ShapeType.blocks()));
 	}
 	
 	@Override
@@ -43,7 +43,7 @@ public class Bag7NShapeSource implements ShapeSource, Cloneable {
 		} finally {
 			if(bag.size() == 0)
 				for(int i = 0; i < n; i++)
-					bag.addAll(Arrays.asList(ShapeType.values()));
+					bag.addAll(Arrays.asList(ShapeType.blocks()));
 		}
 	}
 
@@ -70,7 +70,7 @@ public class Bag7NShapeSource implements ShapeSource, Cloneable {
 		bag.remove(type);
 		if(bag.size() == 0)
 			for(int i = 0; i < n; i++)
-				bag.addAll(Arrays.asList(ShapeType.values()));
+				bag.addAll(Arrays.asList(ShapeType.blocks()));
 	}
 	
 }
