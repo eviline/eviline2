@@ -20,6 +20,7 @@ public class Engine {
 	protected Integer downFramesRemaining;
 	protected Integer respawnFramesRemaining;
 	protected ShapeType[] next = new ShapeType[1];
+	protected boolean paused;
 	
 	protected EngineListener[] listeners = null;
 	
@@ -65,6 +66,8 @@ public class Engine {
 	}
 	
 	public boolean tick(Command c) {
+		if(isPaused())
+			return false;
 		boolean success = false;
 		boolean locked = false;
 		switch(c) {
@@ -312,5 +315,13 @@ public class Engine {
 
 	public long getScore() {
 		return score;
+	}
+
+	public boolean isPaused() {
+		return paused;
+	}
+
+	public void setPaused(boolean paused) {
+		this.paused = paused;
 	}
 }
