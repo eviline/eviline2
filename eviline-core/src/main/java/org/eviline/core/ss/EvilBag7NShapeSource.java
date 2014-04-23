@@ -45,7 +45,7 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 		try {
 			Set<ShapeType> types = new HashSet<>();
 			types.addAll(bag);
-			ShapeType chosen = ai.worstNext(engine.getField(), this, engine.getNext(), 1);
+			ShapeType chosen = ai.worstNext(engine.getField(), this, engine.getNext(), 2);
 			return bag.remove(bag.indexOf(chosen));
 		} finally {
 			if(bag.size() == 0)
