@@ -95,7 +95,7 @@ public class CommandGraph {
 		
 		while(pending.size() > 0) {
 			v = pending.poll();
-			if(vertices.containsKey(v.shape) && vertices.get(v.shape).pathLength <= v.pathLength)
+			if(vertices.containsKey(v.shape))
 				continue;
 			vertices.put(v.shape, v);
 			pending.addAll(v.getOut(field));
