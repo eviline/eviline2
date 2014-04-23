@@ -30,6 +30,8 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 	
 	protected List<ShapeType> bag = new ArrayList<>();
 	
+	protected int lookahead = 2;
+	
 	public EvilBag7NShapeSource() {
 		this(4);
 	}
@@ -45,7 +47,7 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 		try {
 			Set<ShapeType> types = new HashSet<>();
 			types.addAll(bag);
-			ShapeType chosen = ai.worstNext(engine.getField(), this, engine.getNext(), 2);
+			ShapeType chosen = ai.worstNext(engine.getField(), this, engine.getNext(), lookahead);
 			return bag.remove(bag.indexOf(chosen));
 		} finally {
 			if(bag.size() == 0)
@@ -79,6 +81,14 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 		if(bag.size() == 0)
 			for(int i = 0; i < n; i++)
 				bag.addAll(Arrays.asList(ShapeType.values()));
+	}
+
+	public int getLookahead() {
+		return lookahead;
+	}
+
+	public void setLookahead(int lookahead) {
+		this.lookahead = lookahead;
 	}
 
 }
