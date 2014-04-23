@@ -10,7 +10,8 @@ public class Engine {
 	protected Field field;
 	
 	protected ShapeSource shapes;
-	protected int lines;
+	protected long lines;
+	protected long score;
 	protected boolean over;
 	protected long tickCount;
 	
@@ -38,6 +39,7 @@ public class Engine {
 		field.reset();
 		shape = null;
 		lines = 0;
+		score = 0;
 		tickCount = 0;
 		shapes = conf.shapes(this);
 		downFramesRemaining = conf.downFramesRemaining(this);
@@ -203,7 +205,9 @@ public class Engine {
 		}
 		
 		if(locked) {
-			lines += field.clearLines();
+			int cleared = field.clearLines();
+			lines += cleared;
+			score += cleared * cleared * cleared;
 		}
 		
 		if(shape == null) {
@@ -271,7 +275,7 @@ public class Engine {
 		return field;
 	}
 
-	public int getLines() {
+	public long getLines() {
 		return lines;
 	}
 
@@ -304,5 +308,9 @@ public class Engine {
 
 	public ShapeSource getShapes() {
 		return shapes;
+	}
+
+	public long getScore() {
+		return score;
 	}
 }

@@ -12,7 +12,7 @@ public class Play10 {
 		Engine engine = new Engine();
 		AIPlayer ai = new AIPlayer(engine);
 
-		List<Integer> lines = new ArrayList<>();
+		List<Long> lines = new ArrayList<>();
 		for(int i = 0; i < 20; i++) {
 			engine.reset();
 			while(!engine.isOver()) {
@@ -36,7 +36,7 @@ public class Play10 {
 		System.out.println(lines);
 
 		int sum = 0;
-		for(int l : lines)
+		for(long l : lines)
 			sum += l;
 		System.out.println("Average:" + (sum / lines.size()));
 	}
