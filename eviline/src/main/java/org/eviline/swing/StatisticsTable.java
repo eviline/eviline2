@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.TimeZone;
 
 import javax.imageio.ImageIO;
 import javax.swing.JTable;
@@ -19,6 +21,10 @@ import org.eviline.core.ai.DefaultFitness;
 import org.eviline.core.ai.Fitness;
 
 public class StatisticsTable extends JTable implements EngineListener {
+	private static final SimpleDateFormat tdf = new SimpleDateFormat("HH:mm:ss.SSS");
+	static {
+		tdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
 	
 	protected Fitness fit = new DefaultFitness();
 	
@@ -46,7 +52,7 @@ public class StatisticsTable extends JTable implements EngineListener {
 	public StatisticsTableModel getModel() {
 		return (StatisticsTableModel) super.getModel();
 	}
-
+	
 	@Override
 	public void ticked(Engine e, Command c) {
 		StatisticsTableModel m = getModel();
@@ -55,6 +61,8 @@ public class StatisticsTable extends JTable implements EngineListener {
 		m.write(e.getLines() + "\n", Color.CYAN);
 		m.write("score\n");
 		m.write(e.getScore() + "\n", Color.CYAN);
+		m.write("time\n");
+		m.write(tdf.format(e.getTickCount() * 1000 / 60) + "\n", Color.CYAN);
 		
 		m.write("badness\n");
 		if(e.getGhost() != null) {

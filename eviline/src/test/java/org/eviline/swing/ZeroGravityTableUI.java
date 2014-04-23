@@ -2,6 +2,7 @@ package org.eviline.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -15,6 +16,9 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -71,7 +75,7 @@ public class ZeroGravityTableUI {
 			@Override
 			public ShapeSource shapes(Engine e) {
 				EvilBag7NShapeSource shapes = (EvilBag7NShapeSource) EvilBag7NShapeSource.FACTORY.newInstance(e);
-				shapes.setLookahead(3);
+				shapes.setLookahead(2);
 				return shapes;
 			}
 		});
@@ -105,17 +109,23 @@ public class ZeroGravityTableUI {
 		
 		final SwingPlayer pl = new SwingPlayer(table);
 
-		Timer ticker = new Timer(1000 / 60, new ActionListener() {
+		ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
+		Runnable ticker = new Runnable() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void run() {
 				Command c = pl.tick();
 				if(!engine.isOver())
 					engine.tick(c);
-				((EngineTableModel) table.getModel()).fireTableDataChanged();
-				frame.setTitle("" + engine.getLines());
+				EventQueue.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						((EngineTableModel) table.getModel()).fireTableDataChanged();
+						frame.setTitle("" + engine.getLines());
+					}
+				});
 			}
-		});
-
+		};
+		
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -130,8 +140,8 @@ public class ZeroGravityTableUI {
 		frame.setVisible(true);
 
 		table.requestFocusInWindow();
-		
-		ticker.start();
+//		exec.schedule(ticker, 1000000L / 60, TimeUnit.MICROSECONDS);
+		exec.scheduleAtFixedRate(ticker, 0, 1000000L/60, TimeUnit.MICROSECONDS);
 	}
 
 }
