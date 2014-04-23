@@ -53,6 +53,8 @@ public class StatisticsTable extends JTable implements EngineListener {
 		m.clear();
 		m.write("lines\n");
 		m.write(e.getLines() + "\n", Color.CYAN);
+		m.write("score\n");
+		m.write(e.getScore() + "\n", Color.CYAN);
 		
 		m.write("badness\n");
 		if(e.getGhost() != null) {

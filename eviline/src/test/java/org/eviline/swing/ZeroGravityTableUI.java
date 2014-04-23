@@ -67,7 +67,9 @@ public class ZeroGravityTableUI {
 			}
 			@Override
 			public ShapeSource shapes(Engine e) {
-				return EvilBag7NShapeSource.FACTORY.newInstance(e);
+				EvilBag7NShapeSource shapes = (EvilBag7NShapeSource) EvilBag7NShapeSource.FACTORY.newInstance(e);
+				shapes.setLookahead(3);
+				return shapes;
 			}
 		});
 		JPanel tables = new JPanel(new GridBagLayout());
