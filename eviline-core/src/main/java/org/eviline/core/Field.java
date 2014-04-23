@@ -30,13 +30,13 @@ public class Field implements Cloneable {
 	
 	public void reset() {
 		// reset the mask
-		mask = new long[7];
-		for(int y = -4; y < 20; y++)
+		mask = new long[8];
+		for(int y = -8; y < 20; y++)
 			blit(y, WALL);
-		mask[6] = -1L; // floor
+		mask[7] = -1L; // floor
 		
 		// reset the blocks
-		blocks = new Block[(HEIGHT+8) * WIDTH];
+		blocks = new Block[(HEIGHT+12) * WIDTH];
 	}
 	
 	/**
@@ -45,8 +45,8 @@ public class Field implements Cloneable {
 	 * @param m
 	 */
 	protected void blit(int y, long m) {
-		int i = (y + 4) >> 2;
-		int o = (y + 4) & 0b11;
+		int i = (y + 8) >> 2;
+		int o = (y + 8) & 0b11;
 		mask[i] |= (m << (o * 16));
 	}
 	
@@ -56,8 +56,8 @@ public class Field implements Cloneable {
 	 * @param m
 	 */
 	protected void set(int y, long m) {
-		int i = (y + 4) >> 2;
-		int o = (y + 4) & 0b11;
+		int i = (y + 8) >> 2;
+		int o = (y + 8) & 0b11;
 		mask[i] &= ~(0xffffL << (o * 16));
 		mask[i] |= (m << (o * 16));
 	}
@@ -68,8 +68,8 @@ public class Field implements Cloneable {
 	 * @return
 	 */
 	protected long get(int y) {
-		int i = (y + 4) >> 2;
-		int o = (y + 4) & 0b11;
+		int i = (y + 8) >> 2;
+		int o = (y + 8) & 0b11;
 		long imask = mask[i] >>> (o * 16);
 		return imask & 0xffff;
 	}
@@ -80,8 +80,8 @@ public class Field implements Cloneable {
 	 * @return
 	 */
 	protected long imask(int y) {
-		int i = (y + 4) >> 2;
-		int o = (y + 4) & 0b11;
+		int i = (y + 8) >> 2;
+		int o = (y + 8) & 0b11;
 		long imask = mask[i] >>> (o * 16);
 		if(o == 0)
 			return imask;
@@ -96,7 +96,7 @@ public class Field implements Cloneable {
 	 * @return
 	 */
 	public boolean intersects(XYShape s) {
-		if(s.y() < -4)
+		if(s.y() < -8)
 			return true;
 		long imask = imask(s.y());
 		long smask = s.shape().mask(s.x());
@@ -116,7 +116,7 @@ public class Field implements Cloneable {
 			blit(y, m);
 			for(int x = 0; x < WIDTH; x++) {
 				if((m & ((1 << 12) >>> x)) != 0)
-					blocks[x + (y+4) * WIDTH] = s.block();
+					blocks[x + (y+8) * WIDTH] = s.block();
 			}
 		}
 	}
@@ -127,13 +127,13 @@ public class Field implements Cloneable {
 	 */
 	public void clear(int y) {
 		// shift the masks
-		for(int i = y-1; i >= -4; i--)
+		for(int i = y-1; i >= -8; i--)
 			set(i+1, get(i));
-		set(-4, WALL);
+		set(-8, WALL);
 		
 		// shift the blocks
-		if(y+4 > 0)
-			System.arraycopy(blocks, 0, blocks, WIDTH, WIDTH * (y+4));
+		if(y+8 > 0)
+			System.arraycopy(blocks, 0, blocks, WIDTH, WIDTH * (y+8));
 		Arrays.fill(blocks, 0, WIDTH, null);
 	}
 	
@@ -143,7 +143,7 @@ public class Field implements Cloneable {
 	 */
 	public int clearLines() {
 		int cleared = 0;
-		for(int y = HEIGHT - 1; y >= -4; y--) {
+		for(int y = HEIGHT - 1; y >= -8; y--) {
 			if(get(y) == 0xffff) {
 				clear(y);
 				y++;
@@ -156,16 +156,16 @@ public class Field implements Cloneable {
 	public void shiftUp(long trashMask) {
 		trashMask = trashMask << 3;
 		trashMask = trashMask | 0b11100000000111L;
-		for(int i = -3; i < Field.HEIGHT; i++)
+		for(int i = -8+1; i < Field.HEIGHT; i++)
 			set(i-1, get(i));
 		blit(Field.HEIGHT - 1, trashMask);
-		System.arraycopy(blocks, WIDTH, blocks, 0, WIDTH * (Field.HEIGHT + 3));
+		System.arraycopy(blocks, WIDTH, blocks, 0, WIDTH * (Field.HEIGHT + 8-1));
 		long m = 0b1000;
 		for(int x = WIDTH-1; x >= 0; x--) {
 			Block b = null;
 			if((trashMask & m) == m)
 				b = new Block(Block.MASK_GARBAGE);
-			blocks[x + WIDTH * (Field.HEIGHT + 3)] = b;
+			blocks[x + WIDTH * (Field.HEIGHT + 8-1)] = b;
 			m = m << 1;
 		}
 	}
@@ -196,7 +196,18 @@ public class Field implements Cloneable {
 	 * @return
 	 */
 	public Block block(int x, int y) {
-		return blocks[x + (y+4) * WIDTH];
+		return blocks[x + (y+8) * WIDTH];
+	}
+	
+	public void setBlock(int x, int y, Block b) {
+		blocks[x + (y+8) * WIDTH] = b;
+		long bm = 0b1000L;
+		bm = bm << (WIDTH - (x+1));
+		if(b != null) {
+			blit(y, WALL | bm);
+		} else {
+			set(y, WALL | (get(y) & ~bm));
+		}
 	}
 	
 	@Override

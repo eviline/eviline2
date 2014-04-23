@@ -25,6 +25,11 @@ public class XYShape {
 		this.id = id;
 	}
 	
+	public XYShape equated() {
+		ShapeEquate seq = shape.equated();
+		return new XYShape(seq.to(), x + seq.dx(), y + seq.dy(), id);
+	}
+	
 	public boolean has(int x, int y) {
 		if(y < this.y || y >= this.y + 4 || x < this.x || x >= this.x + 4)
 			return false;

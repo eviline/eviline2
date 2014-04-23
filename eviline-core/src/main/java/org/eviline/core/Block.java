@@ -8,6 +8,13 @@ public class Block {
 	protected long id;
 	protected long flags;
 	
+	public Block(ShapeType type) {
+		if(type == ShapeType.G)
+			flags = MASK_GARBAGE;
+		else
+			shape = type.start();
+	}
+	
 	public Block(Shape shape, long id) {
 		this(shape, id, 0);
 	}

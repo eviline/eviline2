@@ -35,6 +35,20 @@ public class CommandGraph {
 			List<Vertex> out = new ArrayList<>();
 			XYShape next;
 			
+			for(XYShape kicked : shape.rotatedLeft().kickedLeft()) {
+				if(!f.intersects(kicked)) {
+					out.add(new Vertex(this, Command.ROTATE_LEFT, kicked));
+					break;
+				}
+			}
+			
+			for(XYShape kicked : shape.rotatedRight().kickedRight()) {
+				if(!f.intersects(kicked)) {
+					out.add(new Vertex(this, Command.ROTATE_RIGHT, kicked));
+					break;
+				}
+			}
+			
 			next = shape.shiftedLeft();
 			if(!f.intersects(next)) {
 				out.add(new Vertex(this, Command.SHIFT_LEFT, next));
@@ -65,20 +79,6 @@ public class CommandGraph {
 				out.add(new Vertex(this, Command.SOFT_DROP, next));
 			}
 			
-			for(XYShape kicked : shape.rotatedLeft().kickedLeft()) {
-				if(!f.intersects(kicked)) {
-					out.add(new Vertex(this, Command.ROTATE_LEFT, kicked));
-					break;
-				}
-			}
-			
-			for(XYShape kicked : shape.rotatedRight().kickedRight()) {
-				if(!f.intersects(kicked)) {
-					out.add(new Vertex(this, Command.ROTATE_RIGHT, kicked));
-					break;
-				}
-			}
-			
 			return out;
 		}
 	}
@@ -95,7 +95,7 @@ public class CommandGraph {
 		
 		while(pending.size() > 0) {
 			v = pending.poll();
-			if(vertices.containsKey(v.shape))
+			if(vertices.containsKey(v.shape) && vertices.get(v.shape).pathLength <= v.pathLength)
 				continue;
 			vertices.put(v.shape, v);
 			pending.addAll(v.getOut(field));

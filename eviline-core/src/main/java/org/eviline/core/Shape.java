@@ -140,6 +140,7 @@ public enum Shape {
 	private ShapeType type;
 	private long mask;
 	private int overY;
+	private ShapeDirection direction;
 	
 	private Shape(ShapeType type, long... rowMasks) {
 		this.type = type;
@@ -147,6 +148,7 @@ public enum Shape {
 			mask |= (rowMasks[i] << (12 + i * 16));
 			overY--;
 		}
+		direction = ShapeDirection.valueOf(name().replaceAll(".*_", ""));
 	}
 	
 	public ShapeType type() {
@@ -155,6 +157,10 @@ public enum Shape {
 	
 	public long mask() {
 		return mask;
+	}
+	
+	public ShapeDirection direction() {
+		return direction;
 	}
 	
 	public boolean has(int x, int y) {
@@ -319,5 +325,21 @@ public enum Shape {
 			return KickTable.ILEFT_DOWN;
 		}
 		throw new InternalError("impossible switch fallthrough");
+	}
+	
+	public ShapeEquate equated() {
+		switch(this) {
+		case I_DOWN: return new ShapeEquate(this, I_UP, 0, -1);
+		case I_RIGHT: return new ShapeEquate(this, I_LEFT, -1, 0);
+		case S_DOWN: return new ShapeEquate(this, S_UP, 0, -1);
+		case S_RIGHT: return new ShapeEquate(this, S_LEFT, -1, 0);
+		case Z_DOWN: return new ShapeEquate(this, Z_UP, 0, -1);
+		case Z_RIGHT: return new ShapeEquate(this, Z_LEFT, -1, 0);
+		case O_DOWN:
+		case O_RIGHT:
+		case O_LEFT:
+			return new ShapeEquate(this, O_UP, 0, 0);
+		}
+		return new ShapeEquate(this);
 	}
 }
