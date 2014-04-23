@@ -1,6 +1,13 @@
 package org.eviline.core.ai;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
@@ -23,6 +30,12 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	protected Fitness fitness = new DefaultFitness();
+	protected Executor exec = new Executor() {
+		@Override
+		public void execute(Runnable command) {
+			command.run();
+		}
+	};
 	
 	public DefaultAIKernel() {}
 	
@@ -31,28 +44,50 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	@Override
-	public Vertex bestPlacement(Field field, XYShape current, ShapeType[] next) {
-		CommandGraph g = new CommandGraph(field, current);
+	public Vertex bestPlacement(final Field field, XYShape current, ShapeType[] next) {
+		final CommandGraph g = new CommandGraph(field, current);
 		double badness = Double.POSITIVE_INFINITY;
 		
 		Vertex best = null;
 		
-		XYShape nextShape = null;
-		ShapeType[] nextNext = null;
+		final XYShape nextShape;
+		final ShapeType[] nextNext;
 		if(next.length > 0) {
 			nextShape = new XYShape(next[0].start(), next[0].startX(), next[0].startY());
 			nextNext = Arrays.copyOfRange(next, 1, next.length);
+		} else {
+			nextShape = null;
+			nextNext = null;
 		}
+			
+		Collection<Future<Best>> futures = new ArrayList<>();
 		
-		for(XYShape shape : g.getVertices().keySet()) {
+		for(final XYShape shape : g.getVertices().keySet()) {
 			if(!field.intersects(shape.shiftedDown()))
 				continue;
-			Field after = field.clone();
-			after.blit(shape);
-			double shapeBadness = bestPlacement(field, after, nextShape, nextNext).score;
-			if(shapeBadness < badness) {
-				best = g.getVertices().get(shape);
-				badness = shapeBadness;
+			FutureTask<Best> f = new FutureTask<>(new Callable<Best>() {
+				@Override
+				public Best call() throws Exception {
+					Field after = field.clone();
+					after.blit(shape);
+					Best b = bestPlacement(field, after, nextShape, nextNext);
+					return new Best(g.getVertices().get(shape), b.score, b.after);
+				}
+			});
+			futures.add(f);
+			exec.execute(f);
+		}
+		
+		for(Future<Best> f : futures) {
+			Best b;
+			try {
+				b = f.get();
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
+			if(b.score < badness) {
+				best = b.vertex;
+				badness = b.score;
 			}
 		}
 		
@@ -124,6 +159,14 @@ public class DefaultAIKernel implements AIKernel {
 
 	public void setFitness(Fitness fitness) {
 		this.fitness = fitness;
+	}
+
+	public Executor getExec() {
+		return exec;
+	}
+
+	public void setExec(Executor exec) {
+		this.exec = exec;
 	}
 
 }
