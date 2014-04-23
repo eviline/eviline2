@@ -292,10 +292,17 @@ public class Engine {
 	}
 	
 	public ShapeType[] getNext() {
-		return next;
+		List<ShapeType> next = new ArrayList<>(Arrays.asList(this.next));
+		while(next.contains(null))
+			next.remove(null);
+		return next.toArray(new ShapeType[next.size()]);
 	}
 	
 	public long getTickCount() {
 		return tickCount;
+	}
+
+	public ShapeSource getShapes() {
+		return shapes;
 	}
 }

@@ -14,6 +14,8 @@ import org.eviline.core.ShapeType;
 import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.DefaultAIKernel;
 
+import com.rits.cloning.Cloner;
+
 public class EvilBag7NShapeSource implements ShapeSource {
 	public static EngineFactory<ShapeSource> FACTORY = new EngineFactory<ShapeSource>() {
 		@Override
@@ -34,17 +36,49 @@ public class EvilBag7NShapeSource implements ShapeSource {
 	
 	public EvilBag7NShapeSource(int n) {
 		this.n = n;
+		for(int i = 0; i < n; i++)
+			bag.addAll(Arrays.asList(ShapeType.values()));
 	}
 	
 	@Override
 	public ShapeType next(Engine engine) {
+		try {
+			Set<ShapeType> types = new HashSet<>();
+			types.addAll(bag);
+			ShapeType chosen = ai.worstNext(engine.getField(), this, engine.getNext());
+			return bag.remove(bag.indexOf(chosen));
+		} finally {
+			if(bag.size() == 0)
+				for(int i = 0; i < n; i++)
+					bag.addAll(Arrays.asList(ShapeType.values()));
+		}
+	}
+	
+	@Override
+	public ShapeSource clone() {
+		try {
+			EvilBag7NShapeSource ss = (EvilBag7NShapeSource) super.clone();
+			Cloner c = new Cloner();
+			ss.ai = c.deepClone(ai);
+			ss.random = c.deepClone(random);
+			ss.bag = c.deepClone(ss.bag);
+			return ss;
+		} catch(CloneNotSupportedException e) {
+			throw new InternalError();
+		}
+	}
+
+	@Override
+	public ShapeType[] getBag() {
+		return bag.toArray(new ShapeType[bag.size()]);
+	}
+
+	@Override
+	public void removeFromBag(ShapeType type) {
+		bag.remove(type);
 		if(bag.size() == 0)
 			for(int i = 0; i < n; i++)
 				bag.addAll(Arrays.asList(ShapeType.values()));
-		Set<ShapeType> types = new HashSet<>();
-		types.addAll(bag);
-		ShapeType chosen = ai.worstNext(engine.getField(), types.toArray(new ShapeType[types.size()]), new ShapeType[0]);
-		return bag.remove(bag.indexOf(chosen));
 	}
 
 }

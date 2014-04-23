@@ -2,6 +2,9 @@ package org.eviline.core;
 
 import static org.eviline.core.Shape.*;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 public enum ShapeType {
 	S, Z, J, L, T, I, O
 	;
@@ -31,4 +34,10 @@ public enum ShapeType {
 		return -2;
 	}
 	
+	public static Set<ShapeType> types(ShapeType[] types) {
+		Set<ShapeType> ret = EnumSet.noneOf(ShapeType.class);
+		for(ShapeType type : types)
+			ret.add(type);
+		return ret;
+	}
 }
