@@ -54,7 +54,10 @@ public class DefaultAIKernel implements AIKernel {
 		
 		final XYShape nextShape;
 		final ShapeType[] nextNext;
-		if(next.length > 0) {
+		if(lookahead == 0) {
+			nextShape = null;
+			nextNext = Arrays.copyOf(next, next.length);
+		} else if(next.length > 0) {
 			nextShape = new XYShape(next[0].start(), next[0].startX(), next[0].startY());
 			nextNext = Arrays.copyOfRange(next, 1, next.length);
 		} else {
@@ -108,7 +111,10 @@ public class DefaultAIKernel implements AIKernel {
 
 		XYShape nextShape = null;
 		ShapeType[] nextNext = null;
-		if(next.length > 0) {
+		if(lookahead == 0) {
+			nextShape = null;
+			nextNext = Arrays.copyOf(next, next.length);
+		} else if(next.length > 0) {
 			nextShape = new XYShape(next[0].start(), next[0].startX(), next[0].startY());
 			nextNext = Arrays.copyOfRange(next, 1, next.length);
 		}

@@ -28,7 +28,6 @@ public class EngineTableUI {
 
 		Field f = new Field();
 		final Engine engine = new Engine(f, new Configuration());
-		engine.setNext(new ShapeType[0]);
 		final DefaultAIKernel k = new DefaultAIKernel(new NextFitness());
 		
 		k.setFitness(new NextFitness());
