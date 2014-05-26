@@ -13,6 +13,7 @@ import org.eviline.core.Command;
 import org.eviline.core.Configuration;
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
+import org.eviline.core.ShapeType;
 import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.AIPlayer;
 import org.eviline.core.ai.DefaultAIKernel;
@@ -27,12 +28,13 @@ public class EngineTableUI {
 
 		Field f = new Field();
 		final Engine engine = new Engine(f, new Configuration());
+		engine.setNext(new ShapeType[0]);
 		final DefaultAIKernel k = new DefaultAIKernel(new NextFitness());
 		
 		k.setFitness(new NextFitness());
 		k.setExec(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
 		
-		final AIPlayer ai = new AIPlayer(k, engine);
+		final AIPlayer ai = new AIPlayer(k, engine, 0);
 //		final EngineTable table = new EngineTable(engine, 16);
 		final EngineComponent table = new EngineComponent(engine, 16);
 		frame.add(table);
@@ -51,8 +53,6 @@ public class EngineTableUI {
 					drawn = 0;
 				} else
 					drawn--;
-				if(engine.getShapeCount() % 10 == 0  && engine.getShapeCount() > 0)
-					engine.garbage(1);
 				while(engine.getShape() == null && !engine.isOver())
 					engine.tick(Command.NOP);
 				if(!engine.isOver())

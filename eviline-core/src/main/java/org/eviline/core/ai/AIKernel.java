@@ -7,6 +7,6 @@ import org.eviline.core.XYShape;
 import org.eviline.core.ai.CommandGraph.Vertex;
 
 public interface AIKernel {
-	public Vertex bestPlacement(Field field, XYShape shape, ShapeType[] next);
+	public Vertex bestPlacement(Field field, XYShape shape, ShapeType[] next, int lookahead);
 	public ShapeType worstNext(Field field, ShapeSource shapes, ShapeType[] next, int lookahead);
 }

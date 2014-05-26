@@ -17,16 +17,16 @@ public class AIPlayer implements Player {
 	protected XYShape dest;
 	protected Deque<Command> commands = new ArrayDeque<>();
 	
-	protected ShapeType[] next;
+	protected int lookahead;
 	
 	public AIPlayer(Engine engine) {
 		this(new DefaultAIKernel(), engine, engine.getNext().length);
 	}
 	
-	public AIPlayer(AIKernel ai, Engine engine, int nextLength) {
+	public AIPlayer(AIKernel ai, Engine engine, int lookahead) {
 		this.ai = ai;
 		this.engine = engine;
-		this.next = new ShapeType[nextLength];
+		this.lookahead = lookahead;
 	}
 	
 	public Command tick() {
@@ -38,9 +38,7 @@ public class AIPlayer implements Player {
 		if(commands.size() == 0) {
 			if(engine.getShape() == null)
 				return Command.NOP;
-			Arrays.fill(next, null);
-			System.arraycopy(engine.getNext(), 0, next, 0, Math.min(engine.getNext().length, next.length));
-			Vertex v = ai.bestPlacement(engine.getField(), engine.getShape(), next);
+			Vertex v = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext(), lookahead);
 			dest = v.shape;
 			while(v.command != null) {
 				commands.offerFirst(v.command);
