@@ -61,6 +61,8 @@ public class Engine {
 	}
 	
 	protected ShapeType enqueue(ShapeType type) {
+		if(next.length == 0)
+			return type;
 		ShapeType ret = next[0];
 		System.arraycopy(next, 1, next, 0, next.length - 1);
 		next[next.length - 1] = type;
@@ -338,5 +340,9 @@ public class Engine {
 
 	public long getShapeCount() {
 		return shapeCount;
+	}
+
+	public void setNext(ShapeType[] next) {
+		this.next = next;
 	}
 }
