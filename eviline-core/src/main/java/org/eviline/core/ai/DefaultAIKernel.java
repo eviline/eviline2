@@ -156,7 +156,7 @@ public class DefaultAIKernel implements AIKernel {
 		
 		for(ShapeType type : ShapeType.types(shapes.getBag())) {
 			XYShape currentShape = new XYShape(type.start(), type.startX(), type.startY());
-			Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 0);
+			Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1);
 			ShapeSource nextShapes = shapes.clone();
 			nextShapes.removeFromBag(type);
 			Best shapeWorst = worstNext(originalField, shapeBest.after, nextShapes, lookahead - 1);
