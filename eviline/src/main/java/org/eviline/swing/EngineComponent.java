@@ -64,6 +64,7 @@ public class EngineComponent extends JComponent {
 		for(int y = -Field.BUFFER; y < Field.HEIGHT; y++) {
 			for(int x = 0; x < Field.WIDTH; x++) {
 				Block b = engine.block(x, y);
+				
 				boolean ghost = false;
 				if(isGhosting() && b == null && engine.getGhost() != null && engine.getGhost().has(x, y))
 					ghost = true;
@@ -93,6 +94,22 @@ public class EngineComponent extends JComponent {
 				if(ghost) {
 					g.setColor(new Color(255,255,255));
 					g.fillRect(x*blockSize, (y+Field.BUFFER)*blockSize, blockSize, blockSize);
+				}
+
+				if(b != null) {
+					g.setColor(Color.BLACK);
+					Block adj = (x > 0) ? engine.block(x-1, y) : b;
+					if(adj == null || b.id() != adj.id())
+						g.fillRect(x*blockSize, (y+Field.BUFFER)*blockSize, 1, blockSize);
+					adj = (x < Field.WIDTH - 1) ? engine.block(x+1, y) : b;
+					if(adj == null || b.id() != adj.id())
+						g.fillRect((x+1)*blockSize-1, (y+Field.BUFFER)*blockSize, 1, blockSize);
+					adj = (y > -Field.BUFFER) ? engine.block(x, y+1) : b;
+					if(adj == null || b.id() != adj.id())
+						g.fillRect(x*blockSize, (y+Field.BUFFER+1)*blockSize-1, blockSize, 1);
+					adj = (y < Field.HEIGHT - 1) ? engine.block(x, y-1) : b;
+					if(adj == null || b.id() != adj.id())
+						g.fillRect(x*blockSize, (y+Field.BUFFER)*blockSize, blockSize, 1);
 				}
 			}
 		}
