@@ -23,16 +23,20 @@ public class EngineComponent extends JComponent {
 	protected boolean ghosting;
 	
 	protected BlockImage images;
+	protected ShapeTypeColor colors;
 	
-	public EngineComponent(Engine engine, int blockSize) {
+	public EngineComponent(Engine engine, int blockSize, boolean simple) {
 		this.engine = engine;
 		this.blockSize = blockSize;
 		
-		try {
-			images = new BlockImage(ImageIO.read(EngineTableCellRenderer.class.getResource("block.png")), blockSize, blockSize);
-		} catch(IOException e) {
-			throw new RuntimeException(e);
-		}
+		if(!simple) {
+			try {
+				images = new BlockImage(ImageIO.read(EngineTableCellRenderer.class.getResource("block.png")), blockSize, blockSize);
+			} catch(IOException e) {
+				throw new RuntimeException(e);
+			}
+		} else
+			colors = new ShapeTypeColor();
 		
 		setPreferredSize(new Dimension(blockSize * Field.WIDTH, blockSize * (Field.HEIGHT + Field.BUFFER)));
 		
@@ -76,8 +80,14 @@ public class EngineComponent extends JComponent {
 					else if((b.getFlags() & Block.MASK_GARBAGE) == Block.MASK_GARBAGE)
 						type = ShapeType.G;
 				
-					if(type != null)
-						g.drawImage(images.get(type), x*blockSize, (y+Field.BUFFER) * blockSize, null);
+					if(type != null) {
+						if(images != null)
+							g.drawImage(images.get(type), x*blockSize, (y+Field.BUFFER) * blockSize, null);
+						else {
+							g.setColor(colors.get(type));
+							g.fillRect(x*blockSize, (y+Field.BUFFER)*blockSize, blockSize, blockSize);
+						}
+					}
 				}
 				
 				if(ghost) {
