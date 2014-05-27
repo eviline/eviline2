@@ -104,10 +104,10 @@ public class EngineComponent extends JComponent {
 					adj = (x < Field.WIDTH - 1) ? engine.block(x+1, y) : b;
 					if(adj == null || b.id() != adj.id())
 						g.fillRect((x+1)*blockSize-1, (y+Field.BUFFER)*blockSize, 1, blockSize);
-					adj = (y > -Field.BUFFER) ? engine.block(x, y+1) : b;
+					adj = (y >= -Field.BUFFER) ? engine.block(x, y+1) : b;
 					if(adj == null || b.id() != adj.id())
 						g.fillRect(x*blockSize, (y+Field.BUFFER+1)*blockSize-1, blockSize, 1);
-					adj = (y < Field.HEIGHT - 1) ? engine.block(x, y-1) : b;
+					adj = (y < Field.HEIGHT) ? engine.block(x, y-1) : b;
 					if(adj == null || b.id() != adj.id())
 						g.fillRect(x*blockSize, (y+Field.BUFFER)*blockSize, blockSize, 1);
 				}
