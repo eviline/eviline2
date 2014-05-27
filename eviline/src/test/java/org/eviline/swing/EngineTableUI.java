@@ -1,5 +1,6 @@
 package org.eviline.swing;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
@@ -7,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.util.concurrent.Executors;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import org.eviline.core.Command;
@@ -28,15 +30,19 @@ public class EngineTableUI {
 
 		Field f = new Field();
 		final Engine engine = new Engine(f, new Configuration());
-		engine.setNext(new ShapeType[2]);
+		engine.setNext(new ShapeType[3]);
 		final DefaultAIKernel k = new DefaultAIKernel(new NextFitness());
 		
 		k.setExec(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
 		
-		final AIPlayer ai = new AIPlayer(k, engine, 1);
+		final AIPlayer ai = new AIPlayer(k, engine, 0);
 //		final EngineTable table = new EngineTable(engine, 16);
 		final EngineComponent table = new EngineComponent(engine, 32, true);
-		frame.add(table);
+		
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(table, BorderLayout.CENTER);
+		
+		frame.add(panel);
 
 		final Runnable task = new Runnable() {
 			private int drawn = 0;

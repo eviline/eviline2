@@ -38,6 +38,7 @@ import org.eviline.core.Configuration;
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
+import org.eviline.core.ShapeType;
 import org.eviline.core.ai.Player;
 import org.eviline.core.ss.EvilBag7NShapeSource;
 import org.eviline.swing.EngineTable;
@@ -75,10 +76,11 @@ public class ZeroGravityTableUI {
 			@Override
 			public ShapeSource shapes(Engine e) {
 				EvilBag7NShapeSource shapes = (EvilBag7NShapeSource) EvilBag7NShapeSource.FACTORY.newInstance(e);
-				shapes.setLookahead(2);
+				shapes.setLookahead(3);
 				return shapes;
 			}
 		});
+		engine.setNext(new ShapeType[0]);
 		JPanel tables = new JPanel(new GridBagLayout());
 		tables.setOpaque(false);
 		

@@ -3,6 +3,7 @@ package org.eviline.swing;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -19,7 +20,8 @@ public class EngineComponent extends JComponent {
 	private static final long serialVersionUID = 0;
 	
 	protected Engine engine;
-	protected int blockSize;
+	protected double blockSizeX;
+	protected double blockSizeY;
 	protected boolean ghosting;
 	
 	protected BlockImage images;
@@ -27,18 +29,16 @@ public class EngineComponent extends JComponent {
 	
 	public EngineComponent(Engine engine, int blockSize, boolean simple) {
 		this.engine = engine;
-		this.blockSize = blockSize;
+		blockSizeX = blockSizeY = blockSize;
 		
 		if(!simple) {
 			try {
-				images = new BlockImage(ImageIO.read(EngineTableCellRenderer.class.getResource("block.png")), blockSize, blockSize);
+				images = new BlockImage(ImageIO.read(EngineTableCellRenderer.class.getResource("block.png")), (int) blockSizeX, (int) blockSizeY);
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
 		} else
 			colors = new ShapeTypeColor();
-		
-		setPreferredSize(new Dimension(blockSize * Field.WIDTH, blockSize * (Field.HEIGHT + Field.BUFFER)));
 		
 		setFocusable(true);
 		
@@ -55,9 +55,22 @@ public class EngineComponent extends JComponent {
 		setBackground(Color.BLACK);
 	}
 	
+	@Override
+	public Dimension getPreferredSize() {
+		if(isPreferredSizeSet())
+			return super.getPreferredSize();
+		return new Dimension((int)(blockSizeX * Field.WIDTH), (int)(blockSizeY * (Field.HEIGHT + Field.BUFFER)));
+	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
+		blockSizeX = getWidth() / (double) Field.WIDTH;
+		blockSizeY = getHeight() / (double) (Field.HEIGHT + Field.BUFFER);
+
+		((Graphics2D) g).scale(blockSizeX / (int) blockSizeX, blockSizeY / (int) blockSizeY);
+		blockSizeX = (int) blockSizeX;
+		blockSizeY = (int) blockSizeY;
+		
 		g.setColor(getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
 		
@@ -71,7 +84,7 @@ public class EngineComponent extends JComponent {
 				
 				if(y < 0 && !ghost) {
 					g.setColor(new Color(255,255,255,128));
-					g.fillRect(x*blockSize, (y+Field.BUFFER)*blockSize, blockSize, blockSize);
+					g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), (int) blockSizeX, (int) blockSizeY);
 				}
 				
 				if(b != null) {
@@ -82,34 +95,34 @@ public class EngineComponent extends JComponent {
 						type = ShapeType.G;
 				
 					if(type != null) {
-						if(images != null)
-							g.drawImage(images.get(type), x*blockSize, (y+Field.BUFFER) * blockSize, null);
-						else {
+						if(images != null) {
+							g.drawImage(images.get(type), (int)(x*blockSizeX), (int)((y+Field.BUFFER) * blockSizeY), (int) blockSizeX, (int) blockSizeY, null);
+						} else {
 							g.setColor(colors.get(type));
-							g.fillRect(x*blockSize, (y+Field.BUFFER)*blockSize, blockSize, blockSize);
+							g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), (int)blockSizeX, (int)blockSizeY);
 						}
 					}
 				}
 				
 				if(ghost) {
 					g.setColor(new Color(255,255,255));
-					g.fillRect(x*blockSize, (y+Field.BUFFER)*blockSize, blockSize, blockSize);
+					g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), (int) blockSizeX, (int) blockSizeY);
 				}
 
 				if(b != null) {
 					g.setColor(Color.BLACK);
 					Block adj = (x > 0) ? engine.block(x-1, y) : b;
 					if(adj == null || b.id() != adj.id())
-						g.fillRect(x*blockSize, (y+Field.BUFFER)*blockSize, 1, blockSize);
+						g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), 1, (int)blockSizeY);
 					adj = (x < Field.WIDTH - 1) ? engine.block(x+1, y) : b;
 					if(adj == null || b.id() != adj.id())
-						g.fillRect((x+1)*blockSize-1, (y+Field.BUFFER)*blockSize, 1, blockSize);
+						g.fillRect((int)((x+1)*blockSizeX)-1, (int)((y+Field.BUFFER)*blockSizeY), 1, (int)blockSizeY);
 					adj = (y >= -Field.BUFFER) ? engine.block(x, y+1) : b;
 					if(adj == null || b.id() != adj.id())
-						g.fillRect(x*blockSize, (y+Field.BUFFER+1)*blockSize-1, blockSize, 1);
+						g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER+1)*blockSizeY)-1, (int)blockSizeX, 1);
 					adj = (y < Field.HEIGHT) ? engine.block(x, y-1) : b;
 					if(adj == null || b.id() != adj.id())
-						g.fillRect(x*blockSize, (y+Field.BUFFER)*blockSize, blockSize, 1);
+						g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), (int)blockSizeX, 1);
 				}
 			}
 		}
