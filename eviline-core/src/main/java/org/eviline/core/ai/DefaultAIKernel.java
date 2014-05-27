@@ -100,7 +100,7 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	protected Best bestPlacement(Field originalField, Field currentField, XYShape currentShape, ShapeType[] next, int lookahead) {
-		if(next == null || lookahead == 0)
+		if(currentShape == null || lookahead == 0)
 			return new Best(null, fitness.badness(originalField, currentField, next), currentField, null);
 		
 		currentField.clearLines();
@@ -111,10 +111,7 @@ public class DefaultAIKernel implements AIKernel {
 
 		XYShape nextShape = null;
 		ShapeType[] nextNext = null;
-		if(lookahead == 0) {
-			nextShape = null;
-			nextNext = Arrays.copyOf(next, next.length);
-		} else if(next.length > 0) {
+		if(next.length > 0) {
 			nextShape = new XYShape(next[0].start(), next[0].startX(), next[0].startY());
 			nextNext = Arrays.copyOfRange(next, 1, next.length);
 		}

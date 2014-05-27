@@ -28,12 +28,13 @@ public class EngineTableUI {
 
 		Field f = new Field();
 		final Engine engine = new Engine(f, new Configuration());
+		engine.setNext(new ShapeType[2]);
 		final DefaultAIKernel k = new DefaultAIKernel(new NextFitness());
 		
 		k.setFitness(new NextFitness());
 		k.setExec(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
 		
-		final AIPlayer ai = new AIPlayer(k, engine, 0);
+		final AIPlayer ai = new AIPlayer(k, engine, 1);
 //		final EngineTable table = new EngineTable(engine, 16);
 		final EngineComponent table = new EngineComponent(engine, 16);
 		frame.add(table);
