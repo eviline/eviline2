@@ -1,4 +1,4 @@
-package org.eviline.swing;
+package org.eviline.swing.main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -47,7 +47,9 @@ import org.eviline.swing.EngineTable;
 import org.eviline.swing.EngineTableModel;
 import org.eviline.swing.Resources;
 import org.eviline.swing.StatisticsTable;
+import org.eviline.swing.StatisticsTableModel;
 import org.eviline.swing.SwingPlayer;
+import org.eviline.swing.SwingPlayer.Key;
 
 public class ZeroGravityTableUI {
 

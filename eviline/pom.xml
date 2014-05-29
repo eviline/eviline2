@@ -24,7 +24,7 @@
 				<version>2.3</version>
 				<executions>
 					<execution>
-						<id>shade</id>
+						<id>engine-shade</id>
 						<goals>
 							<goal>shade</goal>
 						</goals>
@@ -37,6 +37,24 @@
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<mainClass>org.eviline.swing.main.EngineTableUI</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+					<execution>
+						<id>game-shade</id>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<phase>package</phase>
+						<configuration>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>game</shadedClassifierName>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>org.eviline.swing.main.ZeroGravityTableUI</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
