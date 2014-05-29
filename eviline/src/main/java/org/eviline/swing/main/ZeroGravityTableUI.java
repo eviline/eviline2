@@ -75,6 +75,7 @@ public class ZeroGravityTableUI {
 		};
 		
 		frame.setContentPane(contentPane);
+		contentPane.setDoubleBuffered(true);
 		
 		Field f = new Field();
 		final Engine engine = new Engine(f, new Configuration() {

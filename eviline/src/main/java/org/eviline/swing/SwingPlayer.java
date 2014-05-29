@@ -121,11 +121,7 @@ public class SwingPlayer implements Player {
 			Timer holdTimer = holdTimers.get(e.getKeyCode());
 			if(holdTimer != null)
 				holdTimer.restart();
-		}
-		
-		@Override
-		public void keyReleased(KeyEvent e) {
-			boolean fire = down.remove(e.getKeyCode());
+			boolean fire = true;
 			Key key = new Key(e.getKeyCode(), e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK);
 			if(fire) {
 				if(controls.containsKey(key)) {
@@ -135,6 +131,11 @@ public class SwingPlayer implements Player {
 				}
 				controlTarget.requestFocus();
 			}
+		}
+		
+		@Override
+		public void keyReleased(KeyEvent e) {
+			Key key = new Key(e.getKeyCode(), e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK);
 			Timer holdTimer = holdTimers.get(e.getKeyCode());
 			if(holdTimer != null)
 				holdTimer.stop();
