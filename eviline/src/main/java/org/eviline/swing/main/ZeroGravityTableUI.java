@@ -121,8 +121,12 @@ public class ZeroGravityTableUI {
 		final SwingPlayer pl = new SwingPlayer(table);
 		
 		engine.addEngineListener(new EngineListener() {
+			private boolean invoked = false;
 			@Override
 			public void ticked(Engine e, final Command c) {
+				if(invoked)
+					return;
+				invoked = true;
 				EventQueue.invokeLater(new Runnable() {
 					@Override
 					public void run() {
@@ -135,6 +139,7 @@ public class ZeroGravityTableUI {
 							m.write(cmd + ": " + key + "\n");
 						}
 						m.fireTableDataChanged();
+						invoked = false;
 					}
 				});
 			}

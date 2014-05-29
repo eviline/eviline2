@@ -54,7 +54,7 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 		@Override
 		protected void paintComponent(Graphics g) {
 			Color fg = getForeground();
-			setForeground(Color.BLACK);
+			setForeground(Color.BLUE.darker());
 			for(int x = 0; x <= 2; x++) {
 				for(int y = 0; y <= 2; y++) {
 					Graphics gg = g.create();
