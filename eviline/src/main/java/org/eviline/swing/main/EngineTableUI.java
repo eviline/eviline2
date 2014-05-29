@@ -1,4 +1,4 @@
-package org.eviline.swing;
+package org.eviline.swing.main;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -20,6 +20,7 @@ import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.AIPlayer;
 import org.eviline.core.ai.DefaultAIKernel;
 import org.eviline.core.ai.NextFitness;
+import org.eviline.swing.EngineComponent;
 import org.eviline.swing.EngineTable;
 import org.eviline.swing.EngineTableModel;
 
@@ -35,7 +36,7 @@ public class EngineTableUI {
 		
 		k.setExec(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
 		
-		final AIPlayer ai = new AIPlayer(k, engine, 0);
+		final AIPlayer ai = new AIPlayer(k, engine, 1);
 //		final EngineTable table = new EngineTable(engine, 16);
 		final EngineComponent table = new EngineComponent(engine, 32, true);
 		

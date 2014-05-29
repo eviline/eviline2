@@ -41,8 +41,11 @@ import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
 import org.eviline.core.ai.Player;
 import org.eviline.core.ss.EvilBag7NShapeSource;
+import org.eviline.swing.EngineComponent;
 import org.eviline.swing.EngineTable;
 import org.eviline.swing.EngineTableModel;
+import org.eviline.swing.Resources;
+import org.eviline.swing.StatisticsTable;
 import org.eviline.swing.SwingPlayer;
 
 public class ZeroGravityTableUI {
