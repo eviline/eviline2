@@ -72,7 +72,5 @@ public class StatisticsTable extends JTable implements EngineListener {
 		} else
 			m.write("N/A\n");
 		
-		m.fireTableDataChanged();
-		
 	}
 }

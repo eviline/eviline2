@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +17,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -57,12 +59,17 @@ public class ZeroGravityTableUI {
 		final JFrame frame = new JFrame("test");
 		
 		JPanel contentPane = new JPanel(new BorderLayout()) {
+			private Image stork = Resources.getStork();
+			
 			@Override
 			protected void paintComponent(Graphics g) {
+				if(stork.getWidth(null) != getWidth() || stork.getHeight(null) != getHeight()) {
+					stork = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+					stork.getGraphics().drawImage(Resources.getStork(), 0, 0, getWidth(), getHeight(), null);
+				}
 				g.drawImage(
-						Resources.getStork(),
+						stork,
 						0, 0,
-						getWidth(), getHeight(),
 						null);
 			}
 		};
@@ -149,16 +156,21 @@ public class ZeroGravityTableUI {
 		
 		ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
 		Runnable ticker = new Runnable() {
+			private boolean invoked = false;
 			@Override
 			public void run() {
 				Command c = pl.tick();
 				if(!engine.isOver())
 					engine.tick(c);
+				if(invoked)
+					return;
+				invoked = true;
 				EventQueue.invokeLater(new Runnable() {
 					@Override
 					public void run() {
 						table.repaint();
 						frame.setTitle("" + engine.getLines());
+						invoked = false;
 					}
 				});
 			}
