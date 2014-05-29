@@ -260,8 +260,8 @@ public class Engine {
 		tickCount++;
 		
 		if(listeners != null) {
-			for(EngineListener l : listeners)
-				l.ticked(this, c);
+			for(int i = listeners.length - 1; i >= 0; i--)
+				listeners[i].ticked(this, c);
 		}
 		
 		return success;

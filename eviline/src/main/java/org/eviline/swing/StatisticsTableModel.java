@@ -20,8 +20,8 @@ public class StatisticsTableModel extends AbstractTableModel {
 		}
 	}
 	
-	protected Character[][] chars = new Character[DIM][DIM];
-	protected Color[][] colors = new Color[DIM][DIM];
+	protected Character[][] chars = new Character[DIM][DIM*2];
+	protected Color[][] colors = new Color[DIM][DIM*2];
 	protected int x, y;
 	protected Color color;
 	
@@ -67,7 +67,7 @@ public class StatisticsTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return DIM;
+		return DIM*2;
 	}
 
 	@Override

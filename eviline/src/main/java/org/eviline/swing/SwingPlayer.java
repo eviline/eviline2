@@ -16,6 +16,7 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
@@ -72,6 +73,16 @@ public class SwingPlayer implements Player {
 			return false;
 		}
 		
+		
+		@Override
+		public String toString() {
+			String s = KeyEvent.getKeyText(keyCode);
+			if(keyMods != 0)
+				s = KeyEvent.getModifiersExText(keyMods) + " " + s;
+			if(keyHold != 0)
+				s = "HOLD/" + s;
+			return s;
+		}
 	}
 	
 	protected Map<Key, Command> controls = new HashMap<>();
@@ -167,5 +178,17 @@ public class SwingPlayer implements Player {
 
 	public KeyListener getControlsListener() {
 		return controlsListener;
+	}
+	
+	@Override
+	public String toString() {
+		return controls.toString();
+	}
+	
+	public Key forCommand(Command c) {
+		for(Key k : controls.keySet())
+			if(controls.get(k) == c)
+				return k;
+		return null;
 	}
 }

@@ -36,6 +36,7 @@ import javax.swing.plaf.metal.MetalTheme;
 import org.eviline.core.Command;
 import org.eviline.core.Configuration;
 import org.eviline.core.Engine;
+import org.eviline.core.EngineListener;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
@@ -105,7 +106,7 @@ public class ZeroGravityTableUI {
 			}
 		});
 		
-		StatisticsTable stats = new StatisticsTable(engine, 24);
+		final StatisticsTable stats = new StatisticsTable(engine, 24);
 		tables.add(stats, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0));
 		
 		frame.add(tables, BorderLayout.CENTER);
@@ -116,7 +117,29 @@ public class ZeroGravityTableUI {
 		ll.setFont(Resources.getMinecrafter().deriveFont(36f));
 		
 		final SwingPlayer pl = new SwingPlayer(table);
-
+		
+		engine.addEngineListener(new EngineListener() {
+			@Override
+			public void ticked(Engine e, final Command c) {
+				EventQueue.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						stats.ticked(engine, c);
+						StatisticsTableModel m = stats.getModel();
+						for(Command cmd : Command.values()) {
+							SwingPlayer.Key key = pl.forCommand(cmd);
+							if(key == null)
+								continue;
+							m.write(cmd + ": " + key + "\n");
+						}
+						m.fireTableDataChanged();
+					}
+				});
+			}
+		});
+		
+		engine.removeEngineListener(stats);
+		
 		ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
 		Runnable ticker = new Runnable() {
 			@Override
