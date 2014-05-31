@@ -3,6 +3,8 @@ package org.eviline.core.ai;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
@@ -139,11 +141,11 @@ public class DefaultAIKernel implements AIKernel {
 		}
 
 		
-		return worstNext(field, bestPlayed, shapes, lookahead).type;
+		return worstNext(field, bestPlayed, Arrays.asList(shapes.getBag()), lookahead).type;
 	}
 
-	protected Best worstNext(Field originalField, Field currentField, ShapeSource shapes, int lookahead) {
-		if(lookahead == 0) {
+	protected Best worstNext(Field originalField, Field currentField, List<ShapeType> bag, int lookahead) {
+		if(lookahead == 0 || bag.size() == 0) {
 			return new Best(null, fitness.badness(originalField, currentField, ShapeType.NONE), currentField, null);
 		}
 		
@@ -151,12 +153,12 @@ public class DefaultAIKernel implements AIKernel {
 		
 		Best worst = new Best(null, Double.NEGATIVE_INFINITY, null, null);
 		
-		for(ShapeType type : ShapeType.types(shapes.getBag())) {
+		for(ShapeType type : new HashSet<>(bag)) {
 			XYShape currentShape = new XYShape(type.start(), type.startX(), type.startY());
 			Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1);
-			ShapeSource nextShapes = shapes.clone();
-			nextShapes.removeFromBag(type);
-			Best shapeWorst = worstNext(originalField, shapeBest.after, nextShapes, lookahead - 1);
+			List<ShapeType> nextBag = new ArrayList<>(bag);
+			nextBag.remove(type);
+			Best shapeWorst = worstNext(originalField, shapeBest.after, nextBag, lookahead - 1);
 			if(shapeWorst.score > worst.score)
 				worst = new Best(null, shapeWorst.score, shapeWorst.after, type);
 		}
