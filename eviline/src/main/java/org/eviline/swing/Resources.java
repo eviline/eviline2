@@ -22,16 +22,16 @@ public abstract class Resources {
 		return minecrafter;
 	}
 	
-	private static Image stork;
-	public static Image getStork() {
-		if(stork == null) {
+	private static Image spider;
+	public static Image getSpider() {
+		if(spider == null) {
 			try {
-				stork = ImageIO.read(Resources.class.getResource("stork.jpg"));
+				spider = ImageIO.read(Resources.class.getResource("spider.jpg"));
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		return stork;
+		return spider;
 	}
 	
 	private Resources() {}

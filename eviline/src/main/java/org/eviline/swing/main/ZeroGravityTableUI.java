@@ -59,13 +59,13 @@ public class ZeroGravityTableUI {
 		final JFrame frame = new JFrame("test");
 		
 		JPanel contentPane = new JPanel(new BorderLayout()) {
-			private Image stork = Resources.getStork();
+			private Image stork = Resources.getSpider();
 			
 			@Override
 			protected void paintComponent(Graphics g) {
 				if(stork.getWidth(null) != getWidth() || stork.getHeight(null) != getHeight()) {
 					stork = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
-					stork.getGraphics().drawImage(Resources.getStork(), 0, 0, getWidth(), getHeight(), null);
+					stork.getGraphics().drawImage(Resources.getSpider(), 0, 0, getWidth(), getHeight(), null);
 				}
 				g.drawImage(
 						stork,
@@ -102,7 +102,7 @@ public class ZeroGravityTableUI {
 //		table.getModel().setGhosting(true);
 		final EngineComponent table = new EngineComponent(engine, 24, false);
 		table.setGhosting(true);
-		table.setBackground(new Color(0,0,0,96));
+		table.setBackground(new Color(128,0,0,96));
 		tables.add(table, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
 		table.addFocusListener(new FocusAdapter() {
 			@Override
