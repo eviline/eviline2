@@ -40,5 +40,6 @@
 		<module>../eviline-core</module>
 		<module>../eviline-console</module>
 		<module>../eviline</module>
+		<module>../eviline-webstart</module>
 	</modules>
 </project>
