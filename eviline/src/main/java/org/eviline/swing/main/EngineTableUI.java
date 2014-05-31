@@ -36,7 +36,7 @@ public class EngineTableUI {
 		
 		k.setExec(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
 		
-		final AIPlayer ai = new AIPlayer(k, engine, 1);
+		final AIPlayer ai = new AIPlayer(k, engine, 0);
 //		final EngineTable table = new EngineTable(engine, 16);
 		final EngineComponent table = new EngineComponent(engine, 32, true);
 		
