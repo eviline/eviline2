@@ -221,8 +221,13 @@ public class EvilApplet extends JApplet {
 //		exec.schedule(ticker, 1000000L / 60, TimeUnit.MICROSECONDS);
 		exec.scheduleAtFixedRate(ticker, 0, 1000000L/60, TimeUnit.MICROSECONDS);
 		
-		revalidate();
-		repaint();
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				revalidate();
+				repaint();
+			}
+		});
 	}
 
 	@Override
