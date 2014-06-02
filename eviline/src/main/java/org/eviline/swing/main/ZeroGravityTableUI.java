@@ -173,7 +173,6 @@ public class ZeroGravityTableUI {
 				EventQueue.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						shapes.update();
 						shapes.repaint();
 						table.repaint();
 						frame.setTitle("" + engine.getLines());
