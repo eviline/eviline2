@@ -26,6 +26,8 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 	protected int n;
 	protected Random random = new Random();
 	
+	protected ShapeType forcedNext;
+	
 	protected List<ShapeType> bag = new ArrayList<>();
 	
 	protected int lookahead = 2;
@@ -38,10 +40,16 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 		this.n = n;
 		for(int i = 0; i < n; i++)
 			bag.addAll(Arrays.asList(ShapeType.blocks()));
+		forcedNext = bag.remove(random.nextInt(bag.size()));
 	}
 	
 	@Override
 	public ShapeType next(Engine engine) {
+		if(forcedNext != null) {
+			ShapeType ret = forcedNext;
+			forcedNext = null;
+			return ret;
+		}
 		try {
 			Set<ShapeType> types = new HashSet<>();
 			types.addAll(bag);
