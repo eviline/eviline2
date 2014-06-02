@@ -25,7 +25,7 @@
 								<j2seVersion>1.7+</j2seVersion>
 							</jnlp>
 							<updateManifestEntries>
-								<Permissions>all-permissions</Permissions>
+								<!-- <Permissions>all-permissions</Permissions> -->
 								<Application-Name>eviline2</Application-Name>
 								<Codebase>*</Codebase>
 							</updateManifestEntries>
