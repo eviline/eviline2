@@ -48,6 +48,7 @@ import org.eviline.swing.EngineComponent;
 import org.eviline.swing.EngineTable;
 import org.eviline.swing.EngineTableModel;
 import org.eviline.swing.Resources;
+import org.eviline.swing.ShapeSourceComponent;
 import org.eviline.swing.StatisticsTable;
 import org.eviline.swing.StatisticsTableModel;
 import org.eviline.swing.SwingPlayer;
@@ -116,6 +117,9 @@ public class ZeroGravityTableUI {
 			}
 		});
 		
+		final ShapeSourceComponent shapes = new ShapeSourceComponent(engine, 4);
+		tables.add(shapes, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
+		
 		final StatisticsTable stats = new StatisticsTable(engine, 24);
 		tables.add(stats, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0));
 		
@@ -169,6 +173,8 @@ public class ZeroGravityTableUI {
 				EventQueue.invokeLater(new Runnable() {
 					@Override
 					public void run() {
+						shapes.update();
+						shapes.repaint();
 						table.repaint();
 						frame.setTitle("" + engine.getLines());
 						invoked = false;

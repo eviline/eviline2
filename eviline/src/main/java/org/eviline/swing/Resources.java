@@ -2,6 +2,7 @@ package org.eviline.swing;
 
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -33,6 +34,18 @@ public abstract class Resources {
 		}
 		return spider;
 	}
-	
+
+	private static BufferedImage block;
+	public static BufferedImage getBlock() {
+		if(block == null) {
+			try {
+				block = ImageIO.read(Resources.class.getResource("block.png"));
+			} catch(IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return block;
+	}
+
 	private Resources() {}
 }

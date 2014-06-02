@@ -21,6 +21,7 @@ public enum ShapeType {
 		case T: return T_UP;
 		case I: return I_UP;
 		case O: return O_UP;
+		case G: return null;
 		}
 		throw new InternalError("impossible switch fallthrough");
 	}
