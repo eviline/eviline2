@@ -131,6 +131,7 @@ public class SwingPlayer implements Player {
 				}
 				controlTarget.requestFocus();
 			}
+			e.consume();
 		}
 		
 		@Override
@@ -140,6 +141,7 @@ public class SwingPlayer implements Player {
 			if(holdTimer != null)
 				holdTimer.stop();
 			held.remove(key);
+			e.consume();
 		}
 	}
 	
