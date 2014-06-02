@@ -44,16 +44,16 @@ import org.eviline.swing.SwingPlayer;
 
 public class EvilApplet extends JApplet {
 	protected JPanel contentPane = new JPanel(new BorderLayout()) {
-		private Image stork = Resources.getSpider();
+		private Image spider = Resources.getSpider();
 		
 		@Override
 		protected void paintComponent(Graphics g) {
-			if(stork.getWidth(null) != getWidth() || stork.getHeight(null) != getHeight()) {
-				stork = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
-				stork.getGraphics().drawImage(Resources.getSpider(), 0, 0, getWidth(), getHeight(), null);
+			if(spider.getWidth(null) != getWidth() || spider.getHeight(null) != getHeight()) {
+				spider = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+				spider.getGraphics().drawImage(Resources.getSpider(), 0, 0, getWidth()*7/5, getHeight(), null);
 			}
 			g.drawImage(
-					stork,
+					spider,
 					0, 0,
 					null);
 		}
@@ -104,7 +104,6 @@ public class EvilApplet extends JApplet {
 		final EngineComponent table = new EngineComponent(engine, 24, false);
 		table.setGhosting(true);
 		table.setBackground(new Color(128,0,0,96));
-		tables.add(table, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
 		table.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -116,12 +115,20 @@ public class EvilApplet extends JApplet {
 				engine.setPaused(false);
 			}
 		});
+		tables.add(table, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
 		
 		final ShapeSourceComponent shapes = new ShapeSourceComponent(engine, 3);
 		tables.add(shapes, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
 		
-		final StatisticsTable stats = new StatisticsTable(engine, 16);
-		tables.add(stats, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0));
+		final StatisticsTable stats = new StatisticsTable(engine, 16) {
+			@Override
+			protected void paintComponent(Graphics g) {
+				g.setColor(new Color(128,0,0,96));
+				g.fillRect(0, 0, getWidth(), getHeight());
+				super.paintComponent(g);
+			}
+		};
+		tables.add(stats, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.WEST, GridBagConstraints.VERTICAL, new Insets(10, 10, 10, 10), 0, 0));
 		
 		contentPane.add(tables, BorderLayout.CENTER);
 		JLabel ll;
@@ -140,7 +147,7 @@ public class EvilApplet extends JApplet {
 		reset.setBackground(new Color(128,0,0,96));
 		reset.setForeground(Color.WHITE);
 		reset.setOpaque(true);
-		reset.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+		reset.setBorder(null);
 		reset.setVerticalTextPosition(SwingConstants.BOTTOM);
 		contentPane.add(reset, BorderLayout.SOUTH);
 		
@@ -178,6 +185,8 @@ public class EvilApplet extends JApplet {
 			private boolean invoked = false;
 			@Override
 			public void run() {
+				if(!table.hasFocus())
+					return;
 				Command c = pl.tick();
 				if(!engine.isOver())
 					engine.tick(c);
@@ -204,7 +213,11 @@ public class EvilApplet extends JApplet {
 			}
 		});
 
-		table.requestFocusInWindow();
+		requestFocusInWindow();
+		
+		stats.getModel().clear();
+		stats.getModel().write("click in the field to begin");
+		
 //		exec.schedule(ticker, 1000000L / 60, TimeUnit.MICROSECONDS);
 		exec.scheduleAtFixedRate(ticker, 0, 1000000L/60, TimeUnit.MICROSECONDS);
 		

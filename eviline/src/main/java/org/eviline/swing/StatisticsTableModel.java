@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 import org.eviline.core.Field;
 
 public class StatisticsTableModel extends AbstractTableModel {
-	private static final int DIM = Field.HEIGHT + Field.BUFFER;
+	private static final int DIM = Field.HEIGHT;
 
 	public static class ColoredCharacter {
 		public final Character c;
@@ -20,8 +20,8 @@ public class StatisticsTableModel extends AbstractTableModel {
 		}
 	}
 	
-	protected Character[][] chars = new Character[DIM][DIM*2];
-	protected Color[][] colors = new Color[DIM][DIM*2];
+	protected Character[][] chars = new Character[DIM][DIM*3/2];
+	protected Color[][] colors = new Color[DIM][DIM*3/2];
 	protected int x, y;
 	protected Color color;
 	
@@ -62,12 +62,12 @@ public class StatisticsTableModel extends AbstractTableModel {
 	
 	@Override
 	public int getRowCount() {
-		return DIM;
+		return chars.length;
 	}
 
 	@Override
 	public int getColumnCount() {
-		return DIM*2;
+		return chars[0].length;
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package org.eviline.swing;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.io.IOException;
@@ -42,10 +43,10 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 	
 	private class OutlineLabel extends JLabel {
 		public OutlineLabel() {
-			setOpaque(false);;
+			setOpaque(false);
 			setBorder(null);
 //			setFont(Resources.getMinecrafter().deriveFont(16f));
-			setFont(getFont().deriveFont(Font.BOLD).deriveFont(16f));
+			setFont(getFont().deriveFont(Font.BOLD).deriveFont(12f));
 		}
 		
 		public void set(JLabel c) {
@@ -60,13 +61,12 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 			for(int x = 0; x <= 2; x++) {
 				for(int y = 0; y <= 2; y++) {
 					Graphics gg = g.create();
-					gg.translate(x, y);
+					gg.translate(x-1, y-1);
 					super.paintComponent(gg);
 				}
 			}
 			setForeground(fg);
 			Graphics gg = g.create();
-			gg.translate(1, 1);
 			super.paintComponent(gg);
 		}
 	}
