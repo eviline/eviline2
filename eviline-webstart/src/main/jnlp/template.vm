@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp
     spec="1.0+"
-    codebase="http://www.eviline.org/play"
+    codebase="http://www.eviline.org/"
     href="launch.jnlp">
   <information>
     <title>eviline-webstart</title>
