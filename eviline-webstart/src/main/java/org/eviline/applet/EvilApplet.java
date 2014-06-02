@@ -62,15 +62,15 @@ public class EvilApplet extends JApplet {
 	@Override
 	public void init() {
 		super.init();
-		if(!EventQueue.isDispatchThread()) {
-			EventQueue.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					init();
-				}
-			});
-			return;
-		}
+//		if(!EventQueue.isDispatchThread()) {
+//			EventQueue.invokeLater(new Runnable() {
+//				@Override
+//				public void run() {
+//					init();
+//				}
+//			});
+//			return;
+//		}
 		setContentPane(contentPane);
 		
 		Field f = new Field();
