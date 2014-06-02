@@ -26,6 +26,7 @@
 							</jnlp>
 							<updateManifestEntries>
 								<Permissions>all-permissions</Permissions>
+								<Application-Name>eviline2</Application-Name>
 								<Codebase>*</Codebase>
 							</updateManifestEntries>
 							<sign>
