@@ -221,6 +221,11 @@ public class EvilApplet extends JApplet {
 //		exec.schedule(ticker, 1000000L / 60, TimeUnit.MICROSECONDS);
 		exec.scheduleAtFixedRate(ticker, 0, 1000000L/60, TimeUnit.MICROSECONDS);
 		
+	}
+
+	@Override
+	public void start() {
+		super.start();
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -228,12 +233,6 @@ public class EvilApplet extends JApplet {
 				repaint();
 			}
 		});
-	}
-
-	@Override
-	public void start() {
-		// TODO Auto-generated method stub
-		super.start();
 	}
 
 	@Override
