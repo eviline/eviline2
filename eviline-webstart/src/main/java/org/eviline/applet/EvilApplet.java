@@ -144,7 +144,7 @@ public class EvilApplet extends JApplet {
 		reset.setVerticalTextPosition(SwingConstants.BOTTOM);
 		contentPane.add(reset, BorderLayout.SOUTH);
 		
-		final SwingPlayer pl = new SwingPlayer(table, true);
+		final SwingPlayer pl = new SwingPlayer(table);
 		
 		engine.addEngineListener(new EngineListener() {
 			private boolean invoked = false;
