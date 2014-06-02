@@ -46,6 +46,8 @@ public class EvilApplet extends JApplet {
 			return;
 		}
 		setContentPane(contentPane);
+		revalidate();
+		repaint();
 	}
 
 	@Override
