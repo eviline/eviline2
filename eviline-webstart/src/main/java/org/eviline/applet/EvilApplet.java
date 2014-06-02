@@ -122,7 +122,7 @@ public class EvilApplet extends JApplet {
 		ll.setForeground(Color.WHITE);
 		ll.setFont(Resources.getMinecrafter().deriveFont(36f));
 		
-		final SwingPlayer pl = new SwingPlayer(table);
+		final SwingPlayer pl = new SwingPlayer(table, true);
 		
 		engine.addEngineListener(new EngineListener() {
 			private boolean invoked = false;
