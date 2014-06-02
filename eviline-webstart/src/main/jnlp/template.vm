@@ -18,6 +18,6 @@
 	$dependencies
      
   </resources>
-  <applet-desc name="eviline2" main-class="org.eviline.swing.main.ZeroGravityTableUI"/>
+  <applet-desc name="eviline2" main-class="org.eviline.swing.main.ZeroGravityTableUI" width="710" height="540"/>
 </jnlp>
 
