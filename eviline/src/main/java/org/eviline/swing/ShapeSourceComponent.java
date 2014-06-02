@@ -1,10 +1,12 @@
 package org.eviline.swing;
 
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -17,7 +19,7 @@ public class ShapeSourceComponent extends JPanel {
 	protected ShapeTypeIcon icons;
 	
 	public ShapeSourceComponent(Engine engine, int blocksize) {
-		super(new GridLayout(0, 1));
+		super(new GridLayout(0, 1, 1, 1));
 		this.engine = engine;
 		icons = new ShapeTypeIcon(blocksize);
 		setOpaque(false);
@@ -28,7 +30,9 @@ public class ShapeSourceComponent extends JPanel {
 		List<ShapeType> bag = Arrays.asList(engine.getShapes().getBag());
 		Collections.sort(bag);
 		for(ShapeType type : bag) {
-			JLabel l = new JLabel(icons.get(type));
+			Icon i = icons.get(type);
+			JLabel l = new JLabel(i);
+//			l.setPreferredSize(new Dimension(2 + i.getIconWidth(), 1 + i.getIconHeight()));
 			l.setOpaque(false);
 			add(l);
 		}

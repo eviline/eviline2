@@ -37,6 +37,7 @@ import org.eviline.core.ShapeType;
 import org.eviline.core.ss.EvilBag7NShapeSource;
 import org.eviline.swing.EngineComponent;
 import org.eviline.swing.Resources;
+import org.eviline.swing.ShapeSourceComponent;
 import org.eviline.swing.StatisticsTable;
 import org.eviline.swing.StatisticsTableModel;
 import org.eviline.swing.SwingPlayer;
@@ -116,6 +117,9 @@ public class EvilApplet extends JApplet {
 			}
 		});
 		
+		final ShapeSourceComponent shapes = new ShapeSourceComponent(engine, 3);
+		tables.add(shapes, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
+		
 		final StatisticsTable stats = new StatisticsTable(engine, 16);
 		tables.add(stats, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0));
 		
@@ -183,6 +187,8 @@ public class EvilApplet extends JApplet {
 				EventQueue.invokeLater(new Runnable() {
 					@Override
 					public void run() {
+						shapes.update();
+						shapes.repaint();
 						table.repaint();
 						invoked = false;
 					}
