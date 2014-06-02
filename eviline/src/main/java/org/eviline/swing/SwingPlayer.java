@@ -143,6 +143,11 @@ public class SwingPlayer implements Player {
 			held.remove(key);
 			e.consume();
 		}
+		
+		@Override
+		public void keyTyped(KeyEvent e) {
+			keyReleased(e);
+		}
 	}
 	
 	protected ControlsKeyListener controlsListener;
