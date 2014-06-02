@@ -21,7 +21,7 @@ import org.eviline.core.ai.DefaultFitness;
 import org.eviline.core.ai.Fitness;
 
 public class StatisticsTable extends JTable implements EngineListener {
-	private static final SimpleDateFormat tdf = new SimpleDateFormat("HH:mm:ss.SSS");
+	private static final SimpleDateFormat tdf = new SimpleDateFormat("HH:mm:ss");
 	static {
 		tdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}

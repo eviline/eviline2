@@ -8,6 +8,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
@@ -17,7 +18,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JApplet;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -112,7 +116,7 @@ public class EvilApplet extends JApplet {
 			}
 		});
 		
-		final StatisticsTable stats = new StatisticsTable(engine, 24);
+		final StatisticsTable stats = new StatisticsTable(engine, 16);
 		tables.add(stats, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0));
 		
 		contentPane.add(tables, BorderLayout.CENTER);
@@ -121,6 +125,20 @@ public class EvilApplet extends JApplet {
 		ll.setHorizontalAlignment(SwingConstants.CENTER);
 		ll.setForeground(Color.WHITE);
 		ll.setFont(Resources.getMinecrafter().deriveFont(36f));
+		JButton reset = new JButton(new AbstractAction("RESET") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				engine.reset();
+				table.requestFocusInWindow();
+			}
+		});
+		reset.setFont(Resources.getMinecrafter().deriveFont(24f));
+		reset.setBackground(new Color(128,0,0,96));
+		reset.setForeground(Color.WHITE);
+		reset.setOpaque(true);
+		reset.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+		reset.setVerticalTextPosition(SwingConstants.BOTTOM);
+		contentPane.add(reset, BorderLayout.SOUTH);
 		
 		final SwingPlayer pl = new SwingPlayer(table, true);
 		
