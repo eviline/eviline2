@@ -131,6 +131,19 @@ public class EngineComponent extends JComponent {
 				}
 			}
 		}
+		
+		if(engine.isOver()) {
+			g.setColor(new Color(255,255,255,128));
+			g.fillRect(0, 0, getWidth(), getHeight());
+			g.setColor(Color.RED.darker().darker().darker());
+			g.setFont(Resources.getMinecrafter().deriveFont((float) blockSizeY*1.75f));
+			String over = "GAME OVER";
+			for(int i = 0; i < over.length(); i++) {
+				String s = over.substring(i, i+1);
+				int w = g.getFontMetrics().stringWidth(s);
+				g.drawString(s, (int)((Field.WIDTH / 2) * blockSizeX) - w/2, (int)((Field.BUFFER + i*2+2) * blockSizeY));
+			}
+		}
 	}
 
 
