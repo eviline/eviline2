@@ -57,11 +57,6 @@ public class EvilApplet extends JApplet {
 					0, 0,
 					null);
 		}
-		
-		@Override
-		public boolean isDoubleBuffered() {
-			return true;
-		}
 	};
 
 	@Override
