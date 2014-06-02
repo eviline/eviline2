@@ -123,7 +123,7 @@ public class EvilApplet extends JApplet {
 		final StatisticsTable stats = new StatisticsTable(engine, 16) {
 			@Override
 			protected void paintComponent(Graphics g) {
-				g.setColor(new Color(128,0,0,96));
+				g.setColor(new Color(64,0,0,192));
 				g.fillRect(0, 0, getWidth(), getHeight());
 				super.paintComponent(g);
 			}
