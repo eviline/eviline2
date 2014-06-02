@@ -2,6 +2,7 @@ package org.eviline.swing;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.io.IOException;
 
@@ -43,7 +44,8 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 		public OutlineLabel() {
 			setOpaque(false);;
 			setBorder(null);
-			setFont(Resources.getMinecrafter().deriveFont(16f));
+//			setFont(Resources.getMinecrafter().deriveFont(16f));
+			setFont(getFont().deriveFont(Font.BOLD).deriveFont(16f));
 		}
 		
 		public void set(JLabel c) {
