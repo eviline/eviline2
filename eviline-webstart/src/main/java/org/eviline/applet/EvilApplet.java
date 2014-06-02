@@ -191,8 +191,8 @@ public class EvilApplet extends JApplet {
 				EventQueue.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						shapes.repaint();
-						table.repaint();
+						revalidate();
+						repaint();
 						invoked = false;
 					}
 				});
