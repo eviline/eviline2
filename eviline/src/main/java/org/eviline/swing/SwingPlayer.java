@@ -117,10 +117,11 @@ public class SwingPlayer implements Player {
 		
 		@Override
 		public void keyPressed(KeyEvent e) {
+			down.add(e.getKeyCode());
 			Timer holdTimer = holdTimers.get(e.getKeyCode());
 			if(holdTimer != null)
 				holdTimer.restart();
-			boolean fire = down.add(e.getKeyCode()) || holdTimer == null;
+			boolean fire = true;
 			Key key = new Key(e.getKeyCode(), e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK);
 			if(fire) {
 				if(controls.containsKey(key)) {
@@ -129,11 +130,6 @@ public class SwingPlayer implements Player {
 					}
 				}
 				controlTarget.requestFocus();
-			} else {
-				holdTimer.stop();
-				for(ActionListener l : holdTimer.getActionListeners())
-					l.actionPerformed(null);
-				held.remove(key);
 			}
 			e.consume();
 		}
@@ -145,30 +141,44 @@ public class SwingPlayer implements Player {
 			if(holdTimer != null)
 				holdTimer.stop();
 			held.remove(key);
-			down.remove(e.getKeyCode());
 			e.consume();
+		}
+		
+		@Override
+		public void keyTyped(KeyEvent e) {
+			keyReleased(e);
 		}
 	}
 	
 	protected ControlsKeyListener controlsListener;
 	
 	public SwingPlayer(JComponent controlTarget) {
+		this(controlTarget, false);
+	}
+	
+	public SwingPlayer(JComponent controlTarget, boolean appletMode) {
 		this.controlTarget = controlTarget;
-		initKeys();
+		initKeys(appletMode);
 		controlsListener = new ControlsKeyListener();
 		controlTarget.addKeyListener(controlsListener);
 	}
 	
-	protected void initKeys() {
+	protected void initKeys(boolean appletMode) {
 		controls.put(new Key(KeyEvent.VK_Z), Command.ROTATE_LEFT);
 		controls.put(new Key(KeyEvent.VK_X), Command.ROTATE_RIGHT);
 		controls.put(new Key(KeyEvent.VK_LEFT), Command.SHIFT_LEFT);
 		controls.put(new Key(KeyEvent.VK_RIGHT), Command.SHIFT_RIGHT);
 		controls.put(new Key(KeyEvent.VK_DOWN), Command.SHIFT_DOWN);
 		controls.put(new Key(KeyEvent.VK_UP), Command.HARD_DROP);
-		controls.put(new Key(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK, 150), Command.AUTOSHIFT_LEFT);
-		controls.put(new Key(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK, 150), Command.AUTOSHIFT_RIGHT);
-		controls.put(new Key(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK, 150), Command.SOFT_DROP);
+		if(!appletMode) {
+			controls.put(new Key(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK, 150), Command.AUTOSHIFT_LEFT);
+			controls.put(new Key(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK, 150), Command.AUTOSHIFT_RIGHT);
+			controls.put(new Key(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK, 150), Command.SOFT_DROP);
+		} else {
+			controls.put(new Key(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK), Command.AUTOSHIFT_LEFT);
+			controls.put(new Key(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK), Command.AUTOSHIFT_RIGHT);
+			controls.put(new Key(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK), Command.SOFT_DROP);
+		}
 	}
 
 	@Override
