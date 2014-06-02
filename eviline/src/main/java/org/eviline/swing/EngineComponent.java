@@ -56,6 +56,11 @@ public class EngineComponent extends JComponent {
 	}
 	
 	@Override
+	public boolean isLightweight() {
+		return true;
+	}
+	
+	@Override
 	public Dimension getPreferredSize() {
 		if(isPreferredSizeSet())
 			return super.getPreferredSize();
