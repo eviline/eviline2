@@ -115,9 +115,9 @@ public class EvilApplet extends JApplet {
 		final StatisticsTable stats = new StatisticsTable(engine, 24);
 		tables.add(stats, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0));
 		
-		add(tables, BorderLayout.CENTER);
+		contentPane.add(tables, BorderLayout.CENTER);
 		JLabel ll;
-		add(ll = new JLabel("eviline2"), BorderLayout.NORTH);
+		contentPane.add(ll = new JLabel("eviline2"), BorderLayout.NORTH);
 		ll.setHorizontalAlignment(SwingConstants.CENTER);
 		ll.setForeground(Color.WHITE);
 		ll.setFont(Resources.getMinecrafter().deriveFont(36f));
