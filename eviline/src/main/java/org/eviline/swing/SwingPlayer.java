@@ -78,7 +78,7 @@ public class SwingPlayer implements Player {
 		public String toString() {
 			String s = KeyEvent.getKeyText(keyCode);
 			if(keyMods != 0)
-				s = KeyEvent.getModifiersExText(keyMods) + " " + s;
+				s = KeyEvent.getModifiersExText(keyMods) + "+" + s;
 			if(keyHold != 0)
 				s = "HOLD/" + s;
 			return s;
