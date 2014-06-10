@@ -6,6 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.eviline.core.Engine;
+import org.junit.Assume;
 import org.junit.Test;
 
 import com.googlecode.lanterna.TerminalFacade;
@@ -27,8 +28,12 @@ public class EngineComponentTest {
 		
 		w = new Window(EngineComponent.class.getName());
 		w.addComponent(new EngineComponent(engine));
-		
-		gui.getScreen().startScreen();
+
+		try {
+			gui.getScreen().startScreen();
+		} catch(Exception e) {
+			Assume.assumeNoException(e);
+		}
 
 		gui.showWindow(w);
 	}
