@@ -24,6 +24,7 @@ import org.eviline.lanterna.EngineComponent;
 import org.eviline.lanterna.EngineScreen;
 import org.eviline.lanterna.EngineWindow;
 import org.eviline.lanterna.LanternaPlayer;
+import org.eviline.lanterna.MarkupLabel;
 
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.gui.Action;
@@ -61,7 +62,7 @@ public class AutoplayMain {
 			}
 		});
 
-		engine.setNext(new ShapeType[7]);
+		engine.setNext(new ShapeType[3]);
 
 		Terminal term;
 		try {
@@ -90,10 +91,10 @@ public class AutoplayMain {
 		Panel p = new Panel(Orientation.VERTICAL);
 		p.addComponent(new Label("autoplay"));
 		p.addComponent(new Label(""));
-		p.addComponent(new Label("Press Q to quit"));
-		p.addComponent(new Label("Press R to reset"));
-		p.addComponent(new Label("Press UP to increase lookahead"));
-		p.addComponent(new Label("Press DOWN to decrease lookahead"));
+		p.addComponent(new MarkupLabel("Press <b>Q</b> to quit"));
+		p.addComponent(new MarkupLabel("Press <b>R</b> to reset"));
+		p.addComponent(new MarkupLabel("Press <b>UP</b> to increase lookahead"));
+		p.addComponent(new MarkupLabel("Press <b>DOWN</b> to decrease lookahead"));
 		w.addComponent(p, BorderLayout.RIGHT);
 
 		w.addWindowListener(new WindowAdapter() {
@@ -130,7 +131,6 @@ public class AutoplayMain {
 			@Override
 			public Thread newThread(Runnable arg0) {
 				Thread t = new Thread(arg0);
-				t.setPriority(Thread.MIN_PRIORITY);
 				t.setDaemon(true);
 				return t;
 			}
@@ -140,8 +140,6 @@ public class AutoplayMain {
 		Runnable ticker = new Runnable() {
 			@Override
 			public void run() {
-				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-
 				Command c = player.tick();
 				synchronized(engine) {
 					if(!engine.isOver())
@@ -159,7 +157,7 @@ public class AutoplayMain {
 						synchronized(engine) {
 							while(engine.getShape() == null)
 								engine.tick(Command.NOP);
-							w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + " lines:" + engine.getLines());
+							w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + engine.getNext().length + " lines:" + engine.getLines());
 							gui.invalidate();
 							lock.release();
 						}
