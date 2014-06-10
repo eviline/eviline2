@@ -85,8 +85,8 @@ public class ZeroGravityMain {
 		} catch(Exception e) {
 			System.out.println("\nThe above garbage was an attempt to recognize a unix console.  It can safely be ignored.");
 			TerminalAppearance appearance = new TerminalAppearance(
-					TerminalAppearance.DEFAULT_NORMAL_FONT.deriveFont(10f),
-					TerminalAppearance.DEFAULT_BOLD_FONT.deriveFont(10f),
+					TerminalAppearance.DEFAULT_NORMAL_FONT.deriveFont(12f),
+					TerminalAppearance.DEFAULT_BOLD_FONT.deriveFont(12f),
 					TerminalPalette.XTERM,
 					true);
 			term = TerminalFacade.createSwingTerminal(appearance, 160, 50);
