@@ -26,6 +26,7 @@ import org.eviline.lanterna.EngineScreen;
 import org.eviline.lanterna.EngineWindow;
 import org.eviline.lanterna.ImageBackgroundRenderer;
 import org.eviline.lanterna.LanternaPlayer;
+import org.eviline.lanterna.MarkupLabel;
 
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.gui.Action;
@@ -132,21 +133,21 @@ public class ZeroGravityMain {
 		Panel p = new Panel(Orientation.VERTICAL);
 		p.addComponent(new Label("normal play"));
 		p.addComponent(new Label(""));
-		p.addComponent(new Label("Press Q to quit"));
-		p.addComponent(new Label("Press R to reset"));
+		p.addComponent(new MarkupLabel("Press <b>Q</b> to quit"));
+		p.addComponent(new MarkupLabel("Press <b>R</b> to reset"));
 		p.addComponent(new Label(""));
-		p.addComponent(new Label("Press K to rotate left"));
-		p.addComponent(new Label("Press L to rotate right"));
-		p.addComponent(new Label("Press A to shift left"));
-		p.addComponent(new Label("Press CTRL+A to autoshift shift left"));
-		p.addComponent(new Label("Press D to shift right"));
-		p.addComponent(new Label("Press CTRL+D to autoshift right"));
-		p.addComponent(new Label("Press S to shift down"));
-		p.addComponent(new Label("Press CTRL+S to soft drop"));
-		p.addComponent(new Label("Press W to hard drop"));
+		p.addComponent(new MarkupLabel("Press <b>K</b> to rotate left"));
+		p.addComponent(new MarkupLabel("Press <b>L</b> to rotate right"));
+		p.addComponent(new MarkupLabel("Press <b>A</b> to shift left"));
+		p.addComponent(new MarkupLabel("Press <b>CTRL+A</b> to autoshift shift left"));
+		p.addComponent(new MarkupLabel("Press <b>D</b> to shift right"));
+		p.addComponent(new MarkupLabel("Press <b>CTRL+D</b> to autoshift right"));
+		p.addComponent(new MarkupLabel("Press <b>S</b> to shift down"));
+		p.addComponent(new MarkupLabel("Press <b>CTRL+S</b> to soft drop"));
+		p.addComponent(new MarkupLabel("Press <b>W</b> to hard drop"));
 		p.addComponent(new Label(""));
 		p.addComponent(new Label("Available shapes:"));
-		p.addComponent(bag = new Label(""));
+		p.addComponent(bag = new Label("", true));
 		w.addComponent(p, BorderLayout.RIGHT);
 
 		w.addWindowListener(new WindowAdapter() {
