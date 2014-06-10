@@ -41,5 +41,6 @@
 		<module>../eviline-console</module>
 		<module>../eviline</module>
 		<module>../eviline-webstart</module>
+		<module>../eviline-webapp</module>
 	</modules>
 </project>
