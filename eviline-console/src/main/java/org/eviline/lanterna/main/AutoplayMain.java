@@ -6,6 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eviline.core.Command;
 import org.eviline.core.Configuration;
@@ -47,6 +48,7 @@ public class AutoplayMain {
 	private static EngineWindow w;
 	private static DefaultAIKernel ai;
 	private static AIPlayer player;
+	private static AtomicBoolean syncDisplay = new AtomicBoolean(false);
 
 	public static void main(String... args) throws Exception {
 		Field field = new Field();
@@ -95,6 +97,7 @@ public class AutoplayMain {
 		p.addComponent(new MarkupLabel("Press <b>R</b> to reset"));
 		p.addComponent(new MarkupLabel("Press <b>UP</b> to increase lookahead"));
 		p.addComponent(new MarkupLabel("Press <b>DOWN</b> to decrease lookahead"));
+		p.addComponent(new MarkupLabel("Press <b>S</b> to toggle synchronous display"));
 		w.addComponent(p, BorderLayout.RIGHT);
 
 		w.addWindowListener(new WindowAdapter() {
@@ -111,6 +114,13 @@ public class AutoplayMain {
 					synchronized(engine) {
 						engine.reset();
 					}
+					break;
+				case 's':
+					synchronized(syncDisplay) {
+						syncDisplay.set(!syncDisplay.get());
+						syncDisplay.notifyAll();
+					}
+					player.setAllowDrops(!syncDisplay.get());
 					break;
 				}
 				switch(key.getKind()) {
@@ -145,6 +155,15 @@ public class AutoplayMain {
 					if(!engine.isOver())
 						engine.tick(c);
 				}
+				synchronized(syncDisplay) {
+					if(syncDisplay.get()) {
+						try {
+							syncDisplay.wait();
+						} catch (InterruptedException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				}
 			}
 		};
 		Runnable drawer = new Runnable() {
@@ -159,11 +178,18 @@ public class AutoplayMain {
 								engine.tick(Command.NOP);
 							w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + engine.getNext().length + " lines:" + engine.getLines());
 							gui.invalidate();
+							if(syncDisplay.get())
+								gui.update();
 							lock.release();
 						}
 					}
 				});
 				lock.acquireUninterruptibly();
+				synchronized(syncDisplay) {
+					if(syncDisplay.get()) {
+						syncDisplay.notifyAll();
+					}
+				}
 			}
 		};
 		exec.scheduleWithFixedDelay(ticker, 0, 1, TimeUnit.NANOSECONDS);
