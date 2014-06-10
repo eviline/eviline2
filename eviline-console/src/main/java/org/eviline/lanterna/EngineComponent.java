@@ -46,13 +46,17 @@ public class EngineComponent extends AbstractComponent {
 					ShapeType t = null;
 					if(ghosting && b == null && engine.getGhost() != null && engine.getGhost().has(x, y))
 						t = ShapeType.G;
-					else if(b == null)
-						continue;
-					if(t == null)
+					if(t == null && b != null)
 						t = b.shape().type();
-					g.setBackgroundColor(color.bg(t));
-					g.setForegroundColor(color.fg(t));
-					g.drawString(x*2, y + Field.BUFFER, "\u2592\u2592", ScreenCharacterStyle.Bold);
+					if(t != null) {
+						g.setBackgroundColor(color.bg(t));
+						g.setForegroundColor(color.fg(t));
+						g.drawString(x*2, y + Field.BUFFER, "\u2592\u2592", ScreenCharacterStyle.Bold);
+					} else if(y < 0) {
+						g.setBackgroundColor(Color.BLACK);
+						g.setForegroundColor(Color.WHITE);
+						g.drawString(x*2, y + Field.BUFFER, "\u2573\u2573");
+					}
 				}
 			}
 		}
