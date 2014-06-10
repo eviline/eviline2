@@ -7,6 +7,7 @@ import org.eviline.lanterna.AWTColorAdapter.ColorAdaption;
 
 import com.googlecode.lanterna.gui.GUIScreenBackgroundRenderer;
 import com.googlecode.lanterna.gui.TextGraphics;
+import com.googlecode.lanterna.screen.ScreenCharacterStyle;
 
 public class ImageBackgroundRenderer implements GUIScreenBackgroundRenderer {
 
@@ -29,7 +30,7 @@ public class ImageBackgroundRenderer implements GUIScreenBackgroundRenderer {
 				ColorAdaption ca = AWTColorAdapter.get(new Color(scaled.getRGB(x, y)));
 				g.setBackgroundColor(ca.getBg());
 				g.setForegroundColor(ca.getFg());
-				g.drawString(x, y, Character.toString(ca.getC()));
+				g.drawString(x, y, Character.toString(ca.getC()), ScreenCharacterStyle.Bold);
 			}
 		}
 	}
