@@ -128,16 +128,16 @@ public class EngineComponent extends JComponent {
 
 				if(b != null) {
 					g.setColor(Color.BLACK);
-					Block adj = (x > 0) ? engine.block(x-1, y) : b;
+					Block adj = (x > 0) ? engine.block(x-1, y) : null;
 					if(adj == null || b.id() != adj.id())
 						g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), 1, (int)blockSizeY);
-					adj = (x < Field.WIDTH - 1) ? engine.block(x+1, y) : b;
+					adj = (x < Field.WIDTH - 1) ? engine.block(x+1, y) : null;
 					if(adj == null || b.id() != adj.id())
 						g.fillRect((int)((x+1)*blockSizeX)-1, (int)((y+Field.BUFFER)*blockSizeY), 1, (int)blockSizeY);
-					adj = (y >= -Field.BUFFER) ? engine.block(x, y+1) : b;
+					adj = (y >= -Field.BUFFER) ? engine.block(x, y+1) : null;
 					if(adj == null || b.id() != adj.id())
 						g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER+1)*blockSizeY)-1, (int)blockSizeX, 1);
-					adj = (y < Field.HEIGHT) ? engine.block(x, y-1) : b;
+					adj = (y < Field.HEIGHT) ? engine.block(x, y-1) : null;
 					if(adj == null || b.id() != adj.id())
 						g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), (int)blockSizeX, 1);
 				}
