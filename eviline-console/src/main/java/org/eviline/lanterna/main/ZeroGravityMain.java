@@ -50,12 +50,12 @@ public class ZeroGravityMain {
 	private static EngineWindow w;
 	private static DefaultAIKernel ai;
 	private static LanternaPlayer player;
-	
+
 	private static Label bag;
 
 	public static void main(String... args) throws Exception {
 		Field field = new Field();
-		
+
 		engine = new Engine(field, new Configuration() {
 			@Override
 			public Integer downFramesRemaining(Engine e) {
@@ -74,7 +74,7 @@ public class ZeroGravityMain {
 		});
 
 		engine.setNext(new ShapeType[0]);
-		
+
 		Terminal term;
 		try {
 			term = TerminalFacade.createUnixTerminal();
@@ -84,26 +84,17 @@ public class ZeroGravityMain {
 			gui.getScreen().stopScreen();
 		} catch(Exception e) {
 			System.out.println("\nThe above garbage was an attempt to recognize a unix console.  It can safely be ignored.");
-			try {
-				term = TerminalFacade.createCygwinTerminal();
-				Screen screen = TerminalFacade.createScreen(term);
-				gui = new EngineScreen(screen);
-				gui.getScreen().startScreen();
-				gui.getScreen().stopScreen();
-			} catch(Exception e2) {
-				System.out.println("\nThe above garbage was an attempt to recognize a cygwin console.  It can safely be ignored.");
-				term = TerminalFacade.createSwingTerminal(
-						new TerminalAppearance(
-								TerminalAppearance.DEFAULT_NORMAL_FONT,
-								TerminalAppearance.DEFAULT_BOLD_FONT,
-								TerminalPalette.XTERM,
-								true)
-						);
-				Screen screen = TerminalFacade.createScreen(term);
-				gui = new EngineScreen(screen);
-			}
+			term = TerminalFacade.createSwingTerminal(
+					new TerminalAppearance(
+							TerminalAppearance.DEFAULT_NORMAL_FONT,
+							TerminalAppearance.DEFAULT_BOLD_FONT,
+							TerminalPalette.XTERM,
+							true)
+					);
+			Screen screen = TerminalFacade.createScreen(term);
+			gui = new EngineScreen(screen);
 		}
-		
+
 		BufferedImage flower = ImageIO.read(ZeroGravityMain.class.getResource("flower.jpg"));
 		gui.setBackgroundRenderer(new ImageBackgroundRenderer(flower));
 
@@ -119,17 +110,17 @@ public class ZeroGravityMain {
 				gui.update();
 			}
 		});
-		
+
 		gui.getScreen().startScreen();
 
 		gui.showWindow(okw, Position.CENTER);
-		
+
 		final ScheduledExecutorService exec = Executors.newScheduledThreadPool(3);
 
 		w = new EngineWindow(engine);
-		
+
 		w.getEngineComponent().setGhosting(true);
-		
+
 		Panel p = new Panel(Orientation.VERTICAL);
 		p.addComponent(new Label("normal play"));
 		p.addComponent(new Label(""));
@@ -172,7 +163,7 @@ public class ZeroGravityMain {
 		});
 		player = new LanternaPlayer();
 		w.addWindowListener(player);
-		
+
 		ai = new DefaultAIKernel();
 		ai.setFitness(new NextFitness());
 		ai.setExec(Executors.newCachedThreadPool(new ThreadFactory() {
@@ -183,7 +174,7 @@ public class ZeroGravityMain {
 				return t;
 			}
 		}));
-		
+
 		Runnable ticker = new Runnable() {
 			@Override
 			public void run() {
@@ -231,7 +222,7 @@ public class ZeroGravityMain {
 		};
 		exec.scheduleWithFixedDelay(ticker, 0, 10, TimeUnit.MILLISECONDS);
 		exec.scheduleWithFixedDelay(drawer, 0, 10, TimeUnit.MILLISECONDS);
-		
+
 		gui.showWindow(w);
 	}
 

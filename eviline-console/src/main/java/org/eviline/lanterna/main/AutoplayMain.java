@@ -37,6 +37,8 @@ import com.googlecode.lanterna.gui.listener.WindowAdapter;
 import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.terminal.swing.TerminalAppearance;
+import com.googlecode.lanterna.terminal.swing.TerminalPalette;
 
 public class AutoplayMain {
 	private static Engine engine;
@@ -47,7 +49,7 @@ public class AutoplayMain {
 
 	public static void main(String... args) throws Exception {
 		Field field = new Field();
-		
+
 		engine = new Engine(field, new Configuration() {
 			@Override
 			public Integer downFramesRemaining(Engine e) {
@@ -60,7 +62,7 @@ public class AutoplayMain {
 		});
 
 		engine.setNext(new ShapeType[7]);
-		
+
 		Terminal term;
 		try {
 			term = TerminalFacade.createUnixTerminal();
@@ -70,20 +72,17 @@ public class AutoplayMain {
 			gui.getScreen().stopScreen();
 		} catch(Exception e) {
 			System.out.println("\nThe above garbage was an attempt to recognize a unix console.  It can safely be ignored.");
-			try {
-				term = TerminalFacade.createCygwinTerminal();
-				Screen screen = TerminalFacade.createScreen(term);
-				gui = new EngineScreen(screen);
-				gui.getScreen().startScreen();
-				gui.getScreen().stopScreen();
-			} catch(Exception e2) {
-				System.out.println("\nThe above garbage was an attempt to recognize a cygwin console.  It can safely be ignored.");
-				term = TerminalFacade.createSwingTerminal();
-				Screen screen = TerminalFacade.createScreen(term);
-				gui = new EngineScreen(screen);
-			}
+			term = TerminalFacade.createSwingTerminal(
+					new TerminalAppearance(
+							TerminalAppearance.DEFAULT_NORMAL_FONT,
+							TerminalAppearance.DEFAULT_BOLD_FONT,
+							TerminalPalette.XTERM,
+							true)
+					);
+			Screen screen = TerminalFacade.createScreen(term);
+			gui = new EngineScreen(screen);
 		}
-		
+
 
 		final ScheduledExecutorService exec = Executors.newScheduledThreadPool(3);
 
@@ -124,7 +123,7 @@ public class AutoplayMain {
 				}
 			}
 		});
-		
+
 		ai = new DefaultAIKernel();
 		ai.setFitness(new NextFitness());
 		ai.setExec(Executors.newCachedThreadPool(new ThreadFactory() {
@@ -137,12 +136,12 @@ public class AutoplayMain {
 			}
 		}));
 		player = new AIPlayer(ai, engine, 1);
-		
+
 		Runnable ticker = new Runnable() {
 			@Override
 			public void run() {
 				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-				
+
 				Command c = player.tick();
 				synchronized(engine) {
 					if(!engine.isOver())
@@ -171,7 +170,7 @@ public class AutoplayMain {
 		};
 		exec.scheduleWithFixedDelay(ticker, 0, 1, TimeUnit.NANOSECONDS);
 		exec.scheduleWithFixedDelay(drawer, 0, 1, TimeUnit.NANOSECONDS);
-		
+
 		gui.getScreen().startScreen();
 
 		gui.showWindow(w);
