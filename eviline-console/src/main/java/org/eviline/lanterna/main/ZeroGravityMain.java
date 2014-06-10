@@ -84,13 +84,12 @@ public class ZeroGravityMain {
 			gui.getScreen().stopScreen();
 		} catch(Exception e) {
 			System.out.println("\nThe above garbage was an attempt to recognize a unix console.  It can safely be ignored.");
-			term = TerminalFacade.createSwingTerminal(
-					new TerminalAppearance(
-							TerminalAppearance.DEFAULT_NORMAL_FONT,
-							TerminalAppearance.DEFAULT_BOLD_FONT,
-							TerminalPalette.XTERM,
-							true)
-					);
+			TerminalAppearance appearance = new TerminalAppearance(
+					TerminalAppearance.DEFAULT_NORMAL_FONT.deriveFont(10f),
+					TerminalAppearance.DEFAULT_BOLD_FONT.deriveFont(10f),
+					TerminalPalette.XTERM,
+					true);
+			term = TerminalFacade.createSwingTerminal(appearance, 160, 50);
 			Screen screen = TerminalFacade.createScreen(term);
 			gui = new EngineScreen(screen);
 		}
@@ -223,7 +222,7 @@ public class ZeroGravityMain {
 		exec.scheduleWithFixedDelay(ticker, 0, 10, TimeUnit.MILLISECONDS);
 		exec.scheduleWithFixedDelay(drawer, 0, 10, TimeUnit.MILLISECONDS);
 
-		gui.showWindow(w);
+		gui.showWindow(w, Position.CENTER);
 	}
 
 }
