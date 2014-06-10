@@ -3,6 +3,8 @@ package org.eviline.lanterna.main;
 import java.awt.EventQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.eviline.core.Command;
@@ -11,6 +13,7 @@ import org.eviline.core.Engine;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
+import org.eviline.core.XYShape;
 import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.AIPlayer;
 import org.eviline.core.ai.DefaultAIKernel;
@@ -18,6 +21,7 @@ import org.eviline.core.ai.NextFitness;
 import org.eviline.core.ai.Player;
 import org.eviline.core.ss.EvilBag7NShapeSource;
 import org.eviline.lanterna.EngineComponent;
+import org.eviline.lanterna.EngineScreen;
 import org.eviline.lanterna.EngineWindow;
 import org.eviline.lanterna.LanternaPlayer;
 
@@ -34,7 +38,7 @@ import com.googlecode.lanterna.input.Key;
 
 public class AutoplayMain {
 	private static Engine engine;
-	private static GUIScreen gui;
+	private static EngineScreen gui;
 	private static EngineWindow w;
 	private static DefaultAIKernel ai;
 	private static AIPlayer player;
@@ -55,9 +59,9 @@ public class AutoplayMain {
 
 		engine.setNext(new ShapeType[7]);
 		
-		gui = TerminalFacade.createGUIScreen();
+		gui = new EngineScreen(TerminalFacade.createScreen());
 
-		final ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
+		final ScheduledExecutorService exec = Executors.newScheduledThreadPool(3);
 
 		w = new EngineWindow(engine);
 		Panel p = new Panel(Orientation.VERTICAL);
@@ -79,12 +83,9 @@ public class AutoplayMain {
 					exec.shutdown();
 					break;
 				case 'r':
-					exec.execute(new Runnable() {
-						@Override
-						public void run() {
-							engine.reset();
-						}
-					});
+					synchronized(engine) {
+						engine.reset();
+					}
 					break;
 				}
 				switch(key.getKind()) {
@@ -101,35 +102,50 @@ public class AutoplayMain {
 		
 		ai = new DefaultAIKernel();
 		ai.setFitness(new NextFitness());
-		ai.setExec(Executors.newCachedThreadPool());
+		ai.setExec(Executors.newCachedThreadPool(new ThreadFactory() {
+			@Override
+			public Thread newThread(Runnable arg0) {
+				Thread t = new Thread(arg0);
+				t.setPriority(Thread.MIN_PRIORITY);
+				t.setDaemon(true);
+				return t;
+			}
+		}));
 		player = new AIPlayer(ai, engine, 1);
 		
 		Runnable ticker = new Runnable() {
-			private boolean invoked = false;
-			private boolean drawn = false;
 			@Override
 			public void run() {
-				if(invoked)
-					return;
-				invoked = true;
+				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+				
+				Command c = player.tick();
+				synchronized(engine) {
+					if(!engine.isOver())
+						engine.tick(c);
+				}
+			}
+		};
+		Runnable drawer = new Runnable() {
+			private Semaphore lock = new Semaphore(0);
+			@Override
+			public void run() {
 				gui.runInEventThread(new Action() {
 					@Override
 					public void doAction() {
-						Command c = player.tick();
-						if(!engine.isOver())
-							engine.tick(c);
-						if(!drawn && engine.getShape() != null) {
+						synchronized(engine) {
+							while(engine.getShape() == null)
+								engine.tick(Command.NOP);
 							w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + " lines:" + engine.getLines());
 							gui.invalidate();
-							drawn = true;
-						} else if(engine.getShape() == null)
-							drawn = false;
-						invoked = false;
+							lock.release();
+						}
 					}
 				});
+				lock.acquireUninterruptibly();
 			}
 		};
 		exec.scheduleWithFixedDelay(ticker, 0, 1, TimeUnit.NANOSECONDS);
+		exec.scheduleWithFixedDelay(drawer, 0, 1, TimeUnit.NANOSECONDS);
 		
 		gui.getScreen().startScreen();
 
