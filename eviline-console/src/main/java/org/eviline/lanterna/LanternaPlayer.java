@@ -12,7 +12,7 @@ import com.googlecode.lanterna.input.Key;
 
 public class LanternaPlayer extends WindowAdapter implements Player {
 	protected Deque<Command> commands = new ArrayDeque<Command>();
-	
+
 	@Override
 	public Command tick() {
 		Command c;
@@ -27,49 +27,33 @@ public class LanternaPlayer extends WindowAdapter implements Player {
 	@Override
 	public void onUnhandledKeyboardInteraction(Window window, Key key) {
 		Command c = null;
-		switch(key.getKind()) {
-		case ArrowDown:
-			c = Command.SHIFT_DOWN;
+		switch(key.getCharacter()) {
+		case 'k':
+			c = Command.ROTATE_LEFT;
 			break;
-		case ArrowLeft:
-			c = Command.SHIFT_LEFT;
+		case 'l':
+			c = Command.ROTATE_RIGHT;
 			break;
-		case ArrowRight:
-			c = Command.SHIFT_RIGHT;
+		case 'a':
+			if(key.isAltPressed())
+				c = Command.AUTOSHIFT_LEFT;
+			else
+				c = Command.SHIFT_LEFT;
 			break;
-		case ArrowUp:
+		case 'w':
 			c = Command.HARD_DROP;
 			break;
-		case NormalKey:
-			switch(key.getCharacter()) {
-			case 'k':
-				c = Command.ROTATE_LEFT;
-				break;
-			case 'l':
-				c = Command.ROTATE_RIGHT;
-				break;
-			case 'a':
-				if(key.isCtrlPressed())
-					c = Command.AUTOSHIFT_LEFT;
-				else
-					c = Command.SHIFT_LEFT;
-				break;
-			case 'w':
-				c = Command.HARD_DROP;
-				break;
-			case 's':
-				if(key.isCtrlPressed())
-					c = Command.SOFT_DROP;
-				else
-					c = Command.SHIFT_DOWN;
-				break;
-			case 'd':
-				if(key.isCtrlPressed())
-					c = Command.AUTOSHIFT_RIGHT;
-				else
-					c = Command.SHIFT_RIGHT;
-				break;
-			}
+		case 's':
+			if(key.isAltPressed())
+				c = Command.SOFT_DROP;
+			else
+				c = Command.SHIFT_DOWN;
+			break;
+		case 'd':
+			if(key.isAltPressed())
+				c = Command.AUTOSHIFT_RIGHT;
+			else
+				c = Command.SHIFT_RIGHT;
 			break;
 		}
 		if(c != null) {

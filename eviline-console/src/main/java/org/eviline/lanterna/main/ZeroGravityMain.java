@@ -139,11 +139,11 @@ public class ZeroGravityMain {
 		p.addComponent(new MarkupLabel("Press <b>K</b> to rotate left"));
 		p.addComponent(new MarkupLabel("Press <b>L</b> to rotate right"));
 		p.addComponent(new MarkupLabel("Press <b>A</b> to shift left"));
-		p.addComponent(new MarkupLabel("Press <b>CTRL+A</b> to autoshift shift left"));
+		p.addComponent(new MarkupLabel("Press <b>ALT+A</b> to autoshift shift left"));
 		p.addComponent(new MarkupLabel("Press <b>D</b> to shift right"));
-		p.addComponent(new MarkupLabel("Press <b>CTRL+D</b> to autoshift right"));
+		p.addComponent(new MarkupLabel("Press <b>ALT+D</b> to autoshift right"));
 		p.addComponent(new MarkupLabel("Press <b>S</b> to shift down"));
-		p.addComponent(new MarkupLabel("Press <b>CTRL+S</b> to soft drop"));
+		p.addComponent(new MarkupLabel("Press <b>ALT+S</b> to soft drop"));
 		p.addComponent(new MarkupLabel("Press <b>W</b> to hard drop"));
 		p.addComponent(new Label(""));
 		p.addComponent(new Label("Available shapes:"));
@@ -155,6 +155,8 @@ public class ZeroGravityMain {
 			public void onUnhandledKeyboardInteraction(Window window, Key key) {
 				switch(key.getCharacter()) {
 				case 'q':
+					if(key.isCtrlPressed())
+						return;
 					w.close();
 					gui.getScreen().stopScreen();
 					exec.shutdown();
