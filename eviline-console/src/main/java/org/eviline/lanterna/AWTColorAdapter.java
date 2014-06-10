@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.googlecode.lanterna.terminal.Terminal.Color;
 import com.googlecode.lanterna.terminal.swing.TerminalPalette;
@@ -41,6 +43,7 @@ public class AWTColorAdapter {
 	}
 	
 	protected static Collection<ColorAdaption> colors = new ArrayList<ColorAdaption>();
+	protected static Map<java.awt.Color, ColorAdaption> cache = new HashMap<java.awt.Color, ColorAdaption>();
 	
 	static {
 		TerminalPalette p = TerminalPalette.XTERM;
@@ -51,7 +54,7 @@ public class AWTColorAdapter {
 			for(Color bg : Color.values()) {
 				for(int ci = 0; ci < cs.length; ci++) {
 					char c = cs[ci];
-					double fgAlpha = ci / ((double) cs.length);
+					double fgAlpha = ci / ((double) cs.length - 0.5);
 					g.setColor(getAWTBackground(bg, p));
 					g.fillRect(0, 0, 1, 1);
 					java.awt.Color afg = getAWTForeground(fg, p);
@@ -65,6 +68,8 @@ public class AWTColorAdapter {
 	}
 	
 	public static ColorAdaption get(java.awt.Color c) {
+		if(cache.containsKey(c))
+			return cache.get(c);
 		float[] chsb = java.awt.Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
 		double dist = Double.POSITIVE_INFINITY;
 		ColorAdaption entry = null;
@@ -79,6 +84,7 @@ public class AWTColorAdapter {
 				dist = edist;
 			}
 		}
+		cache.put(c, entry);
 		return entry;
 	}
 	
