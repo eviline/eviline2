@@ -27,33 +27,37 @@ public class LanternaPlayer extends WindowAdapter implements Player {
 	@Override
 	public void onUnhandledKeyboardInteraction(Window window, Key key) {
 		Command c = null;
-		switch(key.getCharacter()) {
-		case 'k':
-			c = Command.ROTATE_LEFT;
+		switch(key.getKind()) {
+		case ArrowLeft:
+			c = Command.SHIFT_LEFT;
 			break;
-		case 'l':
-			c = Command.ROTATE_RIGHT;
+		case ArrowRight:
+			c = Command.SHIFT_RIGHT;
 			break;
-		case 'a':
-			if(key.isAltPressed())
-				c = Command.AUTOSHIFT_LEFT;
-			else
-				c = Command.SHIFT_LEFT;
+		case ArrowDown:
+			c = Command.SHIFT_DOWN;
 			break;
-		case 'w':
+		case ArrowUp:
 			c = Command.HARD_DROP;
 			break;
-		case 's':
-			if(key.isAltPressed())
+		case NormalKey:
+			switch(key.getCharacter()) {
+			case 'z':
+				c = Command.ROTATE_LEFT;
+				break;
+			case 'x':
+				c = Command.ROTATE_RIGHT;
+				break;
+			case 'a':
+				c = Command.AUTOSHIFT_LEFT;
+				break;
+			case 's':
 				c = Command.SOFT_DROP;
-			else
-				c = Command.SHIFT_DOWN;
-			break;
-		case 'd':
-			if(key.isAltPressed())
+				break;
+			case 'd':
 				c = Command.AUTOSHIFT_RIGHT;
-			else
-				c = Command.SHIFT_RIGHT;
+				break;
+			}
 			break;
 		}
 		if(c != null) {
