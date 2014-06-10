@@ -1,6 +1,7 @@
 package org.eviline.lanterna.main;
 
 import java.awt.EventQueue;
+import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -8,6 +9,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.imageio.ImageIO;
 
 import org.eviline.core.Command;
 import org.eviline.core.Configuration;
@@ -25,6 +28,7 @@ import org.eviline.core.ss.EvilBag7NShapeSource;
 import org.eviline.lanterna.EngineComponent;
 import org.eviline.lanterna.EngineScreen;
 import org.eviline.lanterna.EngineWindow;
+import org.eviline.lanterna.ImageBackgroundRenderer;
 import org.eviline.lanterna.LanternaPlayer;
 import org.eviline.lanterna.MarkupLabel;
 
@@ -67,8 +71,7 @@ public class AutoplayMain {
 							engine.tick(Command.NOP);
 						w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + engine.getNext().length + " lines:" + engine.getLines());
 						gui.invalidate();
-						if(syncDisplay)
-							gui.update();
+						gui.update();
 						lock.release();
 					}
 				}
@@ -134,7 +137,6 @@ public class AutoplayMain {
 			Screen screen = TerminalFacade.createScreen(term);
 			gui = new EngineScreen(screen);
 		}
-
 
 		exec = Executors.newFixedThreadPool(2);
 
