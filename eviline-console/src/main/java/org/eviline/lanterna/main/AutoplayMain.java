@@ -10,6 +10,7 @@ import org.eviline.core.Configuration;
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
+import org.eviline.core.ShapeType;
 import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.AIPlayer;
 import org.eviline.core.ai.DefaultAIKernel;
@@ -35,7 +36,8 @@ public class AutoplayMain {
 	private static Engine engine;
 	private static GUIScreen gui;
 	private static EngineWindow w;
-	private static Player player;
+	private static DefaultAIKernel ai;
+	private static AIPlayer player;
 
 	public static void main(String... args) throws Exception {
 		Field field = new Field();
@@ -51,6 +53,8 @@ public class AutoplayMain {
 			}
 		});
 
+		engine.setNext(new ShapeType[7]);
+		
 		gui = TerminalFacade.createGUIScreen();
 
 		final ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
@@ -61,6 +65,8 @@ public class AutoplayMain {
 		p.addComponent(new Label(""));
 		p.addComponent(new Label("Press Q to quit"));
 		p.addComponent(new Label("Press R to reset"));
+		p.addComponent(new Label("Press UP to increase lookahead"));
+		p.addComponent(new Label("Press DOWN to decrease lookahead"));
 		w.addComponent(p, BorderLayout.RIGHT);
 
 		w.addWindowListener(new WindowAdapter() {
@@ -81,11 +87,19 @@ public class AutoplayMain {
 					});
 					break;
 				}
-					
+				switch(key.getKind()) {
+				case ArrowUp:
+					if(player.getLookahead() < engine.getNext().length)
+						player.setLookahead(player.getLookahead() + 1);
+					break;
+				case ArrowDown:
+					if(player.getLookahead() > 0)
+						player.setLookahead(player.getLookahead() - 1);
+				}
 			}
 		});
 		
-		DefaultAIKernel ai = new DefaultAIKernel();
+		ai = new DefaultAIKernel();
 		ai.setFitness(new NextFitness());
 		ai.setExec(Executors.newCachedThreadPool());
 		player = new AIPlayer(ai, engine, 1);
@@ -105,7 +119,7 @@ public class AutoplayMain {
 						if(!engine.isOver())
 							engine.tick(c);
 						if(!drawn && engine.getShape() != null) {
-							w.getContentPane().setTitle("eviline2:" + engine.getLines());
+							w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + " lines:" + engine.getLines());
 							gui.invalidate();
 							drawn = true;
 						} else if(engine.getShape() == null)

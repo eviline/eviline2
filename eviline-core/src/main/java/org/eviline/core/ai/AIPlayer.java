@@ -62,4 +62,12 @@ public class AIPlayer implements Player {
 	public Deque<Command> getCommands() {
 		return commands;
 	}
+
+	public int getLookahead() {
+		return lookahead;
+	}
+
+	public void setLookahead(int lookahead) {
+		this.lookahead = lookahead;
+	}
 }
