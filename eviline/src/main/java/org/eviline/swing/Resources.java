@@ -23,16 +23,16 @@ public abstract class Resources {
 		return minecrafter;
 	}
 	
-	private static Image spider;
-	public static Image getSpider() {
-		if(spider == null) {
+	private static Image flower;
+	public static Image getFlower() {
+		if(flower == null) {
 			try {
-				spider = ImageIO.read(Resources.class.getResource("spider.jpg"));
+				flower = ImageIO.read(Resources.class.getResource("flower.jpg"));
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		return spider;
+		return flower;
 	}
 
 	private static BufferedImage block;

@@ -20,8 +20,8 @@ public class StatisticsTableModel extends AbstractTableModel {
 		}
 	}
 	
-	protected Character[][] chars = new Character[DIM][DIM*3/2];
-	protected Color[][] colors = new Color[DIM][DIM*3/2];
+	protected Character[][] chars = new Character[DIM][DIM*2];
+	protected Color[][] colors = new Color[DIM][DIM*2];
 	protected int x, y;
 	protected Color color;
 	

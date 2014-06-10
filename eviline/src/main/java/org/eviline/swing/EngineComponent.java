@@ -1,5 +1,6 @@
 package org.eviline.swing;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -53,6 +54,7 @@ public class EngineComponent extends JComponent {
 		});
 		
 		setBackground(Color.BLACK);
+		setForeground(Color.DARK_GRAY);
 	}
 	
 	@Override
@@ -78,6 +80,16 @@ public class EngineComponent extends JComponent {
 		
 		g.setColor(getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
+		
+		g.setColor(getForeground());
+		((Graphics2D) g).setStroke(new BasicStroke(1f));
+		for(int y = -Field.BUFFER; y < Field.HEIGHT; y++) {
+			for(int x = 0; x < Field.WIDTH; x++) {
+				int px = (int)(x * blockSizeX);
+				int py = (int)((y + Field.BUFFER) * blockSizeY);
+				g.drawRect(px-1, py-1, 1, 1);
+			}
+		}
 		
 		for(int y = -Field.BUFFER; y < Field.HEIGHT; y++) {
 			for(int x = 0; x < Field.WIDTH; x++) {

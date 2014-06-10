@@ -44,13 +44,13 @@ import org.eviline.swing.SwingPlayer;
 
 public class EvilApplet extends JApplet {
 	protected JPanel contentPane = new JPanel(new BorderLayout()) {
-		private Image spider = Resources.getSpider();
+		private Image spider = Resources.getFlower();
 		
 		@Override
 		protected void paintComponent(Graphics g) {
 			if(spider.getWidth(null) != getWidth() || spider.getHeight(null) != getHeight()) {
 				spider = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
-				spider.getGraphics().drawImage(Resources.getSpider(), 0, 0, getWidth()*7/5, getHeight(), null);
+				spider.getGraphics().drawImage(Resources.getFlower(), 0, 0, getWidth()*7/5, getHeight(), null);
 			}
 			g.drawImage(
 					spider,

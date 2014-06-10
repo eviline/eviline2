@@ -46,7 +46,7 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 			setOpaque(false);
 			setBorder(null);
 //			setFont(Resources.getMinecrafter().deriveFont(16f));
-			setFont(getFont().deriveFont(Font.BOLD).deriveFont(12f));
+			setFont(getFont().deriveFont(12f));
 		}
 		
 		public void set(JLabel c) {

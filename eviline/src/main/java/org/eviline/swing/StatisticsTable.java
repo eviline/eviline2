@@ -40,7 +40,7 @@ public class StatisticsTable extends JTable implements EngineListener {
 		setIntercellSpacing(new Dimension(0, 0));
 		setRowHeight(blockSize);
 		for(TableColumn c : Collections.list(getColumnModel().getColumns()))
-			c.setPreferredWidth((int)(blockSize));
+			c.setPreferredWidth((int)(blockSize / 2));
 		setDefaultRenderer(Object.class, new StatisticsTableCellRenderer());
 		
 		setOpaque(false);
