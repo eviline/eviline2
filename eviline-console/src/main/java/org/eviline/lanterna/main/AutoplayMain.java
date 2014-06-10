@@ -81,6 +81,7 @@ public class AutoplayMain {
 					w.close();
 					gui.getScreen().stopScreen();
 					exec.shutdown();
+					System.exit(0);
 					break;
 				case 'r':
 					synchronized(engine) {
