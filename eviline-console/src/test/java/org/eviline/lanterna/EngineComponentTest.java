@@ -44,15 +44,10 @@ public class EngineComponentTest {
 		exec.schedule(new Runnable() {
 			@Override
 			public void run() {
-				gui.runInEventThread(new Action() {
-					@Override
-					public void doAction() {
-						w.close();
-						gui.getScreen().stopScreen();
-					}
-				});
+				w.close();
+				gui.getScreen().stopScreen();
 			}
-		}, 5, TimeUnit.SECONDS);
+		}, 2, TimeUnit.SECONDS);
 		main();
 		;
 	}
