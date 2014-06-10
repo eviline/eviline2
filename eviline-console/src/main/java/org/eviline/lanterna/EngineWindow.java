@@ -1,5 +1,7 @@
 package org.eviline.lanterna;
 
+import java.lang.reflect.Field;
+
 import org.eviline.core.Engine;
 
 import com.googlecode.lanterna.gui.Component;
@@ -14,6 +16,8 @@ public class EngineWindow extends Window {
 	protected Engine engine;
 	protected Panel panel;
 	
+	private Field contentPane;
+	
 	public EngineWindow(Engine engine) {
 		super("eviline2");
 		
@@ -24,6 +28,13 @@ public class EngineWindow extends Window {
 		super.addComponent(panel);
 		
 		addComponent(new EngineComponent(engine), BorderLayout.LEFT);
+		
+		try {
+			contentPane = Window.class.getDeclaredField("contentPane");
+			contentPane.setAccessible(true);
+		} catch (NoSuchFieldException | SecurityException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -51,5 +62,12 @@ public class EngineWindow extends Window {
 		panel.removeAllComponents();
 	}
 
+	public Panel getContentPane() {
+		try {
+			return (Panel) contentPane.get(this);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
 	
 }

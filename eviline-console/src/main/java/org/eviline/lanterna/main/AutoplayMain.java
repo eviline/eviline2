@@ -47,7 +47,7 @@ public class AutoplayMain {
 			}
 			@Override
 			public Integer respawnFramesRemaining(Engine e) {
-				return 0;
+				return 1;
 			}
 		});
 
@@ -57,6 +57,8 @@ public class AutoplayMain {
 
 		w = new EngineWindow(engine);
 		Panel p = new Panel(Orientation.VERTICAL);
+		p.addComponent(new Label("autoplay"));
+		p.addComponent(new Label(""));
 		p.addComponent(new Label("Press Q to quit"));
 		p.addComponent(new Label("Press R to reset"));
 		w.addComponent(p, BorderLayout.RIGHT);
@@ -71,7 +73,12 @@ public class AutoplayMain {
 					exec.shutdown();
 					break;
 				case 'r':
-					engine.reset();
+					exec.execute(new Runnable() {
+						@Override
+						public void run() {
+							engine.reset();
+						}
+					});
 					break;
 				}
 					
@@ -84,21 +91,31 @@ public class AutoplayMain {
 		player = new AIPlayer(ai, engine, 1);
 		
 		Runnable ticker = new Runnable() {
+			private boolean invoked = false;
+			private boolean drawn = false;
 			@Override
 			public void run() {
-				final Command c = player.tick();
+				if(invoked)
+					return;
+				invoked = true;
 				gui.runInEventThread(new Action() {
 					@Override
 					public void doAction() {
+						Command c = player.tick();
 						if(!engine.isOver())
 							engine.tick(c);
-						if(c != Command.NOP)
+						if(!drawn && engine.getShape() != null) {
+							w.getContentPane().setTitle("eviline2:" + engine.getLines());
 							gui.invalidate();
+							drawn = true;
+						} else if(engine.getShape() == null)
+							drawn = false;
+						invoked = false;
 					}
 				});
 			}
 		};
-		exec.scheduleAtFixedRate(ticker, 0, 1000000L/60, TimeUnit.MICROSECONDS);
+		exec.scheduleWithFixedDelay(ticker, 0, 1, TimeUnit.NANOSECONDS);
 		
 		gui.getScreen().startScreen();
 
