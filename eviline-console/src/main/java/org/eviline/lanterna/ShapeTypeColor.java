@@ -13,21 +13,21 @@ public class ShapeTypeColor {
 	
 	public ShapeTypeColor() {
 		fg.put(ShapeType.I, Color.WHITE);
-		fg.put(ShapeType.J, Color.WHITE);
-		fg.put(ShapeType.L, Color.WHITE);
-		fg.put(ShapeType.O, Color.WHITE);
-		fg.put(ShapeType.S, Color.WHITE);
-		fg.put(ShapeType.T, Color.WHITE);
-		fg.put(ShapeType.Z, Color.WHITE);
+		fg.put(ShapeType.J, Color.BLUE);
+		fg.put(ShapeType.L, Color.RED);
+		fg.put(ShapeType.O, Color.YELLOW);
+		fg.put(ShapeType.S, Color.GREEN);
+		fg.put(ShapeType.T, Color.MAGENTA);
+		fg.put(ShapeType.Z, Color.RED);
 		fg.put(ShapeType.G, Color.WHITE);
 		
-		bg.put(ShapeType.I, Color.WHITE);
-		bg.put(ShapeType.J, Color.WHITE);
-		bg.put(ShapeType.L, Color.WHITE);
-		bg.put(ShapeType.O, Color.WHITE);
-		bg.put(ShapeType.S, Color.WHITE);
-		bg.put(ShapeType.T, Color.WHITE);
-		bg.put(ShapeType.Z, Color.WHITE);
+		bg.put(ShapeType.I, Color.BLUE);
+		bg.put(ShapeType.J, Color.BLUE);
+		bg.put(ShapeType.L, Color.YELLOW);
+		bg.put(ShapeType.O, Color.YELLOW);
+		bg.put(ShapeType.S, Color.GREEN);
+		bg.put(ShapeType.T, Color.MAGENTA);
+		bg.put(ShapeType.Z, Color.RED);
 		bg.put(ShapeType.G, Color.WHITE);
 	}
 	

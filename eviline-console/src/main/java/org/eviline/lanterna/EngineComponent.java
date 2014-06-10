@@ -23,9 +23,16 @@ public class EngineComponent extends AbstractComponent {
 
 	@Override
 	public void repaint(TextGraphics g) {
-		g.setForegroundColor(Color.WHITE);
+		g.setForegroundColor(Color.BLACK);
 		g.setBackgroundColor(Color.WHITE);
-		g.fillArea(' ');
+		g.drawString(0, 0, "\u2554");
+		g.drawString(0, Field.BUFFER + Field.HEIGHT + 1, "\u255a");
+		g.drawString(Field.WIDTH + 1, 0, "\u2557");
+		g.drawString(Field.WIDTH + 1, Field.BUFFER + Field.HEIGHT + 1, "\u255d");
+		g.fillRectangle('\u2550', new TerminalPosition(1, 0), new TerminalSize(Field.WIDTH, 1));
+		g.fillRectangle('\u2550', new TerminalPosition(1, Field.BUFFER + Field.HEIGHT + 1), new TerminalSize(Field.WIDTH, 1));
+		g.fillRectangle('\u2551', new TerminalPosition(0, 1), new TerminalSize(1, Field.BUFFER + Field.HEIGHT));
+		g.fillRectangle('\u2551', new TerminalPosition(Field.WIDTH + 1, 1), new TerminalSize(1, Field.BUFFER + Field.HEIGHT));
 		g = g.subAreaGraphics(new TerminalPosition(1, 1), new TerminalSize(Field.WIDTH, Field.BUFFER + Field.HEIGHT));
 		g.setBackgroundColor(Color.BLACK);
 		g.setForegroundColor(Color.BLACK);

@@ -24,6 +24,12 @@ import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
+import com.googlecode.lanterna.gui.component.Label;
+import com.googlecode.lanterna.gui.component.Panel;
+import com.googlecode.lanterna.gui.component.Panel.Orientation;
+import com.googlecode.lanterna.gui.layout.BorderLayout;
+import com.googlecode.lanterna.gui.listener.WindowAdapter;
+import com.googlecode.lanterna.input.Key;
 
 public class AutoplayMain {
 	private static Engine engine;
@@ -47,14 +53,36 @@ public class AutoplayMain {
 
 		gui = TerminalFacade.createGUIScreen();
 
-		w = new EngineWindow(engine);
+		final ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
 
+		w = new EngineWindow(engine);
+		Panel p = new Panel(Orientation.VERTICAL);
+		p.addComponent(new Label("Press Q to quit"));
+		p.addComponent(new Label("Press R to reset"));
+		w.addComponent(p, BorderLayout.RIGHT);
+
+		w.addWindowListener(new WindowAdapter() {
+			@Override
+			public void onUnhandledKeyboardInteraction(Window window, Key key) {
+				switch(key.getCharacter()) {
+				case 'q':
+					w.close();
+					gui.getScreen().stopScreen();
+					exec.shutdown();
+					break;
+				case 'r':
+					engine.reset();
+					break;
+				}
+					
+			}
+		});
+		
 		DefaultAIKernel ai = new DefaultAIKernel();
 		ai.setFitness(new NextFitness());
 		ai.setExec(Executors.newCachedThreadPool());
 		player = new AIPlayer(ai, engine, 1);
 		
-		ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
 		Runnable ticker = new Runnable() {
 			@Override
 			public void run() {
