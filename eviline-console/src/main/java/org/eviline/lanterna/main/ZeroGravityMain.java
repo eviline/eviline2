@@ -32,7 +32,12 @@ import org.eviline.lanterna.ShapeTypeTextIcon;
 
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.gui.Action;
+import com.googlecode.lanterna.gui.Border;
+import com.googlecode.lanterna.gui.Border.Standard;
+import com.googlecode.lanterna.gui.TextGraphics;
+import com.googlecode.lanterna.gui.Theme;
 import com.googlecode.lanterna.gui.GUIScreen.Position;
+import com.googlecode.lanterna.gui.Theme.Category;
 import com.googlecode.lanterna.gui.Window;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.Label;
@@ -43,6 +48,8 @@ import com.googlecode.lanterna.gui.listener.WindowAdapter;
 import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.terminal.Terminal.Color;
+import com.googlecode.lanterna.terminal.TerminalPosition;
 import com.googlecode.lanterna.terminal.swing.TerminalAppearance;
 import com.googlecode.lanterna.terminal.swing.TerminalPalette;
 
@@ -139,13 +146,16 @@ public class ZeroGravityMain {
 		p.addComponent(new MarkupLabel("Press <b>UP</b> to hard drop"));
 		p.addComponent(new Label(""));
 		p.addComponent(new Label("Available shapes:"));
+		Panel bp = new Panel("bag remaining", Orientation.VERTICAL);
 		bag = new Label[ShapeType.values().length - 1];
 		for(ShapeType t : ShapeType.values()) {
 			if(t == ShapeType.G)
 				continue;
-			bag[t.ordinal()] = new Label("", new ShapeTypeColor().fg(t), true);
-			p.addComponent(bag[t.ordinal()]);
+			Label ll = bag[t.ordinal()] = new Label("", new ShapeTypeColor().fg(t), true);
+			ll.setStyle(Category.SHADOW);
+			bp.addComponent(ll);
 		}
+		p.addComponent(bp);
 		w.addComponent(p, BorderLayout.RIGHT);
 
 		w.addWindowListener(new WindowAdapter() {
@@ -207,20 +217,20 @@ public class ZeroGravityMain {
 							for(ShapeType pt : ShapeType.values()) {
 								if(pt == ShapeType.G)
 									break;
-								StringBuilder sb = new StringBuilder();
+								StringBuilder sb = new StringBuilder(" ");
 								boolean found = false;
 								for(ShapeType t : types) {
 									if(pt == t) {
 										found = true;
 										sb.append(icons.get(t) + " ");
 									} else if(found) {
-										sb.append("\n");
 										break;
 									}
 								}
-								if(!found)
-									sb.append("\n");
-								bag[pt.ordinal()].setText(sb.toString());
+								for(int i = 0; i < 21; i++)
+									sb.append(" ");
+								String s = sb.toString().substring(0, 21);
+								bag[pt.ordinal()].setText(s);
 							}
 							gui.invalidate();
 							lock.release();
