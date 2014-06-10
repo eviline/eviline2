@@ -7,6 +7,7 @@ import org.eviline.core.ShapeType;
 
 import com.googlecode.lanterna.gui.TextGraphics;
 import com.googlecode.lanterna.gui.component.AbstractComponent;
+import com.googlecode.lanterna.screen.ScreenCharacterStyle;
 import com.googlecode.lanterna.terminal.Terminal.Color;
 import com.googlecode.lanterna.terminal.TerminalPosition;
 import com.googlecode.lanterna.terminal.TerminalSize;
@@ -28,13 +29,13 @@ public class EngineComponent extends AbstractComponent {
 		g.setBackgroundColor(Color.WHITE);
 		g.drawString(0, 0, "\u2554");
 		g.drawString(0, Field.BUFFER + Field.HEIGHT + 1, "\u255a");
-		g.drawString(Field.WIDTH + 1, 0, "\u2557");
-		g.drawString(Field.WIDTH + 1, Field.BUFFER + Field.HEIGHT + 1, "\u255d");
-		g.fillRectangle('\u2550', new TerminalPosition(1, 0), new TerminalSize(Field.WIDTH, 1));
-		g.fillRectangle('\u2550', new TerminalPosition(1, Field.BUFFER + Field.HEIGHT + 1), new TerminalSize(Field.WIDTH, 1));
+		g.drawString(Field.WIDTH*2 + 1, 0, "\u2557");
+		g.drawString(Field.WIDTH*2 + 1, Field.BUFFER + Field.HEIGHT + 1, "\u255d");
+		g.fillRectangle('\u2550', new TerminalPosition(1, 0), new TerminalSize(Field.WIDTH*2, 1));
+		g.fillRectangle('\u2550', new TerminalPosition(1, Field.BUFFER + Field.HEIGHT + 1), new TerminalSize(Field.WIDTH*2, 1));
 		g.fillRectangle('\u2551', new TerminalPosition(0, 1), new TerminalSize(1, Field.BUFFER + Field.HEIGHT));
-		g.fillRectangle('\u2551', new TerminalPosition(Field.WIDTH + 1, 1), new TerminalSize(1, Field.BUFFER + Field.HEIGHT));
-		g = g.subAreaGraphics(new TerminalPosition(1, 1), new TerminalSize(Field.WIDTH, Field.BUFFER + Field.HEIGHT));
+		g.fillRectangle('\u2551', new TerminalPosition(Field.WIDTH*2 + 1, 1), new TerminalSize(1, Field.BUFFER + Field.HEIGHT));
+		g = g.subAreaGraphics(new TerminalPosition(1, 1), new TerminalSize(Field.WIDTH*2, Field.BUFFER + Field.HEIGHT));
 		g.setBackgroundColor(Color.BLACK);
 		g.setForegroundColor(Color.BLACK);
 		g.fillArea(' ');
@@ -51,7 +52,7 @@ public class EngineComponent extends AbstractComponent {
 						t = b.shape().type();
 					g.setBackgroundColor(color.bg(t));
 					g.setForegroundColor(color.fg(t));
-					g.drawString(x, y + Field.BUFFER, "\u2592");
+					g.drawString(x*2, y + Field.BUFFER, "\u2592\u2592", ScreenCharacterStyle.Bold);
 				}
 			}
 		}
@@ -59,7 +60,7 @@ public class EngineComponent extends AbstractComponent {
 
 	@Override
 	protected TerminalSize calculatePreferredSize() {
-		return new TerminalSize(Field.WIDTH + 2, Field.BUFFER + Field.HEIGHT + 2);
+		return new TerminalSize(Field.WIDTH*2 + 2, Field.BUFFER + Field.HEIGHT + 2);
 	}
 
 	public boolean isGhosting() {
