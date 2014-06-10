@@ -27,6 +27,8 @@ import org.eviline.lanterna.EngineWindow;
 import org.eviline.lanterna.ImageBackgroundRenderer;
 import org.eviline.lanterna.LanternaPlayer;
 import org.eviline.lanterna.MarkupLabel;
+import org.eviline.lanterna.ShapeTypeColor;
+import org.eviline.lanterna.ShapeTypeTextIcon;
 
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.gui.Action;
@@ -51,7 +53,7 @@ public class ZeroGravityMain {
 	private static DefaultAIKernel ai;
 	private static LanternaPlayer player;
 
-	private static Label bag;
+	private static Label[] bag;
 
 	public static void main(String... args) throws Exception {
 		Field field = new Field();
@@ -137,7 +139,13 @@ public class ZeroGravityMain {
 		p.addComponent(new MarkupLabel("Press <b>UP</b> to hard drop"));
 		p.addComponent(new Label(""));
 		p.addComponent(new Label("Available shapes:"));
-		p.addComponent(bag = new Label("", true));
+		bag = new Label[ShapeType.values().length - 1];
+		for(ShapeType t : ShapeType.values()) {
+			if(t == ShapeType.G)
+				continue;
+			bag[t.ordinal()] = new Label("", new ShapeTypeColor().fg(t), true);
+			p.addComponent(bag[t.ordinal()]);
+		}
 		w.addComponent(p, BorderLayout.RIGHT);
 
 		w.addWindowListener(new WindowAdapter() {
@@ -192,16 +200,19 @@ public class ZeroGravityMain {
 					@Override
 					public void doAction() {
 						synchronized(engine) {
+							ShapeTypeTextIcon icons = new ShapeTypeTextIcon();
 							w.getContentPane().setTitle("eviline2: lines:" + engine.getLines());
-							StringBuilder sb = new StringBuilder();
 							ShapeType[] types = engine.getShapes().getBag();
 							Collections.sort(Arrays.asList(types));
 							for(ShapeType pt : ShapeType.values()) {
+								if(pt == ShapeType.G)
+									break;
+								StringBuilder sb = new StringBuilder();
 								boolean found = false;
 								for(ShapeType t : types) {
 									if(pt == t) {
 										found = true;
-										sb.append(t);
+										sb.append(icons.get(t) + " ");
 									} else if(found) {
 										sb.append("\n");
 										break;
@@ -209,8 +220,8 @@ public class ZeroGravityMain {
 								}
 								if(!found)
 									sb.append("\n");
+								bag[pt.ordinal()].setText(sb.toString());
 							}
-							bag.setText(sb.toString());
 							gui.invalidate();
 							lock.release();
 						}
