@@ -29,33 +29,45 @@ public class LanternaPlayer extends WindowAdapter implements Player {
 		Command c = null;
 		switch(key.getKind()) {
 		case ArrowDown:
-			if(key.isCtrlPressed())
-				c = Command.SOFT_DROP;
-			else
-				c = Command.SHIFT_DOWN;
+			c = Command.SHIFT_DOWN;
 			break;
 		case ArrowLeft:
-			if(key.isCtrlPressed())
-				c = Command.AUTOSHIFT_LEFT;
-			else
-				c = Command.SHIFT_LEFT;
+			c = Command.SHIFT_LEFT;
 			break;
 		case ArrowRight:
-			if(key.isCtrlPressed())
-				c = Command.AUTOSHIFT_RIGHT;
-			else
-				c = Command.SHIFT_RIGHT;
+			c = Command.SHIFT_RIGHT;
 			break;
 		case ArrowUp:
 			c = Command.HARD_DROP;
 			break;
 		case NormalKey:
 			switch(key.getCharacter()) {
-			case 'z':
+			case 'k':
 				c = Command.ROTATE_LEFT;
 				break;
-			case 'x':
+			case 'l':
 				c = Command.ROTATE_RIGHT;
+				break;
+			case 'a':
+				if(key.isCtrlPressed())
+					c = Command.AUTOSHIFT_LEFT;
+				else
+					c = Command.SHIFT_LEFT;
+				break;
+			case 'w':
+				c = Command.HARD_DROP;
+				break;
+			case 's':
+				if(key.isCtrlPressed())
+					c = Command.SOFT_DROP;
+				else
+					c = Command.SHIFT_DOWN;
+				break;
+			case 'd':
+				if(key.isCtrlPressed())
+					c = Command.AUTOSHIFT_RIGHT;
+				else
+					c = Command.SHIFT_RIGHT;
 				break;
 			}
 			break;

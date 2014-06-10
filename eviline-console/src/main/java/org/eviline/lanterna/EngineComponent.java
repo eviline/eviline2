@@ -41,9 +41,13 @@ public class EngineComponent extends AbstractComponent {
 			for(int y = -Field.BUFFER; y < Field.HEIGHT; y++) {
 				for(int x = 0; x < Field.WIDTH; x++) {
 					Block b = engine.block(x, y);
-					if(b == null)
+					ShapeType t = null;
+					if(b == null && engine.getGhost() != null && engine.getGhost().has(x, y))
+						t = ShapeType.G;
+					else if(b == null)
 						continue;
-					ShapeType t = b.shape().type();
+					if(t == null)
+						t = b.shape().type();
 					g.setBackgroundColor(color.bg(t));
 					g.setForegroundColor(color.fg(t));
 					g.drawString(x, y + Field.BUFFER, "\u2592");
