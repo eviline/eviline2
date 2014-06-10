@@ -38,7 +38,7 @@ public class EngineComponent extends AbstractComponent {
 				ShapeType t = b.shape().type();
 				g.setBackgroundColor(color.bg(t));
 				g.setForegroundColor(color.fg(t));
-				g.drawString(x, y, "\u2592");
+				g.drawString(x, y + Field.BUFFER, "\u2592");
 			}
 		}
 	}
