@@ -81,8 +81,8 @@ public class AutoplayMain {
 	private static Runnable ticker = new Runnable() {
 		@Override
 		public void run() {
-			Command c = player.tick();
 			synchronized(engine) {
+				Command c = player.tick();
 				if(!engine.isOver())
 					engine.tick(c);
 			}
