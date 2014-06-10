@@ -35,6 +35,8 @@ import com.googlecode.lanterna.gui.component.Panel.Orientation;
 import com.googlecode.lanterna.gui.layout.BorderLayout;
 import com.googlecode.lanterna.gui.listener.WindowAdapter;
 import com.googlecode.lanterna.input.Key;
+import com.googlecode.lanterna.screen.Screen;
+import com.googlecode.lanterna.terminal.Terminal;
 
 public class AutoplayMain {
 	private static Engine engine;
@@ -59,7 +61,29 @@ public class AutoplayMain {
 
 		engine.setNext(new ShapeType[7]);
 		
-		gui = new EngineScreen(TerminalFacade.createScreen());
+		Terminal term;
+		try {
+			term = TerminalFacade.createUnixTerminal();
+			Screen screen = TerminalFacade.createScreen(term);
+			gui = new EngineScreen(screen);
+			gui.getScreen().startScreen();
+			gui.getScreen().stopScreen();
+		} catch(Exception e) {
+			System.out.println("\nThe above garbage was an attempt to recognize a unix console.  It can safely be ignored.");
+			try {
+				term = TerminalFacade.createCygwinTerminal();
+				Screen screen = TerminalFacade.createScreen(term);
+				gui = new EngineScreen(screen);
+				gui.getScreen().startScreen();
+				gui.getScreen().stopScreen();
+			} catch(Exception e2) {
+				System.out.println("\nThe above garbage was an attempt to recognize a cygwin console.  It can safely be ignored.");
+				term = TerminalFacade.createSwingTerminal();
+				Screen screen = TerminalFacade.createScreen(term);
+				gui = new EngineScreen(screen);
+			}
+		}
+		
 
 		final ScheduledExecutorService exec = Executors.newScheduledThreadPool(3);
 
