@@ -1,5 +1,6 @@
 package org.eviline.lanterna.main;
 
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.Executors;
@@ -7,6 +8,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+
+import javax.imageio.ImageIO;
 
 import org.eviline.core.Command;
 import org.eviline.core.Configuration;
@@ -18,13 +21,17 @@ import org.eviline.core.ai.AIPlayer;
 import org.eviline.core.ai.DefaultAIKernel;
 import org.eviline.core.ai.NextFitness;
 import org.eviline.core.ss.EvilBag7NShapeSource;
+import org.eviline.lanterna.BorderLayoutWindow;
 import org.eviline.lanterna.EngineScreen;
 import org.eviline.lanterna.EngineWindow;
+import org.eviline.lanterna.ImageBackgroundRenderer;
 import org.eviline.lanterna.LanternaPlayer;
 
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.gui.Action;
+import com.googlecode.lanterna.gui.GUIScreen.Position;
 import com.googlecode.lanterna.gui.Window;
+import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.Label;
 import com.googlecode.lanterna.gui.component.Panel;
 import com.googlecode.lanterna.gui.component.Panel.Orientation;
@@ -33,6 +40,8 @@ import com.googlecode.lanterna.gui.listener.WindowAdapter;
 import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.terminal.swing.TerminalAppearance;
+import com.googlecode.lanterna.terminal.swing.TerminalPalette;
 
 public class ZeroGravityMain {
 	private static Engine engine;
@@ -82,13 +91,38 @@ public class ZeroGravityMain {
 				gui.getScreen().stopScreen();
 			} catch(Exception e2) {
 				System.out.println("\nThe above garbage was an attempt to recognize a cygwin console.  It can safely be ignored.");
-				term = TerminalFacade.createSwingTerminal();
+				term = TerminalFacade.createSwingTerminal(
+						new TerminalAppearance(
+								TerminalAppearance.DEFAULT_NORMAL_FONT,
+								TerminalAppearance.DEFAULT_BOLD_FONT,
+								TerminalPalette.XTERM,
+								true)
+						);
 				Screen screen = TerminalFacade.createScreen(term);
 				gui = new EngineScreen(screen);
 			}
 		}
 		
+		BufferedImage flower = ImageIO.read(ZeroGravityMain.class.getResource("flower.jpg"));
+		gui.setBackgroundRenderer(new ImageBackgroundRenderer(flower));
 
+		final Window okw = new Window("eviline2");
+		okw.addComponent(new Label("falling blocks that are totally not out to get you"));
+		okw.addComponent(new Label(""));
+		okw.addComponent(new Label("Press any key to begin"));
+		okw.addWindowListener(new WindowAdapter() {
+			@Override
+			public void onUnhandledKeyboardInteraction(Window window, Key key) {
+				okw.close();
+				gui.invalidate();
+				gui.update();
+			}
+		});
+		
+		gui.getScreen().startScreen();
+
+		gui.showWindow(okw, Position.CENTER);
+		
 		final ScheduledExecutorService exec = Executors.newScheduledThreadPool(3);
 
 		w = new EngineWindow(engine);
@@ -142,7 +176,6 @@ public class ZeroGravityMain {
 			@Override
 			public Thread newThread(Runnable arg0) {
 				Thread t = new Thread(arg0);
-				t.setPriority(Thread.MIN_PRIORITY);
 				t.setDaemon(true);
 				return t;
 			}
@@ -151,8 +184,6 @@ public class ZeroGravityMain {
 		Runnable ticker = new Runnable() {
 			@Override
 			public void run() {
-				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-				
 				Command c = player.tick();
 				synchronized(engine) {
 					if(!engine.isOver())
@@ -195,11 +226,9 @@ public class ZeroGravityMain {
 				lock.acquireUninterruptibly();
 			}
 		};
-		exec.scheduleWithFixedDelay(ticker, 0, 1, TimeUnit.MICROSECONDS);
-		exec.scheduleWithFixedDelay(drawer, 0, 1, TimeUnit.MICROSECONDS);
+		exec.scheduleWithFixedDelay(ticker, 0, 10, TimeUnit.MILLISECONDS);
+		exec.scheduleWithFixedDelay(drawer, 0, 10, TimeUnit.MILLISECONDS);
 		
-		gui.getScreen().startScreen();
-
 		gui.showWindow(w);
 	}
 
