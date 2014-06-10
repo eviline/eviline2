@@ -88,11 +88,13 @@ public class AutoplayMain {
 			}
 			if(syncDisplay || engine.getShape() == null) {
 				drawer.run();
-				exec.execute(ticker);
+				if(!engine.isOver())
+					exec.execute(ticker);
 			} else {
 				if(!drawing)
 					exec.execute(drawer);
-				exec.execute(ticker);
+				if(!engine.isOver())
+					exec.execute(ticker);
 			}
 		}
 	};
