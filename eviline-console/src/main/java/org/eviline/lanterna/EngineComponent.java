@@ -37,15 +37,17 @@ public class EngineComponent extends AbstractComponent {
 		g.setBackgroundColor(Color.BLACK);
 		g.setForegroundColor(Color.BLACK);
 		g.fillArea(' ');
-		for(int y = -Field.BUFFER; y < Field.HEIGHT; y++) {
-			for(int x = 0; x < Field.WIDTH; x++) {
-				Block b = engine.block(x, y);
-				if(b == null)
-					continue;
-				ShapeType t = b.shape().type();
-				g.setBackgroundColor(color.bg(t));
-				g.setForegroundColor(color.fg(t));
-				g.drawString(x, y + Field.BUFFER, "\u2592");
+		synchronized(engine) {
+			for(int y = -Field.BUFFER; y < Field.HEIGHT; y++) {
+				for(int x = 0; x < Field.WIDTH; x++) {
+					Block b = engine.block(x, y);
+					if(b == null)
+						continue;
+					ShapeType t = b.shape().type();
+					g.setBackgroundColor(color.bg(t));
+					g.setForegroundColor(color.fg(t));
+					g.drawString(x, y + Field.BUFFER, "\u2592");
+				}
 			}
 		}
 	}
