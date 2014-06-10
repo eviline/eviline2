@@ -18,6 +18,7 @@ public class AIPlayer implements Player {
 	protected Deque<Command> commands = new ArrayDeque<>();
 	
 	protected int lookahead;
+	protected boolean allowDrops = true;
 	
 	public AIPlayer(Engine engine) {
 		this(new DefaultAIKernel(), engine, engine.getNext().length);
@@ -41,7 +42,16 @@ public class AIPlayer implements Player {
 			Vertex v = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext(), lookahead);
 			dest = v.shape;
 			while(v.command != null) {
-				commands.offerFirst(v.command);
+				if(v.command != Command.SOFT_DROP || allowDrops) {
+					commands.offerFirst(v.command);
+				} else { // it's a soft drop
+					XYShape dropping = v.origin.shape;
+					dropping = dropping.shiftedDown();
+					while(!engine.getField().intersects(dropping)) {
+						commands.offerFirst(Command.SHIFT_DOWN);
+						dropping = dropping.shiftedDown();
+					}
+				}
 				v = v.origin;
 			}
 			commands.offerLast(Command.SHIFT_DOWN);
@@ -69,5 +79,13 @@ public class AIPlayer implements Player {
 
 	public void setLookahead(int lookahead) {
 		this.lookahead = lookahead;
+	}
+
+	public boolean isAllowDrops() {
+		return allowDrops;
+	}
+
+	public void setAllowDrops(boolean allowDrops) {
+		this.allowDrops = allowDrops;
 	}
 }
