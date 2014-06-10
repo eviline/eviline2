@@ -16,6 +16,8 @@ public class EngineWindow extends Window {
 	protected Engine engine;
 	protected Panel panel;
 	
+	protected EngineComponent engineComponent;
+	
 	private Field contentPane;
 	
 	public EngineWindow(Engine engine) {
@@ -27,7 +29,7 @@ public class EngineWindow extends Window {
 		panel.setLayoutManager(new BorderLayout());
 		super.addComponent(panel);
 		
-		addComponent(new EngineComponent(engine), BorderLayout.LEFT);
+		addComponent(engineComponent = new EngineComponent(engine), BorderLayout.LEFT);
 		
 		try {
 			contentPane = Window.class.getDeclaredField("contentPane");
@@ -68,6 +70,10 @@ public class EngineWindow extends Window {
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public EngineComponent getEngineComponent() {
+		return engineComponent;
 	}
 	
 }

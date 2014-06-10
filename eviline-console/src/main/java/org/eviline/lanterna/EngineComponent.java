@@ -15,6 +15,7 @@ public class EngineComponent extends AbstractComponent {
 	
 	protected ShapeTypeColor color;
 	protected Engine engine;
+	protected boolean ghosting;
 	
 	public EngineComponent(Engine engine) {
 		this.engine = engine;
@@ -42,7 +43,7 @@ public class EngineComponent extends AbstractComponent {
 				for(int x = 0; x < Field.WIDTH; x++) {
 					Block b = engine.block(x, y);
 					ShapeType t = null;
-					if(b == null && engine.getGhost() != null && engine.getGhost().has(x, y))
+					if(ghosting && b == null && engine.getGhost() != null && engine.getGhost().has(x, y))
 						t = ShapeType.G;
 					else if(b == null)
 						continue;
@@ -59,6 +60,14 @@ public class EngineComponent extends AbstractComponent {
 	@Override
 	protected TerminalSize calculatePreferredSize() {
 		return new TerminalSize(Field.WIDTH + 2, Field.BUFFER + Field.HEIGHT + 2);
+	}
+
+	public boolean isGhosting() {
+		return ghosting;
+	}
+
+	public void setGhosting(boolean ghosting) {
+		this.ghosting = ghosting;
 	}
 
 }

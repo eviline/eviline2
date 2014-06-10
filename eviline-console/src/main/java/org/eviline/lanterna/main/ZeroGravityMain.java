@@ -92,6 +92,9 @@ public class ZeroGravityMain {
 		final ScheduledExecutorService exec = Executors.newScheduledThreadPool(3);
 
 		w = new EngineWindow(engine);
+		
+		w.getEngineComponent().setGhosting(true);
+		
 		Panel p = new Panel(Orientation.VERTICAL);
 		p.addComponent(new Label("normal play"));
 		p.addComponent(new Label(""));
