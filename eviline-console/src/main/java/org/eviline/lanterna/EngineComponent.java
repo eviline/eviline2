@@ -52,10 +52,10 @@ public class EngineComponent extends AbstractComponent {
 						g.setBackgroundColor(color.bg(t));
 						g.setForegroundColor(color.fg(t));
 						g.drawString(x*2, y + Field.BUFFER, "\u2592\u2592", ScreenCharacterStyle.Bold);
-					} else if(y < 0) {
+					} else if(y == -1) {
 						g.setBackgroundColor(Color.BLACK);
 						g.setForegroundColor(Color.WHITE);
-						g.drawString(x*2, y + Field.BUFFER, "\u2573\u2573");
+						g.drawString(x*2, y + Field.BUFFER, "\u2581\u2581");
 					}
 				}
 			}
