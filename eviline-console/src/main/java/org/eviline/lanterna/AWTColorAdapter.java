@@ -75,8 +75,11 @@ public class AWTColorAdapter {
 		ColorAdaption entry = null;
 		for(ColorAdaption e : colors) {
 			float[] ehsb = java.awt.Color.RGBtoHSB(e.getAwt().getRed(), e.getAwt().getGreen(), e.getAwt().getBlue(), null);
+			double hdist = Math.abs(chsb[0] - ehsb[0]);
+			hdist = Math.min(hdist, hdist + 1);
+			hdist = Math.min(hdist, Math.abs(hdist - 1));
 			double edist = Math.sqrt(
-					Math.pow(100 * Math.abs(chsb[0] - ehsb[0]), 2) +
+					Math.pow(100 * hdist, 2) +
 					Math.pow(100 * Math.abs(chsb[1] - ehsb[1]), 2) +
 					Math.pow(100 * Math.abs(chsb[2] - ehsb[2]), 2));
 			if(edist < dist) {
