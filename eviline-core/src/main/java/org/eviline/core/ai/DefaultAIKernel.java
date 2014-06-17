@@ -101,7 +101,7 @@ public class DefaultAIKernel implements AIKernel {
 		return best;
 	}
 	
-	protected Best bestPlacement(final Field originalField, Field currentField, XYShape currentShape, ShapeType[] next, final int lookahead) {
+	protected Best bestPlacement(Field originalField, Field currentField, XYShape currentShape, ShapeType[] next, int lookahead) {
 		if(currentShape == null || lookahead == 0)
 			return new Best(null, fitness.badness(originalField, currentField, next), currentField, null);
 		
@@ -111,45 +111,21 @@ public class DefaultAIKernel implements AIKernel {
 		
 		Best best = new Best(null, Double.POSITIVE_INFINITY, null, null);
 
-		final XYShape nextShape;
-		final ShapeType[] nextNext;
+		XYShape nextShape = null;
+		ShapeType[] nextNext = null;
 		if(next.length > 0) {
 			nextShape = new XYShape(next[0].start(), next[0].startX(), next[0].startY());
 			nextNext = Arrays.copyOfRange(next, 1, next.length);
-		} else {
-			nextShape = null;
-			nextNext = null;
 		}
-		
-		Collection<Future<Best>> futures = new ArrayList<>();
 		
 		for(XYShape shape : g.getVertices().keySet()) {
 			if(!currentField.intersects(shape.shiftedDown()))
 				continue;
-			final Field nextField = currentField.clone();
+			Field nextField = currentField.clone();
 			nextField.blit(shape);
-			Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
-				@Override
-				public Best call() throws Exception {
-					Best shapeBest = bestPlacement(originalField, nextField, nextShape, nextNext, lookahead - 1);
-					return shapeBest;
-				}
-			};
-			FutureTask<Best> f = new FutureTask<>(task);
-			futures.add(f);
-			exec.execute(f);
-		}
-		
-		for(Future<Best> f : futures) {
-			Best b;
-			try {
-				b = f.get();
-			} catch(Exception e) {
-				throw new RuntimeException(e);
-			}
-			if(b.score < best.score) {
-				best = b;
-			}
+			Best shapeBest = bestPlacement(originalField, nextField, nextShape, nextNext, lookahead - 1);
+			if(shapeBest.score < best.score)
+				best = shapeBest;
 		}
 		
 		return best;
