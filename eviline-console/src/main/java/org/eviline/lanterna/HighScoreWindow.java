@@ -16,7 +16,7 @@ import com.googlecode.lanterna.gui.component.Panel;
 import com.googlecode.lanterna.gui.component.Panel.Orientation;
 
 public class HighScoreWindow extends Window {
-	protected static final SimpleDateFormat DF = new SimpleDateFormat("YYYY-MM-dd");
+	public static final SimpleDateFormat DF = new SimpleDateFormat("YYYY-MM-dd");
 	
 	protected URL url;
 	
@@ -40,6 +40,8 @@ public class HighScoreWindow extends Window {
 					DF.format(e.getKey().getTs()));
 			p.addComponent(new Label(label));
 		}
+		
+		p.addComponent(new Label(""));
 		
 		Button ok = new Button("OK", new Action() {
 			@Override

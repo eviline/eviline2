@@ -33,6 +33,7 @@ import org.eviline.lanterna.LanternaPlayer;
 import org.eviline.lanterna.MarkupLabel;
 import org.eviline.lanterna.ShapeTypeColor;
 import org.eviline.lanterna.ShapeTypeTextIcon;
+import org.eviline.lanterna.SubmitScoreWindow;
 
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.gui.Action;
@@ -206,13 +207,28 @@ public class ZeroGravityMain {
 		}));
 
 		Runnable ticker = new Runnable() {
+			private boolean wasOver = false;
 			@Override
 			public void run() {
 				Command c = player.tick();
+				boolean isOver = false;
 				synchronized(engine) {
 					if(!engine.isOver())
 						engine.tick(c);
+					else
+						isOver = true;
 				}
+				if(isOver && !wasOver) {
+					w.close();
+					gui.showWindow(new SubmitScoreWindow(url, engine), Position.CENTER);
+					try {
+						gui.showWindow(new HighScoreWindow(url), Position.CENTER);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+					gui.showWindow(w, Position.CENTER);
+				}
+				wasOver = isOver;
 			}
 		};
 		Runnable drawer = new Runnable() {
@@ -255,7 +271,7 @@ public class ZeroGravityMain {
 		};
 
 		try {
-			gui.showWindow(new HighScoreWindow(url));
+			gui.showWindow(new HighScoreWindow(url), Position.CENTER);
 		} catch(IOException e) {
 			throw new RuntimeException(e);
 		}

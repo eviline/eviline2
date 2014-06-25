@@ -49,6 +49,7 @@ public class Scores extends HttpServlet {
 			StatsMapper m = s.getMapper(StatsMapper.class);
 			for(EngineStats es : stats.keySet())
 				m.post(new NamedEngineStats(stats.get(es), es));
+			s.commit();
 		} catch(ClassNotFoundException e) {
 			throw new IOException(e);
 		} finally {

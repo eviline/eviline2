@@ -29,10 +29,11 @@ public class EngineStatsSubmitter {
 	public void post(EngineStats stats, String name) throws IOException {
 		URLConnection c = url.openConnection();
 		c.setDoOutput(true);
-		c.setDoInput(false);
+		c.setDoInput(true);
 		ObjectOutputStream out = new ObjectOutputStream(c.getOutputStream());
 		Map<EngineStats, String> m = Collections.singletonMap(stats, name);
 		out.writeObject(m);
-		out.close();
+		out.flush();
+		c.getInputStream().close();
 	}
 }
