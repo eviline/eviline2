@@ -1,6 +1,9 @@
 package org.eviline.lanterna.main;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.Executors;
@@ -24,11 +27,13 @@ import org.eviline.core.ss.EvilBag7NShapeSource;
 import org.eviline.lanterna.BorderLayoutWindow;
 import org.eviline.lanterna.EngineScreen;
 import org.eviline.lanterna.EngineWindow;
+import org.eviline.lanterna.HighScoreWindow;
 import org.eviline.lanterna.ImageBackgroundRenderer;
 import org.eviline.lanterna.LanternaPlayer;
 import org.eviline.lanterna.MarkupLabel;
 import org.eviline.lanterna.ShapeTypeColor;
 import org.eviline.lanterna.ShapeTypeTextIcon;
+import org.eviline.lanterna.SubmitScoreWindow;
 
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.gui.Action;
@@ -54,6 +59,15 @@ import com.googlecode.lanterna.terminal.swing.TerminalAppearance;
 import com.googlecode.lanterna.terminal.swing.TerminalPalette;
 
 public class ZeroGravityMain {
+	private static URL url;
+	static {
+		try {
+			url = new URL("http://localhost:8080/eviline-webapp/");
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	private static Engine engine;
 	private static EngineScreen gui;
 	private static EngineWindow w;
@@ -193,13 +207,28 @@ public class ZeroGravityMain {
 		}));
 
 		Runnable ticker = new Runnable() {
+			private boolean wasOver = false;
 			@Override
 			public void run() {
 				Command c = player.tick();
+				boolean isOver = false;
 				synchronized(engine) {
 					if(!engine.isOver())
 						engine.tick(c);
+					else
+						isOver = true;
 				}
+				if(isOver && !wasOver) {
+					w.close();
+					gui.showWindow(new SubmitScoreWindow(url, engine), Position.CENTER);
+					try {
+						gui.showWindow(new HighScoreWindow(url), Position.CENTER);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+					gui.showWindow(w, Position.CENTER);
+				}
+				wasOver = isOver;
 			}
 		};
 		Runnable drawer = new Runnable() {
@@ -240,6 +269,13 @@ public class ZeroGravityMain {
 				lock.acquireUninterruptibly();
 			}
 		};
+
+		try {
+			gui.showWindow(new HighScoreWindow(url), Position.CENTER);
+		} catch(IOException e) {
+			throw new RuntimeException(e);
+		}
+		
 		exec.scheduleWithFixedDelay(ticker, 0, 10, TimeUnit.MILLISECONDS);
 		exec.scheduleWithFixedDelay(drawer, 0, 10, TimeUnit.MILLISECONDS);
 

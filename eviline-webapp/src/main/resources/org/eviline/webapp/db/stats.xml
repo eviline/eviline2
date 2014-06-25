@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.eviline.webapp.db.StatsMapper">
+	<select id="get" resultType="NamedEngineStats">
+SELECT
+	`name` as `name`,
+	`lines` as `lines`,
+	`score` as `score`,
+	`shape_count` as `shapeCount`,
+	`tick_count` as `tickCount`,
+	`ts` as `ts`
+FROM
+	`top`
+ORDER BY
+	`score` DESC, `lines` DESC, `shape_count` DESC, `tick_count` DESC, `ts` ASC
+LIMIT 10
+;
+	</select>
+	
+	<insert id="post" parameterType="NamedEngineStats">
+INSERT INTO
+	`top` (`name`, `lines`, `score`, `shape_count`, `tick_count`, `ts`)
+VALUES
+	(#{name}, #{lines}, #{score}, #{shapeCount}, #{tickCount}, #{ts})	
+;
+	</insert>
+	
+</mapper>
