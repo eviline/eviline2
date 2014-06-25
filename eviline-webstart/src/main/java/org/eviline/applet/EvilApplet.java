@@ -159,7 +159,7 @@ public class EvilApplet extends JApplet {
 			}
 		});
 		reset.setFont(Resources.getMinecrafter().deriveFont(24f));
-		reset.setBackground(new Color(128,0,0,96));
+		reset.setBackground(new Color(128,0,0));
 		reset.setForeground(Color.WHITE);
 		reset.setOpaque(true);
 		reset.setBorder(null);
