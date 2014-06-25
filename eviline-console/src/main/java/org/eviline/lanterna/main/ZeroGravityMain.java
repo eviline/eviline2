@@ -62,7 +62,7 @@ public class ZeroGravityMain {
 	private static URL url;
 	static {
 		try {
-			url = new URL("http://www.eviline.org:8080/eviline-webapp/");
+			url = new URL("http://www.eviline.org/eviline-webapp/");
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
