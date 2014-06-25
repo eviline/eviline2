@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.eviline.webapp.db.StatsMapper">
+	<select id="top" resultType="NamedEngineStats">
+SELECT
+	name as name,
+	lines as lines,
+	score as score,
+	shape_count as shapeCount,
+	tick_count as tickCount
+FROM
+	top
+ORDER BY
+	score, lines, shape_count, tick_count DESC	
+	</select>
+</mapper>

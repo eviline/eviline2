@@ -10,6 +10,8 @@ public class EngineStats implements Comparable<EngineStats>, Serializable {
 	protected long tickCount;
 	protected long shapeCount;
 	
+	protected EngineStats() {}
+	
 	public EngineStats(Engine e) {
 		lines = e.getLines();
 		score = e.getScore();
