@@ -274,7 +274,7 @@ public class EvilApplet extends JApplet {
 			stats.getModel().write(e.toString());
 		}
 
-		stats.getModel().write("\nClick in the field to begin.");
+		stats.getModel().write("\nClick RESET to begin.");
 	}
 
 	@Override
