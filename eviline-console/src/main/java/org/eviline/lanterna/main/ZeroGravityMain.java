@@ -221,11 +221,7 @@ public class ZeroGravityMain {
 				if(isOver && !wasOver) {
 					w.close();
 					gui.showWindow(new SubmitScoreWindow(url, engine), Position.CENTER);
-					try {
-						gui.showWindow(new HighScoreWindow(url), Position.CENTER);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
+					gui.showWindow(new HighScoreWindow(url), Position.CENTER);
 					gui.showWindow(w, Position.CENTER);
 				}
 				wasOver = isOver;
@@ -270,11 +266,7 @@ public class ZeroGravityMain {
 			}
 		};
 
-		try {
-			gui.showWindow(new HighScoreWindow(url), Position.CENTER);
-		} catch(IOException e) {
-			throw new RuntimeException(e);
-		}
+		gui.showWindow(new HighScoreWindow(url), Position.CENTER);
 		
 		exec.scheduleWithFixedDelay(ticker, 0, 10, TimeUnit.MILLISECONDS);
 		exec.scheduleWithFixedDelay(drawer, 0, 10, TimeUnit.MILLISECONDS);

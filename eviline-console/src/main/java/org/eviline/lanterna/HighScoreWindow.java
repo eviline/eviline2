@@ -20,7 +20,7 @@ public class HighScoreWindow extends Window {
 	
 	protected URL url;
 	
-	public HighScoreWindow(URL url) throws IOException {
+	public HighScoreWindow(URL url) {
 		super("High Scores");
 		
 		Panel p = new Panel(Orientation.VERTICAL);
@@ -31,14 +31,18 @@ public class HighScoreWindow extends Window {
 		
 		p.addComponent(new Label(String.format(fmt, "Name", "Score", "Lines", "Date")));
 		
-		for(Map.Entry<EngineStats, String> e : new EngineStatsSubmitter(url).get().entrySet()) {
-			String label = String.format(
-					fmt, 
-					e.getValue(), 
-					e.getKey().getScore(), 
-					e.getKey().getLines(),
-					DF.format(e.getKey().getTs()));
-			p.addComponent(new Label(label));
+		try {
+			for(Map.Entry<EngineStats, String> e : new EngineStatsSubmitter(url).get().entrySet()) {
+				String label = String.format(
+						fmt, 
+						e.getValue(), 
+						e.getKey().getScore(), 
+						e.getKey().getLines(),
+						DF.format(e.getKey().getTs()));
+				p.addComponent(new Label(label));
+			}
+		} catch(Exception e) {
+			p.addComponent(new Label(e.toString()));
 		}
 		
 		p.addComponent(new Label(""));

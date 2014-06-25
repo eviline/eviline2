@@ -8,7 +8,9 @@ import org.eviline.core.EngineStats;
 import org.eviline.core.EngineStatsSubmitter;
 
 import com.googlecode.lanterna.gui.Action;
+import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
+import com.googlecode.lanterna.gui.GUIScreen.Position;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.Label;
 import com.googlecode.lanterna.gui.component.Panel;
@@ -46,8 +48,20 @@ public class SubmitScoreWindow extends Window {
 			public void doAction() {
 				try {
 					new EngineStatsSubmitter(SubmitScoreWindow.this.url).post(stats, name.getText());
-				} catch (IOException e) {
-					throw new RuntimeException(e);
+				} catch (Exception e) {
+					final Window w = new Window("Error Submitting Score");
+					Panel p = new Panel(Orientation.VERTICAL);
+					p.addComponent(new Label(e.toString()));
+					p.addComponent(new Label(""));
+					Button b = new Button("OK", new Action() {
+						@Override
+						public void doAction() {
+							w.close();
+						}
+					});
+					p.addComponent(b);
+					w.addComponent(p);
+					SubmitScoreWindow.this.getOwner().showWindow(w, Position.CENTER);
 				}
 				SubmitScoreWindow.this.close();
 			}
