@@ -9,14 +9,16 @@ public class EngineStats implements Comparable<EngineStats>, Serializable {
 	protected long score;
 	protected long tickCount;
 	protected long shapeCount;
+	protected long ts;
 	
-	protected EngineStats() {}
+	public EngineStats() {}
 	
 	public EngineStats(Engine e) {
 		lines = e.getLines();
 		score = e.getScore();
 		tickCount = e.getTickCount();
 		shapeCount = e.getShapeCount();
+		ts = System.currentTimeMillis();
 	}
 	
 	public long getLines() {
@@ -42,6 +44,12 @@ public class EngineStats implements Comparable<EngineStats>, Serializable {
 	}
 	public void setShapeCount(long shapeCount) {
 		this.shapeCount = shapeCount;
+	}
+	public long getTs() {
+		return ts;
+	}
+	public void setTs(long ts) {
+		this.ts = ts;
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 public class DBInterface {
 	private static SqlSessionFactory sql;
 	
-	public SqlSessionFactory get() {
+	public static SqlSessionFactory get() {
 		if(sql != null)
 			return sql;
 		

@@ -15,8 +15,19 @@ public class NamedEngineStats extends EngineStats {
 		score = stats.getScore();
 		shapeCount = stats.getShapeCount();
 		tickCount = stats.getTickCount();
+		ts = System.currentTimeMillis();
 	}
 
+	public EngineStats toStats() {
+		EngineStats e = new EngineStats();
+		e.setLines(getLines());
+		e.setScore(getScore());
+		e.setShapeCount(getShapeCount());
+		e.setTickCount(getTickCount());
+		e.setTs(getTs());
+		return e;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -24,6 +35,7 @@ public class NamedEngineStats extends EngineStats {
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	
 	
 }
