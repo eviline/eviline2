@@ -18,6 +18,6 @@
 		</environment>
 	</environments>
 	<mappers>
-		<mapper resource="stats.xml"/>
+		<mapper resource="org/eviline/webapp/db/stats.xml"/>
 	</mappers>
 </configuration>
