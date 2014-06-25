@@ -14,6 +14,11 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +29,7 @@ import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
@@ -31,6 +37,8 @@ import org.eviline.core.Command;
 import org.eviline.core.Configuration;
 import org.eviline.core.Engine;
 import org.eviline.core.EngineListener;
+import org.eviline.core.EngineStats;
+import org.eviline.core.EngineStatsSubmitter;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
@@ -43,6 +51,16 @@ import org.eviline.swing.StatisticsTableModel;
 import org.eviline.swing.SwingPlayer;
 
 public class EvilApplet extends JApplet {
+	private static final SimpleDateFormat DF = new SimpleDateFormat("YYYY-MM-dd");
+	private static URL url;
+	static {
+		try {
+			url = new URL("http://www.eviline.org/eviline-webapp/");
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	protected JPanel contentPane = new JPanel(new BorderLayout()) {
 		private Image spider = Resources.getFlower();
 		
@@ -59,6 +77,8 @@ public class EvilApplet extends JApplet {
 		}
 	};
 
+	protected StatisticsTable stats;
+	
 	@Override
 	public void init() {
 		super.init();
@@ -115,7 +135,7 @@ public class EvilApplet extends JApplet {
 		final ShapeSourceComponent shapes = new ShapeSourceComponent(engine, 3);
 		tables.add(shapes, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
 		
-		final StatisticsTable stats = new StatisticsTable(engine, 16) {
+		stats = new StatisticsTable(engine, 16) {
 			@Override
 			protected void paintComponent(Graphics g) {
 				g.setColor(new Color(64,0,0,192));
@@ -177,14 +197,30 @@ public class EvilApplet extends JApplet {
 		
 		ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
 		Runnable ticker = new Runnable() {
+			private boolean wasOver = false;
 			private boolean invoked = false;
 			@Override
 			public void run() {
 				if(!table.hasFocus())
 					return;
 				Command c = pl.tick();
+				boolean isOver = false;
 				if(!engine.isOver())
 					engine.tick(c);
+				else
+					isOver = true;
+				if(isOver && !wasOver) {
+					String name = JOptionPane.showInputDialog(EvilApplet.this, "Enter your name to submit high score", "Enter High Score Name", JOptionPane.QUESTION_MESSAGE);
+					if(name != null) {
+						try {
+							new EngineStatsSubmitter(url).post(new EngineStats(engine), name);
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(EvilApplet.this, e.toString(), "Error Submitting Score", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+					showHighScores();
+				}
+				wasOver = isOver;
 				if(invoked)
 					return;
 				invoked = true;
@@ -210,12 +246,35 @@ public class EvilApplet extends JApplet {
 
 		requestFocusInWindow();
 		
-		stats.getModel().clear();
-		stats.getModel().write("click in the field to begin");
+		showHighScores();
 		
 //		exec.schedule(ticker, 1000000L / 60, TimeUnit.MICROSECONDS);
 		exec.scheduleAtFixedRate(ticker, 0, 1000000L/60, TimeUnit.MICROSECONDS);
 		
+	}
+	
+	private void showHighScores() {
+		stats.getModel().clear();
+
+		String fmt = "%-18s%-6s%-6s%-10s\n";
+		
+		stats.getModel().write(String.format(fmt, "Name", "Score", "Lines", "Date"));
+		
+		try {
+			for(Map.Entry<EngineStats, String> e : new EngineStatsSubmitter(url).get().entrySet()) {
+				String label = String.format(
+						fmt, 
+						e.getValue(), 
+						e.getKey().getScore(), 
+						e.getKey().getLines(),
+						DF.format(e.getKey().getTs()));
+				stats.getModel().write(label);
+			}
+		} catch(Exception e) {
+			stats.getModel().write(e.toString());
+		}
+
+		stats.getModel().write("\nClick in the field to begin.");
 	}
 
 	@Override
