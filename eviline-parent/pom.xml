@@ -33,6 +33,47 @@
 						<encoding>UTF-8</encoding>
 					</configuration>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.4</version>
+					<executions>
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>test-jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>2.2.1</version>
+					<executions>
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>jar</goal>
+								<goal>test-jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.9.1</version>
+					<executions>
+						<execution>
+							<id>jar</id>
+							<phase>package</phase>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -43,4 +84,54 @@
 		<module>../eviline-webstart</module>
 		<module>../eviline-webapp</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>sign-artifacts</id>
+			<activation>
+				<property>
+					<name>performSign</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	<name>org.eviline:eviline</name>
+	<url>http://www.eviline.org/</url>
+	<description>Eviline2</description>
+	<licenses>
+		<license>
+			<distribution>repo</distribution>
+			<name>BSD</name>
+			<url>http://www.eviline.org/license.txt:</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<email>robin.kirkman@gmail.com</email>
+			<name>Robin Kirkman</name>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git@github.com:zeromeaner/eviline2.git</connection>
+		<developerConnection>scm:git:git@github.com:zeromeaner/eviline2.git</developerConnection>
+		<url>git@github.com:zeromeaner/eviline2.git</url>
+	</scm>
 </project>
