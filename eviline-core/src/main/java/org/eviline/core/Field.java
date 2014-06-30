@@ -7,9 +7,9 @@ public class Field implements Cloneable {
 	public static final int HEIGHT = 20;
 	public static final int BUFFER = 3;
 	
-	protected static final long WALL = 0b1110000000000111;
+	protected static final short WALL = (short) 0b1110000000000111;
 	
-	protected long[] mask;
+	protected short[] mask;
 	
 	protected Block[] blocks;
 	
@@ -30,48 +30,23 @@ public class Field implements Cloneable {
 	
 	public void reset() {
 		// reset the mask
-		mask = new long[8];
-		for(int y = -8; y < 20; y++)
-			blit(y, WALL);
-		mask[7] = -1L; // floor
+		mask = new short[32];
+		int y;
+		for(y = -8; y < Field.HEIGHT; y++)
+			set(y, WALL);
+		for(; y < Field.HEIGHT + BUFFER; y++)
+			set(y, (short) -1);
 		
 		// reset the blocks
 		blocks = new Block[(HEIGHT+12) * WIDTH];
 	}
 	
-	/**
-	 * Blits the lower 16 bits of {@code m} onto row {@code y}
-	 * @param y
-	 * @param m
-	 */
-	protected void blit(int y, long m) {
-		int i = (y + 8) >> 2;
-		int o = (y + 8) & 0b11;
-		mask[i] |= (m << (o * 16));
+	protected short get(int y) {
+		return mask[y + 8];
 	}
 	
-	/**
-	 * Sets the lower 16 bits of {@code m} onto row {@code y}
-	 * @param y
-	 * @param m
-	 */
-	protected void set(int y, long m) {
-		int i = (y + 8) >> 2;
-		int o = (y + 8) & 0b11;
-		mask[i] &= ~(0xffffL << (o * 16));
-		mask[i] |= (m << (o * 16));
-	}
-	
-	/**
-	 * Returns row {@code y} as the lower 16 bits of the returned {@code long}
-	 * @param y
-	 * @return
-	 */
-	protected long get(int y) {
-		int i = (y + 8) >> 2;
-		int o = (y + 8) & 0b11;
-		long imask = mask[i] >>> (o * 16);
-		return imask & 0xffff;
+	protected void set(int y, short v) {
+		mask[y+8] = v;
 	}
 	
 	/**
@@ -80,14 +55,7 @@ public class Field implements Cloneable {
 	 * @return
 	 */
 	protected long imask(int y) {
-		int i = (y + 8) >> 2;
-		int o = (y + 8) & 0b11;
-		long imask = mask[i] >>> (o * 16);
-		if(o == 0)
-			return imask;
-		long jmask = mask[i+1] & ~(-1L << (o * 16));
-		jmask = jmask << ((4-o) * 16);
-		return imask | jmask;
+		return Shorts.pack(mask, y+8);
 	}
 	
 	/**
@@ -110,12 +78,12 @@ public class Field implements Cloneable {
 	 */
 	public void blit(XYShape s) {
 		long smask = s.shape().mask(s.x());
+		short[] src = Shorts.split(smask);
+		Shorts.set(mask, s.y()+8, src, 0, 4);
 		for(int i = 0; i < 4; i++) {
 			int y = s.y() + i;
-			long m = (smask >>> (i*16)) & 0xffff;
-			blit(y, m);
 			for(int x = 0; x < WIDTH; x++) {
-				if((m & ((1 << 12) >>> x)) != 0)
+				if((src[i] & ((1 << 12) >>> x)) != 0)
 					blocks[x + (y+8) * WIDTH] = s.block();
 			}
 		}
@@ -144,7 +112,7 @@ public class Field implements Cloneable {
 	public int clearLines() {
 		int cleared = 0;
 		for(int y = HEIGHT - 1; y >= -8; y--) {
-			if(get(y) == 0xffff) {
+			if(get(y) == (short) 0xffff) {
 				clear(y);
 				y++;
 				cleared++;
@@ -153,12 +121,11 @@ public class Field implements Cloneable {
 		return cleared;
 	}
 	
-	public void shiftUp(long trashMask) {
-		trashMask = trashMask << 3;
-		trashMask = trashMask | 0b11100000000111L;
+	public void shiftUp(short trashMask) {
+		trashMask |= (short) 0b11100000000111;
 		for(int i = -8+1; i < Field.HEIGHT; i++)
 			set(i-1, get(i));
-		blit(Field.HEIGHT - 1, trashMask);
+		set(Field.HEIGHT - 1, trashMask);
 		System.arraycopy(blocks, WIDTH, blocks, 0, WIDTH * (Field.HEIGHT + 8-1));
 		long m = 0b1000;
 		for(int x = WIDTH-1; x >= 0; x--) {
@@ -177,7 +144,7 @@ public class Field implements Cloneable {
 	 * @return
 	 */
 	public boolean masked(int x, int y) {
-		return (get(y) & (1L << (12 - x))) != 0;
+		return ((get(y) & 0xFFFF) & (1 << (12 - x))) != 0;
 	}
 	
 	/**
@@ -185,8 +152,8 @@ public class Field implements Cloneable {
 	 * @param y
 	 * @return
 	 */
-	public long mask(int y) {
-		return (get(y) >>> BUFFER) & 0b1111111111;
+	public short mask(int y) {
+		return (short)((get(y) >>> BUFFER) & 0b1111111111);
 	}
 	
 	/**
@@ -201,32 +168,26 @@ public class Field implements Cloneable {
 	
 	public void setBlock(int x, int y, Block b) {
 		blocks[x + (y+8) * WIDTH] = b;
-		long bm = 0b1000L;
-		bm = bm << (WIDTH - (x+1));
+		short bm = 0b1000;
+		bm = (short) (bm << (WIDTH - (x+1)));
 		if(b != null) {
-			blit(y, WALL | bm);
+			set(y, (short)(get(y) |  bm));
 		} else {
-			set(y, WALL | (get(y) & ~bm));
+			set(y, (short)(get(y) & ~bm));
 		}
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		char[] blk = new char[] {' ', '\u2584', '\u2580', '\u2588'};
-		for(long m : mask) {
-			for(int i = 15; i >= 0; i--) {
-				boolean top = (m & (1L << i)) != 0;
-				boolean bot = (m & (1L << (i+16))) != 0;
-				sb.append(blk[(top?2:0) + (bot?1:0)]);
+		char blk = '\u2588';
+		for(int y = -8; y < HEIGHT + BUFFER; y++) {
+			short m = mask[y+8];
+			for(int x = 15; x >= 0; x--) {
+				short xm = (short)(1 << x);
+				sb.append((m & xm) != 0 ? blk : ' ');
 			}
-			sb.append('\n');
-			for(int i = 47; i >= 32; i--) {
-				boolean top = (m & (1L << i)) != 0;
-				boolean bot = (m & (1L << (i+16))) != 0;
-				sb.append(blk[(top?2:0) + (bot?1:0)]);
-			}
-			sb.append('\n');
+			sb.append("\n");
 		}
 		return sb.toString();
 	}	
