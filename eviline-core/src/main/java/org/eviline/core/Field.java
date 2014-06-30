@@ -7,9 +7,9 @@ public class Field implements Cloneable {
 	public static final int HEIGHT = 20;
 	public static final int BUFFER = 3;
 	
-	protected static final long WALL = 0b1110000000000111;
+	protected static final short WALL = (short) 0b1110000000000111;
 	
-	protected long[] mask;
+	protected short[] mask;
 	
 	protected Block[] blocks;
 	
@@ -30,7 +30,7 @@ public class Field implements Cloneable {
 	
 	public void reset() {
 		// reset the mask
-		mask = new long[8];
+		mask = new short[32];
 		for(int y = -8; y < 20; y++)
 			blit(y, WALL);
 		mask[7] = -1L; // floor
