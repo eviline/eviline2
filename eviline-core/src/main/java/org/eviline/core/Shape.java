@@ -144,10 +144,14 @@ public enum Shape {
 	
 	private Shape(ShapeType type, long... rowMasks) {
 		this.type = type;
-		for(int i = 0; i < rowMasks.length; i++) {
-			mask |= (rowMasks[i] << (12 + i * 16));
-			overY--;
-		}
+//		for(int i = 0; i < rowMasks.length; i++) {
+//			mask |= (rowMasks[i] << (12 + i * 16));
+//			overY--;
+//		}
+		short[] unpacked = new short[4];
+		for(int i = 0; i < Math.min(4, rowMasks.length); i++)
+			unpacked[i] = (short) (rowMasks[i] << 12);
+		mask = Shorts.pack(unpacked, 0);
 		direction = ShapeDirection.valueOf(name().replaceAll(".*_", ""));
 	}
 	
@@ -168,7 +172,7 @@ public enum Shape {
 	}
 	
 	public long mask(int x) {
-		return mask >> (Field.BUFFER + x);
+		return mask >>> (Field.BUFFER + x);
 	}
 	
 	public int overY() {

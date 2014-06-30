@@ -19,18 +19,10 @@ public class FieldTest {
 	}
 	
 	@Test
-	public void testToString() {
-		Field f = new Field();
-		
-		f.blit(new XYShape(Shape.T_RIGHT, 0, 0));
-		
-		System.out.println(f);
-	}
-	
-	@Test
 	public void testMasked() {
 		Field f = new Field();
 		f.blit(new XYShape(Shape.O_DOWN, 0, 0));
+		System.out.println(f.toString());
 		Assert.assertTrue(f.masked(0, 0));
 		Assert.assertFalse(f.masked(2, 0));
 	}
