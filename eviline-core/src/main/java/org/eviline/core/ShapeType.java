@@ -37,7 +37,7 @@ public enum ShapeType {
 	}
 	
 	public int startY() {
-		return -4;
+		return -2;
 	}
 	
 	public static ShapeType[] NONE = new ShapeType[0];

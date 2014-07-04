@@ -168,7 +168,7 @@ public enum Shape {
 	}
 	
 	public boolean has(int x, int y) {
-		return (mask & (1L << (15 - x + y * 16))) != 0;
+		return (mask & (1L << (15 - x + (3-y) * 16))) != 0;
 	}
 	
 	public long mask(int x) {
