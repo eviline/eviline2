@@ -70,9 +70,9 @@ public class Engine {
 	}
 	
 	public void garbage(int lines) {
-		long tm = 0b1111111111;
-		long thm = 1L << (int)(Field.WIDTH * Math.random());
-		tm = tm & ~thm;
+		short tm = 0b1111111111;
+		short thm = (short)(1 << (int)(Field.WIDTH * Math.random()));
+		tm = (short)(tm & ~thm);
 		for(int i = 0; i < lines; i++)
 			field.shiftUp(tm);
 	}
