@@ -46,6 +46,8 @@ public class StatisticsTableModel extends AbstractTableModel {
 	
 	public void write(int x, int y, String s, Color c) {
 		for(int i = 0; i < s.length(); i++) {
+			if(x + i >= chars[y].length)
+				continue;
 			chars[y][x+i] = s.charAt(i);
 			colors[y][x+i] = c;
 		}
