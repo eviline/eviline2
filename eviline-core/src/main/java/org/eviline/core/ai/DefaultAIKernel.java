@@ -67,35 +67,50 @@ public class DefaultAIKernel implements AIKernel {
 			nextNext = null;
 		}
 			
-		Collection<Future<Best>> futures = new ArrayList<>();
+		Vertex[] vertices = g.getVertices();
+		final Best[] bests = new Best[vertices.length];
 		
 //		for(final int shape : g.getVertices().keySet()) {
-		for(int i = 0; i < g.getVertices().length; i++) {
+		for(int i = 0; i < vertices.length; i++) {
 			final Vertex v;
-			if((v = g.getVertices()[i]) == null)
+			if((v = vertices[i]) == null)
 				continue;
 			final int shape = i;
-			if(!field.intersects(XYShapes.shiftedDown(shape)))
+			if(!field.intersects(XYShapes.shiftedDown(shape))) {
+				vertices[i] = null;
 				continue;
-			FutureTask<Best> f = new FutureTask<>(new Callable<Best>() {
+			}
+			
+			Runnable task = new Runnable() {
 				@Override
-				public Best call() throws Exception {
+				public void run() {
 					Field after = field.clone();
 					after.blit(shape, 0);
 					Best b = bestPlacement(field, after, nextShape, nextNext, lookahead);
-					return new Best(v, b.score, b.after, XYShapes.shapeFromInt(shape).type());
+					Best best = new Best(v, b.score, b.after, XYShapes.shapeFromInt(shape).type());
+					synchronized(v) {
+						bests[shape] = best;
+						v.notify();
+					}
 				}
-			});
-			futures.add(f);
-			exec.execute(f);
+			};
+			
+			exec.execute(task);
 		}
 		
-		for(Future<Best> f : futures) {
+		for(int i = 0; i < vertices.length; i++) {
+			Vertex v = vertices[i];
+			if(v == null)
+				continue;
 			Best b;
-			try {
-				b = f.get();
-			} catch(Exception e) {
-				throw new RuntimeException(e);
+			synchronized(v) {
+				while((b = bests[i]) == null) {
+					try {
+						v.wait();
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
+				}
 			}
 			if(b.score < badness) {
 				best = b.vertex;
