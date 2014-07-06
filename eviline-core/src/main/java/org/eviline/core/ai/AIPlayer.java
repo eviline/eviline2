@@ -7,14 +7,14 @@ import java.util.Deque;
 import org.eviline.core.Command;
 import org.eviline.core.Engine;
 import org.eviline.core.ShapeType;
-import org.eviline.core.XYShape;
+import org.eviline.core.XYShapes;
 import org.eviline.core.ai.CommandGraph.Vertex;
 
 public class AIPlayer implements Player {
 	protected AIKernel ai;
 	protected Engine engine;
 	
-	protected XYShape dest;
+	protected int dest;
 	protected Deque<Command> commands = new ArrayDeque<>();
 	
 	protected int lookahead;
@@ -32,12 +32,12 @@ public class AIPlayer implements Player {
 	
 	public Command tick() {
 		if(engine.isOver()) {
-			dest = null;
+			dest = -1;
 			return Command.NOP;
 		}
 		
 		if(commands.size() == 0) {
-			if(engine.getShape() == null)
+			if(engine.getShape() == -1)
 				return Command.NOP;
 			Vertex v = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext(), lookahead);
 			dest = v.shape;
@@ -45,11 +45,11 @@ public class AIPlayer implements Player {
 				if(v.command != Command.SOFT_DROP || allowDrops) {
 					commands.offerFirst(v.command);
 				} else { // it's a soft drop
-					XYShape dropping = v.origin.shape;
-					dropping = dropping.shiftedDown();
+					int dropping = v.origin.shape;
+					dropping = XYShapes.shiftedDown(dropping);
 					while(!engine.getField().intersects(dropping)) {
 						commands.offerFirst(Command.SHIFT_DOWN);
-						dropping = dropping.shiftedDown();
+						dropping = XYShapes.shiftedDown(dropping);
 					}
 				}
 				v = v.origin;
@@ -58,14 +58,14 @@ public class AIPlayer implements Player {
 		}
 		
 		if(commands.size() == 0) {
-			dest = null;
+			dest = -1;
 			return Command.NOP;
 		}
 		
 		return commands.pollFirst();
 	}
 	
-	public XYShape getDest() {
+	public int getDest() {
 		return dest;
 	}
 	

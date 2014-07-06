@@ -6,25 +6,26 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.eviline.core.Command;
 import org.eviline.core.Field;
-import org.eviline.core.XYShape;
+import org.eviline.core.XYShapes;
 
 public class CommandGraph {
 	public class Vertex {
 		public final int pathLength;
 		public final Vertex origin;
 		public final Command command;
-		public final XYShape shape;
+		public final int shape;
 		
-		public Vertex(XYShape start) {
+		public Vertex(int start) {
 			shape = start;
 			pathLength = 0;
 			origin = null;
 			command = null;
 		}
 		
-		public Vertex(Vertex origin, Command command, XYShape shape) {
+		public Vertex(Vertex origin, Command command, int shape) {
 			this.origin = origin;
 			this.command = command;
 			this.shape = shape;
@@ -33,49 +34,49 @@ public class CommandGraph {
 		
 		public List<Vertex> getOut(Field f) {
 			List<Vertex> out = new ArrayList<>();
-			XYShape next;
+			int next;
 			
-			for(XYShape kicked : shape.rotatedLeft().kickedLeft()) {
+			for(int kicked : XYShapes.kickedLeft(XYShapes.rotatedLeft(shape))) {
 				if(!f.intersects(kicked)) {
 					out.add(new Vertex(this, Command.ROTATE_LEFT, kicked));
 					break;
 				}
 			}
 			
-			for(XYShape kicked : shape.rotatedRight().kickedRight()) {
+			for(int kicked : XYShapes.kickedRight(XYShapes.rotatedRight(shape))) {
 				if(!f.intersects(kicked)) {
 					out.add(new Vertex(this, Command.ROTATE_RIGHT, kicked));
 					break;
 				}
 			}
 			
-			next = shape.shiftedLeft();
+			next = XYShapes.shiftedLeft(shape);
 			if(!f.intersects(next)) {
 				out.add(new Vertex(this, Command.SHIFT_LEFT, next));
 
 				while(!f.intersects(next))
-					next = next.shiftedLeft();
-				next = next.shiftedRight();
+					next = XYShapes.shiftedLeft(next);
+				next = XYShapes.shiftedRight(next);
 				out.add(new Vertex(this, Command.AUTOSHIFT_LEFT, next));
 			}
 			
-			next = shape.shiftedRight();
+			next = XYShapes.shiftedRight(shape);
 			if(!f.intersects(next)) {
 				out.add(new Vertex(this, Command.SHIFT_RIGHT, next));
 			
 				while(!f.intersects(next))
-					next = next.shiftedRight();
-				next = next.shiftedLeft();
+					next = XYShapes.shiftedRight(next);
+				next = XYShapes.shiftedLeft(next);
 				out.add(new Vertex(this, Command.AUTOSHIFT_RIGHT, next));
 			}
 			
-			next = shape.shiftedDown();
+			next = XYShapes.shiftedDown(shape);
 			if(!f.intersects(next)) {
 				out.add(new Vertex(this, Command.SHIFT_DOWN, next));
 
 				while(!f.intersects(next))
-					next = next.shiftedDown();
-				next = next.shiftedUp();
+					next = XYShapes.shiftedDown(next);
+				next = XYShapes.shiftedUp(next);
 				out.add(new Vertex(this, Command.SOFT_DROP, next));
 			}
 			
@@ -83,11 +84,14 @@ public class CommandGraph {
 		}
 	}
 	
-	protected Map<XYShape, Vertex> vertices = new HashMap<>();
+//	protected Map<XYShape, Vertex> vertices = new HashMap<>();
+	protected Vertex[] vertices = new Vertex[XYShapes.SHAPE_MAX];
 	
-	public CommandGraph(Field field, XYShape start) {
+	public CommandGraph(Field field, int start) {
 		Vertex v;
-		vertices.put(start, v = new Vertex(start));
+//		vertices.put(start, v = new Vertex(start));
+		v = new Vertex(start);
+		vertices[start] = v;
 		
 		Deque<Vertex> pending = new ArrayDeque<>();
 		
@@ -95,14 +99,15 @@ public class CommandGraph {
 		
 		while(pending.size() > 0) {
 			v = pending.poll();
-			if(vertices.containsKey(v.shape) && vertices.get(v.shape).pathLength <= v.pathLength)
+			int si = v.shape;
+			if(vertices[si] != null && vertices[si].pathLength <= v.pathLength)
 				continue;
-			vertices.put(v.shape, v);
+			vertices[si] = v;
 			pending.addAll(v.getOut(field));
 		}
 	}
 
-	public Map<XYShape, Vertex> getVertices() {
+	public Vertex[] getVertices() {
 		return vertices;
 	}
 }

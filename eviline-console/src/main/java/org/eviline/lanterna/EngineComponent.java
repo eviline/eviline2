@@ -4,6 +4,7 @@ import org.eviline.core.Block;
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
+import org.eviline.core.XYShapes;
 
 import com.googlecode.lanterna.gui.TextGraphics;
 import com.googlecode.lanterna.gui.component.AbstractComponent;
@@ -44,7 +45,7 @@ public class EngineComponent extends AbstractComponent {
 				for(int x = 0; x < Field.WIDTH; x++) {
 					Block b = engine.block(x, y);
 					ShapeType t = null;
-					if(ghosting && b == null && engine.getGhost() != null && engine.getGhost().has(x, y))
+					if(ghosting && b == null && engine.getGhost() != -1 && XYShapes.has(engine.getGhost(), x, y))
 						t = ShapeType.G;
 					if(t == null && b != null)
 						t = b.shape().type();

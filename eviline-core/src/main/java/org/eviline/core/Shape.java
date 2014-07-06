@@ -41,11 +41,6 @@ public enum Shape {
 			0b1100,
 			0b1000
 			),
-	J_LEFT(J,
-			0b0100,
-			0b0100,
-			0b1100
-			), 
 	J_UP(J,
 			0b1000,
 			0b1110
@@ -59,6 +54,15 @@ public enum Shape {
 			0b0000,
 			0b1110,
 			0b0010
+			),
+	J_LEFT(J,
+			0b0100,
+			0b0100,
+			0b1100
+			), 
+	L_UP(L,
+			0b0010,
+			0b1110
 			),
 	L_RIGHT(L,
 			0b0100,
@@ -75,10 +79,6 @@ public enum Shape {
 			0b0100,
 			0b0100
 			), 
-	L_UP(L,
-			0b0010,
-			0b1110
-			),
 	T_UP(T,
 			0b0100,
 			0b1110
@@ -154,6 +154,8 @@ public enum Shape {
 		mask = Shorts.pack(unpacked, 0);
 		direction = ShapeDirection.valueOf(name().replaceAll(".*_", ""));
 	}
+	
+	public static final Shape[] VALUES = values();
 	
 	public ShapeType type() {
 		return type;

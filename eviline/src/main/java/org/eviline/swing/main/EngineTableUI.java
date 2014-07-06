@@ -59,7 +59,7 @@ public class EngineTableUI {
 					drawn = 0;
 				} else
 					drawn--;
-				while(engine.getShape() == null && !engine.isOver())
+				while(engine.getShape() == -1 && !engine.isOver())
 					engine.tick(Command.NOP);
 				if(!engine.isOver())
 					EventQueue.invokeLater(this);

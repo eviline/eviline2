@@ -65,9 +65,9 @@ public class StatisticsTable extends JTable implements EngineListener {
 		m.write(tdf.format(e.getTickCount() * 1000 / 60) + "\n", Color.CYAN);
 		
 		m.write("badness\n");
-		if(e.getGhost() != null) {
+		if(e.getGhost() != -1) {
 			Field after = e.getField().clone();
-			after.blit(e.getGhost());
+			after.blit(e.getGhost(), 0);
 			m.write(((int) fit.badness(e.getField(), after, e.getNext())) + "\n", Color.CYAN);
 		} else
 			m.write("N/A\n");

@@ -18,7 +18,7 @@ import org.eviline.core.Engine;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
-import org.eviline.core.XYShape;
+
 import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.AIPlayer;
 import org.eviline.core.ai.DefaultAIKernel;
@@ -67,7 +67,7 @@ public class AutoplayMain {
 				@Override
 				public void doAction() {
 					synchronized(engine) {
-						while(engine.getShape() == null && !engine.isOver())
+						while(engine.getShape() == -1 && !engine.isOver())
 							engine.tick(Command.NOP);
 						w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + engine.getNext().length + " lines:" + engine.getLines());
 						gui.invalidate();
@@ -89,7 +89,7 @@ public class AutoplayMain {
 				if(!engine.isOver())
 					engine.tick(c);
 			}
-			if(syncDisplay || engine.getShape() == null) {
+			if(syncDisplay || engine.getShape() == -1) {
 				drawer.run();
 				if(!engine.isOver())
 					exec.execute(ticker);

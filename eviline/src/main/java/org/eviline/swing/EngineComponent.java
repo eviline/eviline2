@@ -16,6 +16,7 @@ import org.eviline.core.Block;
 import org.eviline.core.Engine;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
+import org.eviline.core.XYShapes;
 
 public class EngineComponent extends JComponent {
 	private static final long serialVersionUID = 0;
@@ -96,7 +97,7 @@ public class EngineComponent extends JComponent {
 				Block b = engine.block(x, y);
 				
 				boolean ghost = false;
-				if(isGhosting() && b == null && engine.getGhost() != null && engine.getGhost().has(x, y))
+				if(isGhosting() && b == null && engine.getGhost() != -1 && XYShapes.has(engine.getGhost(), x, y))
 					ghost = true;
 				
 				if(y < 0 && !ghost) {
