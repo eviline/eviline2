@@ -156,16 +156,48 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	@Override
-	public ShapeType worstNext(Field field, ShapeSource shapes, ShapeType[] next, int lookahead) {
+	public ShapeType worstNext(final Field field, final ShapeSource shapes, ShapeType[] next, final int lookahead) {
 		Field bestPlayed = field;
 		if(next.length > 0) {
 			int nextShape = XYShapes.toXYShape(next[0].startX(), next[0].startY(), next[0].start());
 			ShapeType[] nextNext = Arrays.copyOfRange(next, 1, next.length);
 			bestPlayed = bestPlacement(field, field, nextShape, nextNext, nextNext.length).after;
 		}
-
 		
-		return worstNext(field, bestPlayed, Arrays.asList(shapes.getBag()), lookahead).type;
+		final Field fbestPlayed = bestPlayed;
+
+		bestPlayed.clearLines();
+		
+		Best worst = new Best(null, Double.NEGATIVE_INFINITY, null, null);
+		Collection<Future<Best>> futs = new ArrayList<>();
+		
+		for(final ShapeType type : new HashSet<>(Arrays.asList(shapes.getBag()))) {
+			Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
+				@Override
+				public Best call() throws Exception {
+					int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
+					Best shapeBest = bestPlacement(field, fbestPlayed, currentShape, ShapeType.NONE, 1);
+					List<ShapeType> nextBag = new ArrayList<>(Arrays.asList(shapes.getBag()));
+					nextBag.remove(type);
+					Best shapeWorst = worstNext(field, shapeBest.after, nextBag, lookahead - 1);
+					return new Best(null, shapeWorst.score, shapeWorst.after, type);
+				}
+			};
+			FutureTask<Best> f = new FutureTask<>(task);
+			exec.execute(f);
+			futs.add(f);
+		}
+		
+		try {
+			for(Future<Best> f : futs) {
+				if(f.get().score > worst.score)
+					worst = f.get();
+			}
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		return worst.type;
 	}
 
 	protected Best worstNext(Field originalField, Field currentField, List<ShapeType> bag, int lookahead) {
