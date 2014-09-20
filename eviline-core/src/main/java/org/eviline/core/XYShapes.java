@@ -3,7 +3,7 @@ package org.eviline.core;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class XYShapes {
-	public static final int SHAPE_MAX = toXYShape(15, 19, Shape.VALUES[Shape.VALUES.length-1]);
+	public static final int SHAPE_MAX = toXYShape(15, 19, Shape.values()[Shape.values().length - 1]);
 	
 	public static boolean has(int xyshape, int x, int y) {
 		int this_x = xFromInt(xyshape);
@@ -31,7 +31,7 @@ public class XYShapes {
 	}
 	
 	public static Shape shapeFromInt(int i) {
-		return Shape.VALUES[i >>> 9];
+		return Shape.fromOrdinal(i >>> 9);
 	}
 	
 	public static int rotatedRight(int xyshape) {

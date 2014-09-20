@@ -144,10 +144,6 @@ public enum Shape {
 	
 	private Shape(ShapeType type, long... rowMasks) {
 		this.type = type;
-//		for(int i = 0; i < rowMasks.length; i++) {
-//			mask |= (rowMasks[i] << (12 + i * 16));
-//			overY--;
-//		}
 		short[] unpacked = new short[4];
 		for(int i = 0; i < Math.min(4, rowMasks.length); i++)
 			unpacked[i] = (short) (rowMasks[i] << 12);
@@ -155,7 +151,11 @@ public enum Shape {
 		direction = ShapeDirection.valueOf(name().replaceAll(".*_", ""));
 	}
 	
-	public static final Shape[] VALUES = values();
+	private static final Shape[] VALUES = values();
+	
+	public static Shape fromOrdinal(int ordinal) {
+		return VALUES[ordinal];
+	}
 	
 	public ShapeType type() {
 		return type;
