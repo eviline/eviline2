@@ -3,19 +3,9 @@ package org.eviline.core;
 import org.eviline.core.ss.Bag7NShapeSource;
 
 public class Configuration {
-	protected EngineFactory<Integer> downFramesRemaining = new EngineFactory<Integer>() {
-		@Override
-		public Integer newInstance(Engine e) {
-			return 60;
-		}
-	};
-	protected EngineFactory<Integer> respawnFramesRemaining = new EngineFactory<Integer>() {
-		@Override
-		public Integer newInstance(Engine e) {
-			return 10;
-		}
-	};
-	protected EngineFactory<ShapeSource> shapes = Bag7NShapeSource.FACTORY;
+	protected EngineFactory<Integer> downFramesRemaining = EngineFactories.createIntegerFactory(60);
+	protected EngineFactory<Integer> respawnFramesRemaining = EngineFactories.createIntegerFactory(10);
+	protected EngineFactory<ShapeSource> shapes = EngineFactories.createSourceFactory(Bag7NShapeSource.class);
 	
 	public Integer respawnFramesRemaining(Engine e) {
 		return respawnFramesRemaining.newInstance(e);

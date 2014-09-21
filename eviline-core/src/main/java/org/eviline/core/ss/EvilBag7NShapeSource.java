@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.eviline.core.Engine;
+import org.eviline.core.EngineFactories;
 import org.eviline.core.EngineFactory;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
@@ -15,12 +16,7 @@ import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.DefaultAIKernel;
 
 public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
-	public static EngineFactory<ShapeSource> FACTORY = new EngineFactory<ShapeSource>() {
-		@Override
-		public ShapeSource newInstance(Engine e) {
-			return new EvilBag7NShapeSource();
-		}
-	};
+	public static final EngineFactory<ShapeSource> FACTORY = EngineFactories.createSourceFactory(EvilBag7NShapeSource.class);
 	
 	protected AIKernel ai = new DefaultAIKernel();
 	protected int n;
