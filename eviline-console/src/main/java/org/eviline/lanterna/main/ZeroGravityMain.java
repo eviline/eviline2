@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 import org.eviline.core.Command;
 import org.eviline.core.Configuration;
 import org.eviline.core.Engine;
+import org.eviline.core.EngineFactories;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
@@ -79,22 +80,12 @@ public class ZeroGravityMain {
 	public static void main(String... args) throws Exception {
 		Field field = new Field();
 
-		engine = new Engine(field, new Configuration() {
-			@Override
-			public Integer downFramesRemaining(Engine e) {
-				return null;
-			}
-			@Override
-			public Integer respawnFramesRemaining(Engine e) {
-				return 1;
-			}
-			@Override
-			public ShapeSource shapes(Engine e) {
-				EvilBag7NShapeSource shapes = (EvilBag7NShapeSource) EvilBag7NShapeSource.FACTORY.newInstance(e);
-				shapes.setLookahead(3);
-				return shapes;
-			}
-		});
+		Configuration conf = new Configuration(
+				EngineFactories.createIntegerFactory(null),
+				EngineFactories.createIntegerFactory(1),
+				EvilBag7NShapeSource.createFactory(EvilBag7NShapeSource.DEFAULT_N, 3));
+		
+		engine = new Engine(field, conf);
 
 		engine.setNext(new ShapeType[0]);
 

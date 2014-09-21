@@ -29,4 +29,6 @@ public class Shorts {
 		for(int i = 0; i < len; i++)
 			dest[doff + i] &= ~src[soff + i];
 	}
+	
+	private Shorts() {}
 }

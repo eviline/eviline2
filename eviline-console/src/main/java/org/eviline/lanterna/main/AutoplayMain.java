@@ -105,16 +105,7 @@ public class AutoplayMain {
 	public static void main(String... args) throws Exception {
 		Field field = new Field();
 
-		engine = new Engine(field, new Configuration() {
-			@Override
-			public Integer downFramesRemaining(Engine e) {
-				return null;
-			}
-			@Override
-			public Integer respawnFramesRemaining(Engine e) {
-				return 1;
-			}
-		});
+		engine = new Engine(field, new Configuration(null, 1));
 
 		engine.setNext(new ShapeType[3]);
 
