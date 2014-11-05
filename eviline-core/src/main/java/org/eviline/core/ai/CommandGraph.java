@@ -36,9 +36,15 @@ public class CommandGraph {
 		return vertices[shape * 3 + PATH_LENGTH];
 	}
 	
+	private static ThreadLocal<int[]> pending = new ThreadLocal<int[]>() {
+		@Override
+		protected int[] initialValue() {
+			return new int[XYShapes.SHAPE_MAX];
+		}
+	};
+	
 	protected int[] vertices = new int[XYShapes.SHAPE_MAX * 3];
 	
-	protected int[] pending = new int[XYShapes.SHAPE_MAX];
 	protected int pendingHead = 0;
 	protected int pendingTail = 0;
 	
@@ -63,8 +69,8 @@ public class CommandGraph {
 		setVertex(shape, NULL_ORIGIN, NULL_COMMAND, 0);
 		search(shape, f);
 		while(pendingHead != pendingTail) {
-			shape = pending[pendingHead++];
-			pendingHead %= pending.length;
+			shape = pending.get()[pendingHead++];
+			pendingHead %= XYShapes.SHAPE_MAX;
 			search(shape, f);
 		}
 	}
@@ -73,8 +79,8 @@ public class CommandGraph {
 		if(pathLength >= pathLengthOf(vertices, shape))
 			return;
 		setVertex(shape, origin, command.ordinal(), pathLength);
-		pending[pendingTail++] = shape;
-		pendingTail %= pending.length;
+		pending.get()[pendingTail++] = shape;
+		pendingTail %= XYShapes.SHAPE_MAX;
 	}
 	
 	protected void search(int shape, Field f) {
