@@ -8,7 +8,6 @@ import org.eviline.core.Command;
 import org.eviline.core.Engine;
 import org.eviline.core.ShapeType;
 import org.eviline.core.XYShapes;
-import org.eviline.core.ai.CommandGraph.Vertex;
 
 public class AIPlayer implements Player {
 	protected AIKernel ai;
@@ -39,20 +38,28 @@ public class AIPlayer implements Player {
 		if(commands.size() == 0) {
 			if(engine.getShape() == -1)
 				return Command.NOP;
-			Vertex v = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext(), lookahead);
-			dest = v.shape;
-			while(v.command != null) {
-				if(v.command != Command.SOFT_DROP || allowDrops) {
-					commands.offerFirst(v.command);
+			CommandGraph g = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext(), lookahead);
+			int[] v = g.getVertices()[g.getSelectedShape()];
+			dest = CommandGraph.shapeOf(v);
+			Command c = CommandGraph.commandOf(v);
+			while(c != null) {
+				if(c != Command.SOFT_DROP || allowDrops) {
+					commands.offerFirst(c);
 				} else { // it's a soft drop
-					int dropping = v.origin.shape;
+					int[] originVertex = g.getVertices()[CommandGraph.originOf(v)];
+					int dropping = CommandGraph.shapeOf(originVertex);
 					dropping = XYShapes.shiftedDown(dropping);
 					while(!engine.getField().intersects(dropping)) {
 						commands.offerFirst(Command.SHIFT_DOWN);
 						dropping = XYShapes.shiftedDown(dropping);
 					}
 				}
-				v = v.origin;
+				if(CommandGraph.originOf(v) != CommandGraph.NULL_ORIGIN) {
+					v = g.getVertices()[CommandGraph.originOf(v)];
+					c = CommandGraph.commandOf(v);
+				} else
+					c = null;
+				
 			}
 			commands.offerLast(Command.SHIFT_DOWN);
 		}
