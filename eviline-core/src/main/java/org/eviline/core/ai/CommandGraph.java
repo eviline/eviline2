@@ -20,46 +20,39 @@ public class CommandGraph {
 	public static final int NULL_ORIGIN = -1;
 	public static final int NULL_COMMAND = -1;
 	
-	public static int originOf(int[] vertex) {
-		return vertex[ORIGIN];
+	public static int originOf(int[] vertices, int shape) {
+		return vertices[shape * 3 + ORIGIN];
 	}
 	
 	private static final Command[] COMMANDS = Command.values();
 	
-	public static Command commandOf(int[] vertex) {
-		if(vertex[COMMAND] == NULL_COMMAND)
+	public static Command commandOf(int[] vertices, int shape) {
+		if(vertices[shape * 3 + COMMAND] == NULL_COMMAND)
 			return null;
-		return COMMANDS[vertex[COMMAND]];
+		return COMMANDS[vertices[shape * 3 + COMMAND]];
 	}
 	
-	public static int pathLengthOf(int[] vertex) {
-		return vertex[PATH_LENGTH];
+	public static int pathLengthOf(int[] vertices, int shape) {
+		return vertices[shape * 3 + PATH_LENGTH];
 	}
 	
-	public static int shapeOf(int[] vertex) {
-		return vertex[SHAPE];
-	}
-	
-	protected int[][] vertices = new int[XYShapes.SHAPE_MAX][4];
+	protected int[] vertices = new int[XYShapes.SHAPE_MAX * 3];
 	
 	protected int selectedShape;
 	
 	public CommandGraph(Field field, int start) {
-		for(int i = 0; i < vertices.length; i++) {
-			int[] vertex = vertices[i];
-			vertex[ORIGIN] = NULL_ORIGIN;
-			vertex[COMMAND] = NULL_COMMAND;
-			vertex[PATH_LENGTH] = Integer.MAX_VALUE;
-			vertex[SHAPE] = i;
+		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
+			vertices[i * 3 + ORIGIN] = NULL_ORIGIN;
+			vertices[i * 3 + COMMAND] = NULL_COMMAND;
+			vertices[i * 3 + PATH_LENGTH] = Integer.MAX_VALUE;
 		}
 		searchRoot(start, field.clone());
 	}
 
 	protected void setVertex(int shape, int origin, int command, int pathLength) {
-		int[] vertex = vertices[shape];
-		vertex[ORIGIN] = origin;
-		vertex[COMMAND] = command;
-		vertex[PATH_LENGTH] = pathLength;
+		vertices[shape * 3 + ORIGIN] = origin;
+		vertices[shape * 3 + COMMAND] = command;
+		vertices[shape * 3 + PATH_LENGTH] = pathLength;
 	}
 	
 	protected void searchRoot(int shape, Field f) {
@@ -68,15 +61,14 @@ public class CommandGraph {
 	}
 	
 	protected void maybeUpdate(int shape, int origin, Command command, int pathLength, Field f) {
-		int[] vertex = vertices[shape];
-		if(pathLength >= pathLengthOf(vertex))
+		if(pathLength >= pathLengthOf(vertices, shape))
 			return;
 		setVertex(shape, origin, command.ordinal(), pathLength);
 		search(shape, f);
 	}
 	
 	protected void search(int shape, Field f) {
-		int nextPathLength = vertices[shape][PATH_LENGTH] + 1;
+		int nextPathLength = pathLengthOf(vertices, shape) + 1;
 		
 		int next;
 		
@@ -125,7 +117,7 @@ public class CommandGraph {
 		}
 	}
 
-	public int[][] getVertices() {
+	public int[] getVertices() {
 		return vertices;
 	}
 	

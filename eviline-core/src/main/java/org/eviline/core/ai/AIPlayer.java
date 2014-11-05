@@ -39,24 +39,24 @@ public class AIPlayer implements Player {
 			if(engine.getShape() == -1)
 				return Command.NOP;
 			CommandGraph g = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext(), lookahead);
-			int[] v = g.getVertices()[g.getSelectedShape()];
-			dest = CommandGraph.shapeOf(v);
-			Command c = CommandGraph.commandOf(v);
+			int shape = g.getSelectedShape();
+			dest = shape;
+			Command c = CommandGraph.commandOf(g.getVertices(), shape);
 			while(c != null) {
 				if(c != Command.SOFT_DROP || allowDrops) {
 					commands.offerFirst(c);
 				} else { // it's a soft drop
-					int[] originVertex = g.getVertices()[CommandGraph.originOf(v)];
-					int dropping = CommandGraph.shapeOf(originVertex);
+					int originShape = shape;
+					int dropping = originShape;
 					dropping = XYShapes.shiftedDown(dropping);
 					while(!engine.getField().intersects(dropping)) {
 						commands.offerFirst(Command.SHIFT_DOWN);
 						dropping = XYShapes.shiftedDown(dropping);
 					}
 				}
-				if(CommandGraph.originOf(v) != CommandGraph.NULL_ORIGIN) {
-					v = g.getVertices()[CommandGraph.originOf(v)];
-					c = CommandGraph.commandOf(v);
+				if(CommandGraph.originOf(g.getVertices(), shape) != CommandGraph.NULL_ORIGIN) {
+					shape = CommandGraph.originOf(g.getVertices(), shape);
+					c = CommandGraph.commandOf(g.getVertices(), shape);
 				} else
 					c = null;
 				

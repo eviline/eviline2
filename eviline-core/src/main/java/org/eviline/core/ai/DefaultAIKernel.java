@@ -20,14 +20,14 @@ public class DefaultAIKernel implements AIKernel {
 
 	protected class Best {
 		public final CommandGraph graph;
-		public final int[] vertex;
+		public final int shape;
 		public final double score;
 		public final Field after;
 		public final ShapeType type;
 		
-		public Best(CommandGraph graph, int[] vertex, double score, Field after, ShapeType type) {
+		public Best(CommandGraph graph, int shape, double score, Field after, ShapeType type) {
 			this.graph = graph;
-			this.vertex = vertex;
+			this.shape = shape;
 			this.score = score;
 			this.after = after;
 			this.type = type;
@@ -53,7 +53,7 @@ public class DefaultAIKernel implements AIKernel {
 		final CommandGraph g = new CommandGraph(field, current);
 		double badness = Double.POSITIVE_INFINITY;
 		
-		int[] best = null;
+		int best = -1;
 		
 		final int nextShape;
 		final ShapeType[] nextNext;
@@ -68,19 +68,21 @@ public class DefaultAIKernel implements AIKernel {
 			nextNext = null;
 		}
 			
-		int[][] vertices = g.getVertices();
+		int[] vertices = g.getVertices();
 		final Best[] bests = new Best[vertices.length];
+		final Object[] locks = new Object[XYShapes.SHAPE_MAX];
 		
 //		for(final int shape : g.getVertices().keySet()) {
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
-			final int[] v;
-			if(CommandGraph.originOf(v = vertices[i]) == CommandGraph.NULL_ORIGIN)
+			final int shape;
+			if(CommandGraph.originOf(vertices, shape = i) == CommandGraph.NULL_ORIGIN)
 				continue;
-			final int shape = i;
 			if(!field.intersects(XYShapes.shiftedDown(shape))) {
 //				v[CommandGraph.ORIGIN] = CommandGraph.NULL_ORIGIN;
 				continue;
 			}
+
+			locks[i] = new Object();
 			
 			Runnable task = new Runnable() {
 				@Override
@@ -88,10 +90,10 @@ public class DefaultAIKernel implements AIKernel {
 					Field after = field.clone();
 					after.blit(shape, 0);
 					Best b = bestPlacement(field, after, nextShape, nextNext, lookahead);
-					Best best = new Best(g, v, b.score, b.after, XYShapes.shapeFromInt(shape).type());
-					synchronized(v) {
+					Best best = new Best(g, shape, b.score, b.after, XYShapes.shapeFromInt(shape).type());
+					synchronized(locks[shape]) {
 						bests[shape] = best;
-						v.notify();
+						locks[shape].notify();
 					}
 				}
 			};
@@ -100,46 +102,40 @@ public class DefaultAIKernel implements AIKernel {
 		}
 		
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
-			int[] v = vertices[i];
-			if(CommandGraph.originOf(v) == CommandGraph.NULL_ORIGIN)
+			if(CommandGraph.originOf(g.getVertices(), i) == CommandGraph.NULL_ORIGIN)
 				continue;
 			if(!field.intersects(XYShapes.shiftedDown(i)))
 				continue;
 			Best b;
-			synchronized(v) {
+			synchronized(locks[i]) {
 				while((b = bests[i]) == null) {
 					try {
-						v.wait();
+						locks[i].wait();
 					} catch (InterruptedException e) {
 						throw new RuntimeException(e);
 					}
 				}
 			}
 			if(b.score < badness) {
-				best = b.vertex;
+				best = b.shape;
 				badness = b.score;
 			}
 		}
 		
-		g.setSelectedShape(CommandGraph.shapeOf(best));
+		g.setSelectedShape(best);
 		return g;
 	}
 	
 	protected Best bestPlacement(Field originalField, Field currentField, int currentShape, ShapeType[] next, int lookahead) {
-		int[] v = new int[4];
-		v[CommandGraph.ORIGIN] = CommandGraph.NULL_ORIGIN;
-		v[CommandGraph.SHAPE] = currentShape;
-		v[CommandGraph.COMMAND] = CommandGraph.NULL_COMMAND;
-		v[CommandGraph.PATH_LENGTH] = Integer.MAX_VALUE;
 		if(currentShape == -1 || lookahead == 0) {
-			return new Best(null, v, fitness.badness(originalField, currentField, next), currentField, null);
+			return new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null);
 		}
 		
 		currentField.clearLines();
 		
 		CommandGraph g = new CommandGraph(currentField, currentShape);
 		
-		Best best = new Best(null, v, Double.POSITIVE_INFINITY, null, null);
+		Best best = new Best(null, currentShape, Double.POSITIVE_INFINITY, null, null);
 
 		int nextShape = -1;
 		ShapeType[] nextNext = null;
@@ -150,7 +146,7 @@ public class DefaultAIKernel implements AIKernel {
 		
 //		for(int shape : g.getVertices().keySet()) {
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
-			if(CommandGraph.originOf(g.getVertices()[i]) == CommandGraph.NULL_ORIGIN)
+			if(CommandGraph.originOf(g.getVertices(), i) == CommandGraph.NULL_ORIGIN)
 				continue;
 			int shape = i;
 			if(!currentField.intersects(XYShapes.shiftedDown(shape)))
@@ -178,13 +174,7 @@ public class DefaultAIKernel implements AIKernel {
 
 		bestPlayed.clearLines();
 		
-		int[] v = new int[4];
-		v[CommandGraph.ORIGIN] = CommandGraph.NULL_ORIGIN;
-		v[CommandGraph.SHAPE] = -1;
-		v[CommandGraph.COMMAND] = CommandGraph.NULL_COMMAND;
-		v[CommandGraph.PATH_LENGTH] = Integer.MAX_VALUE;
-		
-		Best worst = new Best(null, v, Double.NEGATIVE_INFINITY, null, null);
+		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null);
 		Collection<Future<Best>> futs = new ArrayList<>();
 		
 		for(final ShapeType type : new HashSet<>(Arrays.asList(shapes.getBag()))) {
@@ -196,7 +186,7 @@ public class DefaultAIKernel implements AIKernel {
 					List<ShapeType> nextBag = new ArrayList<>(Arrays.asList(shapes.getBag()));
 					nextBag.remove(type);
 					Best shapeWorst = worstNext(field, shapeBest.after, nextBag, lookahead - 1);
-					return new Best(null, shapeWorst.vertex, shapeWorst.score, shapeWorst.after, type);
+					return new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
 				}
 			};
 			FutureTask<Best> f = new FutureTask<>(task);
@@ -217,18 +207,13 @@ public class DefaultAIKernel implements AIKernel {
 	}
 
 	protected Best worstNext(Field originalField, Field currentField, List<ShapeType> bag, int lookahead) {
-		int[] v = new int[4];
-		v[CommandGraph.ORIGIN] = CommandGraph.NULL_ORIGIN;
-		v[CommandGraph.SHAPE] = -1;
-		v[CommandGraph.COMMAND] = CommandGraph.NULL_COMMAND;
-		v[CommandGraph.PATH_LENGTH] = Integer.MAX_VALUE;
 		if(lookahead == 0 || bag.size() == 0) {
-			return new Best(null, v, fitness.badness(originalField, currentField, ShapeType.NONE), currentField, null);
+			return new Best(null, -1, fitness.badness(originalField, currentField, ShapeType.NONE), currentField, null);
 		}
 		
 		currentField.clearLines();
 		
-		Best worst = new Best(null, v, Double.NEGATIVE_INFINITY, null, null);
+		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null);
 		
 		for(ShapeType type : new HashSet<>(bag)) {
 			int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
@@ -237,7 +222,7 @@ public class DefaultAIKernel implements AIKernel {
 			nextBag.remove(type);
 			Best shapeWorst = worstNext(originalField, shapeBest.after, nextBag, lookahead - 1);
 			if(shapeWorst.score > worst.score)
-				worst = new Best(null, shapeWorst.vertex, shapeWorst.score, shapeWorst.after, type);
+				worst = new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
 		}
 		
 		return worst;
