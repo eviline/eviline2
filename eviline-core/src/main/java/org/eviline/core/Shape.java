@@ -41,11 +41,6 @@ public enum Shape {
 			0b1100,
 			0b1000
 			),
-	J_LEFT(J,
-			0b0100,
-			0b0100,
-			0b1100
-			), 
 	J_UP(J,
 			0b1000,
 			0b1110
@@ -59,6 +54,15 @@ public enum Shape {
 			0b0000,
 			0b1110,
 			0b0010
+			),
+	J_LEFT(J,
+			0b0100,
+			0b0100,
+			0b1100
+			), 
+	L_UP(L,
+			0b0010,
+			0b1110
 			),
 	L_RIGHT(L,
 			0b0100,
@@ -75,10 +79,6 @@ public enum Shape {
 			0b0100,
 			0b0100
 			), 
-	L_UP(L,
-			0b0010,
-			0b1110
-			),
 	T_UP(T,
 			0b0100,
 			0b1110
@@ -144,15 +144,17 @@ public enum Shape {
 	
 	private Shape(ShapeType type, long... rowMasks) {
 		this.type = type;
-//		for(int i = 0; i < rowMasks.length; i++) {
-//			mask |= (rowMasks[i] << (12 + i * 16));
-//			overY--;
-//		}
 		short[] unpacked = new short[4];
 		for(int i = 0; i < Math.min(4, rowMasks.length); i++)
 			unpacked[i] = (short) (rowMasks[i] << 12);
 		mask = Shorts.pack(unpacked, 0);
 		direction = ShapeDirection.valueOf(name().replaceAll(".*_", ""));
+	}
+	
+	private static final Shape[] VALUES = values();
+	
+	public static Shape fromOrdinal(int ordinal) {
+		return VALUES[ordinal];
 	}
 	
 	public ShapeType type() {
@@ -329,21 +331,5 @@ public enum Shape {
 			return KickTable.ILEFT_DOWN;
 		}
 		throw new InternalError("impossible switch fallthrough");
-	}
-	
-	public ShapeEquate equated() {
-		switch(this) {
-		case I_DOWN: return new ShapeEquate(this, I_UP, 0, -1);
-		case I_RIGHT: return new ShapeEquate(this, I_LEFT, -1, 0);
-		case S_DOWN: return new ShapeEquate(this, S_UP, 0, -1);
-		case S_RIGHT: return new ShapeEquate(this, S_LEFT, -1, 0);
-		case Z_DOWN: return new ShapeEquate(this, Z_UP, 0, -1);
-		case Z_RIGHT: return new ShapeEquate(this, Z_LEFT, -1, 0);
-		case O_DOWN:
-		case O_RIGHT:
-		case O_LEFT:
-			return new ShapeEquate(this, O_UP, 0, 0);
-		}
-		return new ShapeEquate(this);
 	}
 }

@@ -63,11 +63,14 @@ public class Field implements Cloneable {
 	 * @param s
 	 * @return
 	 */
-	public boolean intersects(XYShape s) {
-		if(s.y() < -8)
+	public boolean intersects(int xyshape) {
+		int s_x = XYShapes.xFromInt(xyshape);
+		int s_y = XYShapes.yFromInt(xyshape);
+		Shape s_shape = XYShapes.shapeFromInt(xyshape);
+		if(s_y >= HEIGHT)
 			return true;
-		long imask = imask(s.y());
-		long smask = s.shape().mask(s.x());
+		long imask = imask(s_y);
+		long smask = s_shape.mask(s_x);
 		return imask != (imask & ~smask);
 	}
 	
@@ -76,15 +79,18 @@ public class Field implements Cloneable {
 	 * Slow operation.
 	 * @param s
 	 */
-	public void blit(XYShape s) {
-		long smask = s.shape().mask(s.x());
+	public void blit(int xyshape, long id) {
+		int s_x = XYShapes.xFromInt(xyshape);
+		int s_y = XYShapes.yFromInt(xyshape);
+		Shape s_shape = XYShapes.shapeFromInt(xyshape);
+		long smask = s_shape.mask(s_x);
 		short[] src = Shorts.split(smask);
-		Shorts.set(mask, s.y()+8, src, 0, 4);
+		Shorts.set(mask, s_y+8, src, 0, 4);
 		for(int i = 0; i < 4; i++) {
-			int y = s.y() + i;
+			int y = s_y + i;
 			for(int x = 0; x < WIDTH; x++) {
 				if((src[i] & ((1 << 12) >>> x)) != 0)
-					blocks[x + (y+8) * WIDTH] = s.block();
+					blocks[x + (y+8) * WIDTH] = new Block(s_shape, id);
 			}
 		}
 	}

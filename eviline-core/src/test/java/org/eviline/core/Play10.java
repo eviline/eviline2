@@ -25,7 +25,7 @@ public class Play10 {
 				engine.setShape(ai.getDest());
 				engine.tick(Command.SHIFT_DOWN);
 				ai.getCommands().clear();
-				while(engine.getShape() == null && !engine.isOver())
+				while(engine.getShape() == -1 && !engine.isOver())
 					engine.tick(Command.NOP);			
 			}
 			lines.add(engine.getLines());

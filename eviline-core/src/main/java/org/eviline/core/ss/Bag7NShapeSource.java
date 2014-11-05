@@ -7,17 +7,13 @@ import java.util.List;
 import java.util.Random;
 
 import org.eviline.core.Engine;
+import org.eviline.core.EngineFactories;
 import org.eviline.core.EngineFactory;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
 
 public class Bag7NShapeSource implements ShapeSource, Cloneable {
-	public static EngineFactory<ShapeSource> FACTORY = new EngineFactory<ShapeSource>() {
-		@Override
-		public ShapeSource newInstance(Engine e) {
-			return new Bag7NShapeSource();
-		}
-	};
+	public static final EngineFactory<ShapeSource> FACTORY = EngineFactories.createSourceFactory(Bag7NShapeSource.class);
 	
 	protected int n;
 	protected SecureRandom random = new SecureRandom();

@@ -16,8 +16,9 @@ public class Engine {
 	protected long tickCount;
 	protected long shapeCount;
 	
-	protected XYShape shape;
-	protected XYShape ghost;
+	protected int shape = -1;
+	protected int ghost;
+	protected long shapeId;
 	protected Integer downFramesRemaining;
 	protected Integer respawnFramesRemaining;
 	protected ShapeType[] next = new ShapeType[1];
@@ -39,7 +40,8 @@ public class Engine {
 	
 	public void reset() {
 		field.reset();
-		shape = null;
+		shape = -1;
+		shapeId = 0;
 		lines = 0;
 		score = 0;
 		tickCount = 0;
@@ -53,10 +55,10 @@ public class Engine {
 	
 	public Block block(int x, int y) {
 		Block b = field.block(x, y);
-		if(b != null || shape == null || y < shape.y() || y >= shape.y() + 4)
+		if(b != null || shape == -1 || y < XYShapes.yFromInt(shape) || y >= XYShapes.yFromInt(shape) + 4)
 			return b;
-		if(shape.has(x, y))
-			return shape.block();
+		if(XYShapes.has(shape, x, y))
+			return new Block(XYShapes.shapeFromInt(shape), shapeId);
 		return null;
 	}
 	
@@ -87,52 +89,52 @@ public class Engine {
 			success = true;
 			break;
 		case SHIFT_LEFT:
-			if(shape == null)
+			if(shape == -1)
 				break;
-			XYShape moved = shape.shiftedLeft();
+			int moved = XYShapes.shiftedLeft(shape);
 			if(!field.intersects(moved)) {
 				shape = moved;
 				success = true;
 			}
 			break;
 		case SHIFT_RIGHT:
-			if(shape == null)
+			if(shape == -1)
 				break;
-			moved = shape.shiftedRight();
+			moved = XYShapes.shiftedRight(shape);
 			if(!field.intersects(moved)) {
 				shape = moved;
 				success = true;
 			}
 			break;
 		case AUTOSHIFT_LEFT:
-			if(shape == null)
+			if(shape == -1)
 				break;
-			moved = shape.shiftedLeft();
+			moved = XYShapes.shiftedLeft(shape);
 			while(!field.intersects(moved)) {
 				shape = moved;
-				moved = shape.shiftedLeft();
+				moved = XYShapes.shiftedLeft(shape);
 				success = true;
 			}
 			break;
 		case AUTOSHIFT_RIGHT:
-			if(shape == null)
+			if(shape == -1)
 				break;
-			moved = shape.shiftedRight();
+			moved = XYShapes.shiftedRight(shape);
 			while(!field.intersects(moved)) {
 				shape = moved;
-				moved = shape.shiftedRight();
+				moved = XYShapes.shiftedRight(shape);
 				success = true;
 			}
 			break;
 		case ROTATE_LEFT:
-			if(shape == null)
+			if(shape == -1)
 				break;
-			moved = shape.rotatedLeft();
+			moved = XYShapes.rotatedLeft(shape);
 			if(!field.intersects(moved)) {
 				shape = moved;
 				success = true;
 			} else {
-				for(XYShape kicked : moved.kickedLeft()) {
+				for(int kicked : XYShapes.kickedLeft(moved)) {
 					if(!field.intersects(kicked)) {
 						shape = kicked;
 						success = true;
@@ -142,14 +144,14 @@ public class Engine {
 			}
 			break;
 		case ROTATE_RIGHT:
-			if(shape == null)
+			if(shape == -1)
 				break;
-			moved = shape.rotatedRight();
+			moved = XYShapes.rotatedRight(shape);
 			if(!field.intersects(moved)) {
 				shape = moved;
 				success = true;
 			} else {
-				for(XYShape kicked : moved.kickedRight()) {
+				for(int kicked : XYShapes.kickedRight(moved)) {
 					if(!field.intersects(kicked)) {
 						shape = kicked;
 						success = true;
@@ -159,58 +161,61 @@ public class Engine {
 			}
 			break;
 		case SHIFT_DOWN:
-			if(shape == null)
+			if(shape == -1)
 				break;
-			moved = shape.shiftedDown();
+			moved = XYShapes.shiftedDown(shape);
 			if(!field.intersects(moved)) {
 				shape = moved;
 			} else {
-				field.blit(shape);
-				shape = null;
+				field.blit(shape, shapeId);
+				shape = -1;
+				shapeId++;
 				locked = true;
 			}
 			downFramesRemaining = null;
 			success = true;
 			break;
 		case SOFT_DROP:
-			if(shape == null)
+			if(shape == -1)
 				break;
-			moved = shape.shiftedDown();
+			moved = XYShapes.shiftedDown(shape);
 			while(!field.intersects(moved)) {
 				shape = moved;
-				moved = shape.shiftedDown();
+				moved = XYShapes.shiftedDown(shape);
 				success = true;
 			}
 			downFramesRemaining = null;
 			break;
 		case HARD_DROP:
-			if(shape == null)
+			if(shape == -1)
 				break;
-			moved = shape.shiftedDown();
+			moved = XYShapes.shiftedDown(shape);
 			while(!field.intersects(moved)) {
 				shape = moved;
-				moved = shape.shiftedDown();
+				moved = XYShapes.shiftedDown(shape);
 			}
-			field.blit(shape);
-			shape = null;
+			field.blit(shape, shapeId);
+			shape = -1;
+			shapeId++;
 			locked = true;
 			downFramesRemaining = null;
 			success = true;
 			break;
 		}
 		
-		if(shape != null) {
+		if(shape != -1) {
 			if(downFramesRemaining == null) {
 				downFramesRemaining = conf.downFramesRemaining(this);
 			}
 			if(downFramesRemaining != null) {
 				if(downFramesRemaining <= 0) {
-					XYShape moved = shape.shiftedDown();
+					int moved = XYShapes.shiftedDown(shape);
 					if(!field.intersects(moved))
 						shape = moved;
 					else {
-						field.blit(shape);
-						shape = null;
+						field.blit(shape, shapeId);
+						shape = -1;
+						shapeId++;
 						locked = true;
 						downFramesRemaining = null;
 					}
@@ -225,7 +230,7 @@ public class Engine {
 			score += cleared * cleared * cleared;
 		}
 		
-		if(shape == null) {
+		if(shape == -1) {
 			if(respawnFramesRemaining == null) {
 				respawnFramesRemaining = conf.respawnFramesRemaining(this);
 			}
@@ -234,26 +239,27 @@ public class Engine {
 					ShapeType next = enqueue(shapes.next(this));
 					while(next == null)
 						next = enqueue(shapes.next(this));
-					shape = new XYShape(next.start(), next.startX(), next.startY());
+					shape = XYShapes.toXYShape(next.startX(), next.startY(), next.start());
 					shapeCount++;
 					respawnFramesRemaining = null;
 					if(field.intersects(shape)) {
 						over = true;
-						shape = null;
+						shape = -1;
+						shapeId++;
 					}
 				} else
 					respawnFramesRemaining = respawnFramesRemaining - 1;
 			}
 		}
 		
-		if(shape == null)
-			ghost = null;
+		if(shape == -1)
+			ghost = -1;
 		else {
-			ghost = new XYShape(shape.shape(), shape.x(), shape.y());
+			ghost = shape;
 			if(!field.intersects(ghost)) {
 				while(!field.intersects(ghost))
-					ghost.setY(ghost.y() + 1);
-				ghost.setY(ghost.y() - 1);
+					ghost = XYShapes.shiftedDown(ghost);
+				ghost = XYShapes.shiftedUp(ghost);
 			}
 		}
 		
@@ -299,15 +305,15 @@ public class Engine {
 		return over;
 	}
 
-	public XYShape getShape() {
+	public int getShape() {
 		return shape;
 	}
 	
-	public XYShape getGhost() {
+	public int getGhost() {
 		return ghost;
 	}
 	
-	public void setShape(XYShape shape) {
+	public void setShape(int shape) {
 		this.shape = shape;
 	}
 	
@@ -344,5 +350,9 @@ public class Engine {
 
 	public void setNext(ShapeType[] next) {
 		this.next = next;
+	}
+
+	public long getShapeId() {
+		return shapeId;
 	}
 }

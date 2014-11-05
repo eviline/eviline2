@@ -14,19 +14,20 @@ import java.util.concurrent.RunnableFuture;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
-import org.eviline.core.XYShape;
-import org.eviline.core.ai.CommandGraph.Vertex;
+import org.eviline.core.XYShapes;
 
 public class DefaultAIKernel implements AIKernel {
 
 	protected class Best {
-		public final Vertex vertex;
+		public final CommandGraph graph;
+		public final int shape;
 		public final double score;
 		public final Field after;
 		public final ShapeType type;
 		
-		public Best(Vertex vertex, double score, Field after, ShapeType type) {
-			this.vertex = vertex;
+		public Best(CommandGraph graph, int shape, double score, Field after, ShapeType type) {
+			this.graph = graph;
+			this.shape = shape;
 			this.score = score;
 			this.after = after;
 			this.type = type;
@@ -48,81 +49,110 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	@Override
-	public Vertex bestPlacement(final Field field, XYShape current, ShapeType[] next, final int lookahead) {
+	public CommandGraph bestPlacement(final Field field, int current, ShapeType[] next, final int lookahead) {
 		final CommandGraph g = new CommandGraph(field, current);
 		double badness = Double.POSITIVE_INFINITY;
 		
-		Vertex best = null;
+		int best = -1;
 		
-		final XYShape nextShape;
+		final int nextShape;
 		final ShapeType[] nextNext;
 		if(lookahead == 0) {
-			nextShape = null;
+			nextShape = -1;
 			nextNext = Arrays.copyOf(next, next.length);
 		} else if(next.length > 0) {
-			nextShape = new XYShape(next[0].start(), next[0].startX(), next[0].startY());
+			nextShape = XYShapes.toXYShape(next[0].startX(), next[0].startY(), next[0].start());
 			nextNext = Arrays.copyOfRange(next, 1, next.length);
 		} else {
-			nextShape = null;
+			nextShape = -1;
 			nextNext = null;
 		}
 			
-		Collection<Future<Best>> futures = new ArrayList<>();
+		int[] vertices = g.getVertices();
+		final Best[] bests = new Best[vertices.length];
+		final Object[] locks = new Object[XYShapes.SHAPE_MAX];
 		
-		for(final XYShape shape : g.getVertices().keySet()) {
-			if(!field.intersects(shape.shiftedDown()))
+//		for(final int shape : g.getVertices().keySet()) {
+		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
+			final int shape;
+			if(CommandGraph.originOf(vertices, shape = i) == CommandGraph.NULL_ORIGIN)
 				continue;
-			FutureTask<Best> f = new FutureTask<>(new Callable<Best>() {
+			if(!field.intersects(XYShapes.shiftedDown(shape))) {
+//				v[CommandGraph.ORIGIN] = CommandGraph.NULL_ORIGIN;
+				continue;
+			}
+
+			locks[i] = new Object();
+			
+			Runnable task = new Runnable() {
 				@Override
-				public Best call() throws Exception {
+				public void run() {
 					Field after = field.clone();
-					after.blit(shape);
+					after.blit(shape, 0);
 					Best b = bestPlacement(field, after, nextShape, nextNext, lookahead);
-					return new Best(g.getVertices().get(shape), b.score, b.after, shape.shape().type());
+					Best best = new Best(g, shape, b.score, b.after, XYShapes.shapeFromInt(shape).type());
+					synchronized(locks[shape]) {
+						bests[shape] = best;
+						locks[shape].notify();
+					}
 				}
-			});
-			futures.add(f);
-			exec.execute(f);
+			};
+			
+			exec.execute(task);
 		}
 		
-		for(Future<Best> f : futures) {
+		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
+			if(CommandGraph.originOf(g.getVertices(), i) == CommandGraph.NULL_ORIGIN)
+				continue;
+			if(!field.intersects(XYShapes.shiftedDown(i)))
+				continue;
 			Best b;
-			try {
-				b = f.get();
-			} catch(Exception e) {
-				throw new RuntimeException(e);
+			synchronized(locks[i]) {
+				while((b = bests[i]) == null) {
+					try {
+						locks[i].wait();
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
+				}
 			}
 			if(b.score < badness) {
-				best = b.vertex;
+				best = b.shape;
 				badness = b.score;
 			}
 		}
 		
-		return best;
+		g.setSelectedShape(best);
+		return g;
 	}
 	
-	protected Best bestPlacement(Field originalField, Field currentField, XYShape currentShape, ShapeType[] next, int lookahead) {
-		if(currentShape == null || lookahead == 0)
-			return new Best(null, fitness.badness(originalField, currentField, next), currentField, null);
+	protected Best bestPlacement(Field originalField, Field currentField, int currentShape, ShapeType[] next, int lookahead) {
+		if(currentShape == -1 || lookahead == 0) {
+			return new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null);
+		}
 		
 		currentField.clearLines();
 		
 		CommandGraph g = new CommandGraph(currentField, currentShape);
 		
-		Best best = new Best(null, Double.POSITIVE_INFINITY, null, null);
+		Best best = new Best(null, currentShape, Double.POSITIVE_INFINITY, null, null);
 
-		XYShape nextShape = null;
+		int nextShape = -1;
 		ShapeType[] nextNext = null;
 		if(next.length > 0) {
-			nextShape = new XYShape(next[0].start(), next[0].startX(), next[0].startY());
+			nextShape = XYShapes.toXYShape(next[0].startX(), next[0].startY(), next[0].start());
 			nextNext = Arrays.copyOfRange(next, 1, next.length);
 		}
 		
-		for(XYShape shape : g.getVertices().keySet()) {
-			if(!currentField.intersects(shape.shiftedDown()))
+//		for(int shape : g.getVertices().keySet()) {
+		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
+			if(CommandGraph.originOf(g.getVertices(), i) == CommandGraph.NULL_ORIGIN)
+				continue;
+			int shape = i;
+			if(!currentField.intersects(XYShapes.shiftedDown(shape)))
 				continue;
 			Field nextField = currentField.clone();
-			nextField.blit(shape);
+			nextField.blit(shape, 0);
 			Best shapeBest = bestPlacement(originalField, nextField, nextShape, nextNext, lookahead - 1);
 			if(shapeBest.score < best.score)
 				best = shapeBest;
@@ -132,35 +162,67 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	@Override
-	public ShapeType worstNext(Field field, ShapeSource shapes, ShapeType[] next, int lookahead) {
+	public ShapeType worstNext(final Field field, final ShapeSource shapes, ShapeType[] next, final int lookahead) {
 		Field bestPlayed = field;
 		if(next.length > 0) {
-			XYShape nextShape = new XYShape(next[0].start(), next[0].startX(), next[0].startY());
+			int nextShape = XYShapes.toXYShape(next[0].startX(), next[0].startY(), next[0].start());
 			ShapeType[] nextNext = Arrays.copyOfRange(next, 1, next.length);
 			bestPlayed = bestPlacement(field, field, nextShape, nextNext, nextNext.length).after;
 		}
-
 		
-		return worstNext(field, bestPlayed, Arrays.asList(shapes.getBag()), lookahead).type;
+		final Field fbestPlayed = bestPlayed;
+
+		bestPlayed.clearLines();
+		
+		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null);
+		Collection<Future<Best>> futs = new ArrayList<>();
+		
+		for(final ShapeType type : new HashSet<>(Arrays.asList(shapes.getBag()))) {
+			Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
+				@Override
+				public Best call() throws Exception {
+					int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
+					Best shapeBest = bestPlacement(field, fbestPlayed, currentShape, ShapeType.NONE, 1);
+					List<ShapeType> nextBag = new ArrayList<>(Arrays.asList(shapes.getBag()));
+					nextBag.remove(type);
+					Best shapeWorst = worstNext(field, shapeBest.after, nextBag, lookahead - 1);
+					return new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
+				}
+			};
+			FutureTask<Best> f = new FutureTask<>(task);
+			exec.execute(f);
+			futs.add(f);
+		}
+		
+		try {
+			for(Future<Best> f : futs) {
+				if(f.get().score > worst.score)
+					worst = f.get();
+			}
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		return worst.type;
 	}
 
 	protected Best worstNext(Field originalField, Field currentField, List<ShapeType> bag, int lookahead) {
 		if(lookahead == 0 || bag.size() == 0) {
-			return new Best(null, fitness.badness(originalField, currentField, ShapeType.NONE), currentField, null);
+			return new Best(null, -1, fitness.badness(originalField, currentField, ShapeType.NONE), currentField, null);
 		}
 		
 		currentField.clearLines();
 		
-		Best worst = new Best(null, Double.NEGATIVE_INFINITY, null, null);
+		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null);
 		
 		for(ShapeType type : new HashSet<>(bag)) {
-			XYShape currentShape = new XYShape(type.start(), type.startX(), type.startY());
+			int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
 			Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1);
 			List<ShapeType> nextBag = new ArrayList<>(bag);
 			nextBag.remove(type);
 			Best shapeWorst = worstNext(originalField, shapeBest.after, nextBag, lookahead - 1);
 			if(shapeWorst.score > worst.score)
-				worst = new Best(null, shapeWorst.score, shapeWorst.after, type);
+				worst = new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
 		}
 		
 		return worst;

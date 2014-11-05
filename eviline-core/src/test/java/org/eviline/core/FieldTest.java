@@ -14,14 +14,14 @@ public class FieldTest {
 	@Test
 	public void testIntersects() {
 		Field f = new Field();
-		Assert.assertFalse(f.intersects(new XYShape(Shape.O_UP, 0, 0)));
-		Assert.assertTrue(f.intersects(new XYShape(Shape.O_UP, -1, 0)));
+		Assert.assertFalse(f.intersects(XYShapes.toXYShape(0, 0, Shape.O_UP)));
+		Assert.assertTrue(f.intersects(XYShapes.toXYShape(-1, 0, Shape.O_UP)));
 	}
 	
 	@Test
 	public void testMasked() {
 		Field f = new Field();
-		f.blit(new XYShape(Shape.O_DOWN, 0, 0));
+		f.blit(XYShapes.toXYShape(0, 0, Shape.O_DOWN), 0);
 		System.out.println(f.toString());
 		Assert.assertTrue(f.masked(0, 0));
 		Assert.assertFalse(f.masked(2, 0));

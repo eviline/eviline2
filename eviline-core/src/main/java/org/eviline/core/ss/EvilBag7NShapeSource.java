@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.eviline.core.Engine;
+import org.eviline.core.EngineFactories;
 import org.eviline.core.EngineFactory;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
@@ -15,12 +16,17 @@ import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.DefaultAIKernel;
 
 public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
-	public static EngineFactory<ShapeSource> FACTORY = new EngineFactory<ShapeSource>() {
-		@Override
-		public ShapeSource newInstance(Engine e) {
-			return new EvilBag7NShapeSource();
-		}
-	};
+	public static final EngineFactory<ShapeSource> FACTORY = EngineFactories.createSourceFactory(EvilBag7NShapeSource.class);
+	
+	public static EngineFactory<ShapeSource> createFactory(int n, int lookahead) {
+		return new EngineFactories.ShapeSourceFactory(
+				EvilBag7NShapeSource.class, 
+				new Class<?>[]{int.class, int.class}, 
+				new Object[]{n, lookahead});
+	}
+	
+	public static final int DEFAULT_N = 4;
+	public static final int DEFAULT_LOOKAHEAD = 2;
 	
 	protected AIKernel ai = new DefaultAIKernel();
 	protected int n;
@@ -33,14 +39,15 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 	protected int lookahead = 2;
 	
 	public EvilBag7NShapeSource() {
-		this(4);
+		this(DEFAULT_N, DEFAULT_LOOKAHEAD);
 	}
 	
-	public EvilBag7NShapeSource(int n) {
+	public EvilBag7NShapeSource(int n, int lookahead) {
 		this.n = n;
 		for(int i = 0; i < n; i++)
 			bag.addAll(Arrays.asList(ShapeType.blocks()));
 		forcedNext = bag.remove(random.nextInt(bag.size()));
+		this.lookahead = lookahead;
 	}
 	
 	@Override

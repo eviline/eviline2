@@ -6,103 +6,142 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.eviline.core.Command;
 import org.eviline.core.Field;
-import org.eviline.core.XYShape;
+import org.eviline.core.XYShapes;
 
 public class CommandGraph {
-	public class Vertex {
-		public final int pathLength;
-		public final Vertex origin;
-		public final Command command;
-		public final XYShape shape;
-		
-		public Vertex(XYShape start) {
-			shape = start;
-			pathLength = 0;
-			origin = null;
-			command = null;
+	public static final int ORIGIN = 0;
+	public static final int COMMAND = 1;
+	public static final int PATH_LENGTH = 2;
+	public static final int SHAPE = 3;
+	
+	public static final int NULL_ORIGIN = -1;
+	public static final int NULL_COMMAND = -1;
+	
+	public static int originOf(int[] vertices, int shape) {
+		return vertices[shape * 3 + ORIGIN];
+	}
+	
+	private static final Command[] COMMANDS = Command.values();
+	
+	public static Command commandOf(int[] vertices, int shape) {
+		if(vertices[shape * 3 + COMMAND] == NULL_COMMAND)
+			return null;
+		return COMMANDS[vertices[shape * 3 + COMMAND]];
+	}
+	
+	public static int pathLengthOf(int[] vertices, int shape) {
+		return vertices[shape * 3 + PATH_LENGTH];
+	}
+	
+	private static ThreadLocal<int[]> pending = new ThreadLocal<int[]>() {
+		@Override
+		protected int[] initialValue() {
+			return new int[XYShapes.SHAPE_MAX];
 		}
-		
-		public Vertex(Vertex origin, Command command, XYShape shape) {
-			this.origin = origin;
-			this.command = command;
-			this.shape = shape;
-			pathLength = origin.pathLength + 1;
+	};
+	
+	protected int[] vertices = new int[XYShapes.SHAPE_MAX * 3];
+	
+	protected int pendingHead = 0;
+	protected int pendingTail = 0;
+	
+	protected int selectedShape;
+	
+	public CommandGraph(Field field, int start) {
+		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
+			vertices[i * 3 + ORIGIN] = NULL_ORIGIN;
+			vertices[i * 3 + COMMAND] = NULL_COMMAND;
+			vertices[i * 3 + PATH_LENGTH] = Integer.MAX_VALUE;
 		}
-		
-		public List<Vertex> getOut(Field f) {
-			List<Vertex> out = new ArrayList<>();
-			XYShape next;
-			
-			for(XYShape kicked : shape.rotatedLeft().kickedLeft()) {
-				if(!f.intersects(kicked)) {
-					out.add(new Vertex(this, Command.ROTATE_LEFT, kicked));
-					break;
-				}
-			}
-			
-			for(XYShape kicked : shape.rotatedRight().kickedRight()) {
-				if(!f.intersects(kicked)) {
-					out.add(new Vertex(this, Command.ROTATE_RIGHT, kicked));
-					break;
-				}
-			}
-			
-			next = shape.shiftedLeft();
-			if(!f.intersects(next)) {
-				out.add(new Vertex(this, Command.SHIFT_LEFT, next));
+		searchRoot(start, field.clone());
+	}
 
-				while(!f.intersects(next))
-					next = next.shiftedLeft();
-				next = next.shiftedRight();
-				out.add(new Vertex(this, Command.AUTOSHIFT_LEFT, next));
-			}
-			
-			next = shape.shiftedRight();
-			if(!f.intersects(next)) {
-				out.add(new Vertex(this, Command.SHIFT_RIGHT, next));
-			
-				while(!f.intersects(next))
-					next = next.shiftedRight();
-				next = next.shiftedLeft();
-				out.add(new Vertex(this, Command.AUTOSHIFT_RIGHT, next));
-			}
-			
-			next = shape.shiftedDown();
-			if(!f.intersects(next)) {
-				out.add(new Vertex(this, Command.SHIFT_DOWN, next));
-
-				while(!f.intersects(next))
-					next = next.shiftedDown();
-				next = next.shiftedUp();
-				out.add(new Vertex(this, Command.SOFT_DROP, next));
-			}
-			
-			return out;
+	protected void setVertex(int shape, int origin, int command, int pathLength) {
+		vertices[shape * 3 + ORIGIN] = origin;
+		vertices[shape * 3 + COMMAND] = command;
+		vertices[shape * 3 + PATH_LENGTH] = pathLength;
+	}
+	
+	protected void searchRoot(int shape, Field f) {
+		setVertex(shape, NULL_ORIGIN, NULL_COMMAND, 0);
+		search(shape, f);
+		while(pendingHead != pendingTail) {
+			shape = pending.get()[pendingHead++];
+			pendingHead %= XYShapes.SHAPE_MAX;
+			search(shape, f);
 		}
 	}
 	
-	protected Map<XYShape, Vertex> vertices = new HashMap<>();
+	protected void maybeUpdate(int shape, int origin, Command command, int pathLength, Field f) {
+		if(pathLength >= pathLengthOf(vertices, shape))
+			return;
+		setVertex(shape, origin, command.ordinal(), pathLength);
+		pending.get()[pendingTail++] = shape;
+		pendingTail %= XYShapes.SHAPE_MAX;
+	}
 	
-	public CommandGraph(Field field, XYShape start) {
-		Vertex v;
-		vertices.put(start, v = new Vertex(start));
+	protected void search(int shape, Field f) {
+		int nextPathLength = pathLengthOf(vertices, shape) + 1;
 		
-		Deque<Vertex> pending = new ArrayDeque<>();
+		int next;
 		
-		pending.addAll(v.getOut(field));
+		for(int kicked : XYShapes.kickedLeft(XYShapes.rotatedLeft(shape))) {
+			if(!f.intersects(kicked)) {
+				maybeUpdate(kicked, shape, Command.ROTATE_LEFT, nextPathLength, f);
+				break;
+			}
+		}
 		
-		while(pending.size() > 0) {
-			v = pending.poll();
-			if(vertices.containsKey(v.shape) && vertices.get(v.shape).pathLength <= v.pathLength)
-				continue;
-			vertices.put(v.shape, v);
-			pending.addAll(v.getOut(field));
+		for(int kicked : XYShapes.kickedRight(XYShapes.rotatedRight(shape))) {
+			if(!f.intersects(kicked)) {
+				maybeUpdate(kicked, shape, Command.ROTATE_RIGHT, nextPathLength, f);
+				break;
+			}
+		}
+		
+		next = XYShapes.shiftedLeft(shape);
+		if(!f.intersects(next)) {
+			maybeUpdate(next, shape, Command.SHIFT_LEFT, nextPathLength, f);
+
+			while(!f.intersects(next))
+				next = XYShapes.shiftedLeft(next);
+			next = XYShapes.shiftedRight(next);
+			maybeUpdate(next, shape, Command.AUTOSHIFT_LEFT, nextPathLength, f);
+		}
+		
+		next = XYShapes.shiftedRight(shape);
+		if(!f.intersects(next)) {
+			maybeUpdate(next, shape, Command.SHIFT_RIGHT, nextPathLength, f);
+		
+			while(!f.intersects(next))
+				next = XYShapes.shiftedRight(next);
+			next = XYShapes.shiftedLeft(next);
+			maybeUpdate(next, shape, Command.AUTOSHIFT_RIGHT, nextPathLength, f);
+		}
+		
+		next = XYShapes.shiftedDown(shape);
+		if(!f.intersects(next)) {
+			maybeUpdate(next, shape, Command.SHIFT_DOWN, nextPathLength, f);
+
+			while(!f.intersects(next))
+				next = XYShapes.shiftedDown(next);
+			next = XYShapes.shiftedUp(next);
+			maybeUpdate(next, shape, Command.SOFT_DROP, nextPathLength, f);
 		}
 	}
 
-	public Map<XYShape, Vertex> getVertices() {
+	public int[] getVertices() {
 		return vertices;
+	}
+	
+	public int getSelectedShape() {
+		return selectedShape;
+	}
+	
+	public void setSelectedShape(int selectedShape) {
+		this.selectedShape = selectedShape;
 	}
 }

@@ -7,14 +7,13 @@ import java.util.Deque;
 import org.eviline.core.Command;
 import org.eviline.core.Engine;
 import org.eviline.core.ShapeType;
-import org.eviline.core.XYShape;
-import org.eviline.core.ai.CommandGraph.Vertex;
+import org.eviline.core.XYShapes;
 
 public class AIPlayer implements Player {
 	protected AIKernel ai;
 	protected Engine engine;
 	
-	protected XYShape dest;
+	protected int dest;
 	protected Deque<Command> commands = new ArrayDeque<>();
 	
 	protected int lookahead;
@@ -32,40 +31,48 @@ public class AIPlayer implements Player {
 	
 	public Command tick() {
 		if(engine.isOver()) {
-			dest = null;
+			dest = -1;
 			return Command.NOP;
 		}
 		
 		if(commands.size() == 0) {
-			if(engine.getShape() == null)
+			if(engine.getShape() == -1)
 				return Command.NOP;
-			Vertex v = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext(), lookahead);
-			dest = v.shape;
-			while(v.command != null) {
-				if(v.command != Command.SOFT_DROP || allowDrops) {
-					commands.offerFirst(v.command);
+			CommandGraph g = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext(), lookahead);
+			int shape = g.getSelectedShape();
+			dest = shape;
+			Command c = CommandGraph.commandOf(g.getVertices(), shape);
+			while(c != null) {
+				if(c != Command.SOFT_DROP || allowDrops) {
+					commands.offerFirst(c);
 				} else { // it's a soft drop
-					XYShape dropping = v.origin.shape;
-					dropping = dropping.shiftedDown();
+					int originShape = shape;
+					int dropping = originShape;
+					dropping = XYShapes.shiftedDown(dropping);
 					while(!engine.getField().intersects(dropping)) {
 						commands.offerFirst(Command.SHIFT_DOWN);
-						dropping = dropping.shiftedDown();
+						dropping = XYShapes.shiftedDown(dropping);
 					}
 				}
-				v = v.origin;
+				if(CommandGraph.originOf(g.getVertices(), shape) != CommandGraph.NULL_ORIGIN) {
+					shape = CommandGraph.originOf(g.getVertices(), shape);
+					c = CommandGraph.commandOf(g.getVertices(), shape);
+				} else
+					c = null;
+				
 			}
 			commands.offerLast(Command.SHIFT_DOWN);
 		}
 		
 		if(commands.size() == 0) {
-			dest = null;
+			dest = -1;
 			return Command.NOP;
 		}
 		
 		return commands.pollFirst();
 	}
 	
-	public XYShape getDest() {
+	public int getDest() {
 		return dest;
 	}
 	
