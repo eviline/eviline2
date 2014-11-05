@@ -38,6 +38,10 @@ public class CommandGraph {
 	
 	protected int[] vertices = new int[XYShapes.SHAPE_MAX * 3];
 	
+	protected int[] pending = new int[XYShapes.SHAPE_MAX];
+	protected int pendingHead = 0;
+	protected int pendingTail = 0;
+	
 	protected int selectedShape;
 	
 	public CommandGraph(Field field, int start) {
@@ -58,13 +62,19 @@ public class CommandGraph {
 	protected void searchRoot(int shape, Field f) {
 		setVertex(shape, NULL_ORIGIN, NULL_COMMAND, 0);
 		search(shape, f);
+		while(pendingHead != pendingTail) {
+			shape = pending[pendingHead++];
+			pendingHead %= pending.length;
+			search(shape, f);
+		}
 	}
 	
 	protected void maybeUpdate(int shape, int origin, Command command, int pathLength, Field f) {
 		if(pathLength >= pathLengthOf(vertices, shape))
 			return;
 		setVertex(shape, origin, command.ordinal(), pathLength);
-		search(shape, f);
+		pending[pendingTail++] = shape;
+		pendingTail %= pending.length;
 	}
 	
 	protected void search(int shape, Field f) {
