@@ -47,6 +47,8 @@ import com.googlecode.lanterna.terminal.swing.TerminalAppearance;
 import com.googlecode.lanterna.terminal.swing.TerminalPalette;
 
 public class AutoplayMain {
+	private static final int MAX_LOOKAHEAD = 3;
+	
 	private static Engine engine;
 	private static EngineScreen gui;
 	private static EngineWindow w;
@@ -66,7 +68,7 @@ public class AutoplayMain {
 				public void doAction() {
 					Engine e = AutoplayMain.engine.clone();
 					w.setEngine(e);
-					w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + e.getNext().length + " lines:" + e.getLines());
+					w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + MAX_LOOKAHEAD + " lines:" + e.getLines());
 					gui.invalidate();
 					gui.update();
 					synchronized(done) {
@@ -159,7 +161,7 @@ public class AutoplayMain {
 				}
 				switch(key.getKind()) {
 				case ArrowUp:
-					if(player.getLookahead() < engine.getNext().length)
+					if(player.getLookahead() < MAX_LOOKAHEAD)
 						player.setLookahead(player.getLookahead() + 1);
 					break;
 				case ArrowDown:
