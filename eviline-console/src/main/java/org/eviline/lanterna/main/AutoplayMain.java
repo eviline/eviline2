@@ -4,10 +4,14 @@ import java.awt.EventQueue;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.imageio.ImageIO;
@@ -173,14 +177,6 @@ public class AutoplayMain {
 
 		ai = new DefaultAIKernel();
 		ai.setFitness(new NextFitness());
-		ai.setExec(Executors.newCachedThreadPool(new ThreadFactory() {
-			@Override
-			public Thread newThread(Runnable arg0) {
-				Thread t = new Thread(arg0);
-				t.setDaemon(true);
-				return t;
-			}
-		}));
 		player = new AIPlayer(ai, engine, 1);
 		player.setAllowDrops(true);
 

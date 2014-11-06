@@ -7,9 +7,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.LockSupport;
 
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
@@ -35,12 +46,11 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	protected Fitness fitness = new DefaultFitness();
-	protected Executor exec = new Executor() {
-		@Override
-		public void execute(Runnable command) {
-			command.run();
-		}
-	};
+	protected Executor exec = new ThreadPoolExecutor(
+			0, 64, 
+			30, TimeUnit.SECONDS, 
+			new SynchronousQueue<Runnable>(), 
+			new CallerRunsPolicy());
 	
 	public DefaultAIKernel() {}
 	
@@ -69,52 +79,64 @@ public class DefaultAIKernel implements AIKernel {
 		}
 			
 		int[] vertices = g.getVertices();
-		final Best[] bests = new Best[vertices.length];
-		final Object[] locks = new Object[XYShapes.SHAPE_MAX];
 		
-//		for(final int shape : g.getVertices().keySet()) {
+		final List<Callable<Best>> tasks = new ArrayList<Callable<Best>>();
+		final ExecutorCompletionService<Best> cs = new ExecutorCompletionService<Best>(exec);
+		final AtomicInteger incomplete = new AtomicInteger(0);
+		
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			final int shape;
 			if(CommandGraph.originOf(vertices, shape = i) == CommandGraph.NULL_ORIGIN)
 				continue;
 			if(!field.intersects(XYShapes.shiftedDown(shape))) {
-//				v[CommandGraph.ORIGIN] = CommandGraph.NULL_ORIGIN;
 				continue;
 			}
 
-			locks[i] = new Object();
-			
-			Runnable task = new Runnable() {
+			Callable<Best> task = new Callable<Best>() {
 				@Override
-				public void run() {
-					Field after = field.clone();
-					after.blit(shape, 0);
-					Best b = bestPlacement(field, after, nextShape, nextNext, lookahead);
-					Best best = new Best(g, shape, b.score, b.after, XYShapes.shapeFromInt(shape).type());
-					synchronized(locks[shape]) {
-						bests[shape] = best;
-						locks[shape].notify();
+				public Best call() throws Exception {
+					try {
+						Field after = field.clone();
+						after.blit(shape, 0);
+						Best b = bestPlacement(field, after, nextShape, nextNext, lookahead);
+						Best best = new Best(g, shape, b.score, b.after, XYShapes.shapeFromInt(shape).type());
+						return best;
+					} finally {
+						synchronized(incomplete) {
+							if(incomplete.decrementAndGet() == 0) {
+								incomplete.notify();
+							}
+						}
 					}
 				}
 			};
 			
-			exec.execute(task);
+			tasks.add(task);
 		}
 		
-		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
-			if(CommandGraph.originOf(g.getVertices(), i) == CommandGraph.NULL_ORIGIN)
-				continue;
-			if(!field.intersects(XYShapes.shiftedDown(i)))
-				continue;
-			Best b;
-			synchronized(locks[i]) {
-				while((b = bests[i]) == null) {
-					try {
-						locks[i].wait();
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
+		int totalTasks = tasks.size();
+		
+		synchronized(incomplete) {
+			incomplete.addAndGet(tasks.size());
+			for(Callable<Best> task : tasks)
+				cs.submit(task);
+			while(incomplete.get() > 0) {
+				try {
+					incomplete.wait();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
 				}
+			}
+		}
+		
+		for(int i = 0; i < totalTasks; i++) {
+			Future<Best> fut;
+			Best b;
+			try {
+				fut = cs.take();
+				b = fut.get();
+			} catch(Exception e) {
+				throw new RuntimeException(e);
 			}
 			if(b.score < badness) {
 				best = b.shape;
@@ -126,7 +148,7 @@ public class DefaultAIKernel implements AIKernel {
 		return g;
 	}
 	
-	protected Best bestPlacement(Field originalField, Field currentField, int currentShape, ShapeType[] next, int lookahead) {
+	protected Best bestPlacement(final Field originalField, final Field currentField, int currentShape, ShapeType[] next, final int lookahead) {
 		if(currentShape == -1 || lookahead == 0) {
 			return new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null);
 		}
@@ -137,27 +159,73 @@ public class DefaultAIKernel implements AIKernel {
 		
 		Best best = new Best(null, currentShape, Double.POSITIVE_INFINITY, null, null);
 
-		int nextShape = -1;
-		ShapeType[] nextNext = null;
+		final int nextShape;
+		final ShapeType[] nextNext;
 		if(next.length > 0) {
 			nextShape = XYShapes.toXYShape(next[0].startX(), next[0].startY(), next[0].start());
 			nextNext = Arrays.copyOfRange(next, 1, next.length);
+		} else {
+			nextShape = -1;
+			nextNext = null;
 		}
 		
-//		for(int shape : g.getVertices().keySet()) {
+		final ExecutorCompletionService<Best> cs = new ExecutorCompletionService<Best>(exec);
+		final List<Callable<Best>> tasks = new ArrayList<Callable<Best>>();
+		final AtomicInteger incomplete = new AtomicInteger(0);
+		
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			if(CommandGraph.originOf(g.getVertices(), i) == CommandGraph.NULL_ORIGIN)
 				continue;
-			int shape = i;
+			final int shape = i;
 			if(!currentField.intersects(XYShapes.shiftedDown(shape)))
 				continue;
-			Field nextField = currentField.clone();
-			nextField.blit(shape, 0);
-			Best shapeBest = bestPlacement(originalField, nextField, nextShape, nextNext, lookahead - 1);
+			
+			Callable<Best> task = new Callable<Best>() {
+				@Override
+				public Best call() throws Exception {
+					try {
+						Field nextField = currentField.clone();
+						nextField.blit(shape, 0);
+						return bestPlacement(originalField, nextField, nextShape, nextNext, lookahead - 1);
+					} finally {
+						synchronized(incomplete) {
+							if(incomplete.decrementAndGet() == 0) {
+								incomplete.notify();
+							}
+						}
+					}
+				}
+			};
+
+			tasks.add(task);
+		}
+		
+		int totalTasks = tasks.size();
+		
+		synchronized(incomplete) {
+			incomplete.addAndGet(tasks.size());
+			for(Callable<Best> task : tasks)
+				cs.submit(task);
+			while(incomplete.get() > 0) {
+				try {
+					incomplete.wait();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		
+		for(int i = 0; i < totalTasks; i++) {
+			Best shapeBest;
+			try {
+				shapeBest = cs.take().get();
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
 			if(shapeBest.score < best.score)
 				best = shapeBest;
 		}
-		
+
 		return best;
 	}
 	
@@ -239,9 +307,8 @@ public class DefaultAIKernel implements AIKernel {
 	public Executor getExec() {
 		return exec;
 	}
-
+	
 	public void setExec(Executor exec) {
 		this.exec = exec;
 	}
-
 }

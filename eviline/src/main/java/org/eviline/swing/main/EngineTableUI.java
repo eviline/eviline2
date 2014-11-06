@@ -34,8 +34,6 @@ public class EngineTableUI {
 		engine.setNext(new ShapeType[3]);
 		final DefaultAIKernel k = new DefaultAIKernel(new NextFitness());
 		
-		k.setExec(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
-		
 		final AIPlayer ai = new AIPlayer(k, engine, 1);
 //		final EngineTable table = new EngineTable(engine, 16);
 		final EngineComponent table = new EngineComponent(engine, 32, true);

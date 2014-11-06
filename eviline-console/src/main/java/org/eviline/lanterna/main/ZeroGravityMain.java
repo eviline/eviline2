@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
@@ -188,14 +189,6 @@ public class ZeroGravityMain {
 
 		ai = new DefaultAIKernel();
 		ai.setFitness(new NextFitness());
-		ai.setExec(Executors.newCachedThreadPool(new ThreadFactory() {
-			@Override
-			public Thread newThread(Runnable arg0) {
-				Thread t = new Thread(arg0);
-				t.setDaemon(true);
-				return t;
-			}
-		}));
 
 		Runnable ticker = new Runnable() {
 			private boolean wasOver = false;
