@@ -47,7 +47,7 @@ public class DefaultAIKernel implements AIKernel {
 	
 	protected Fitness fitness = new DefaultFitness();
 	protected Executor exec = new ThreadPoolExecutor(
-			0, 64, 
+			0, 32, 
 			30, TimeUnit.SECONDS, 
 			new SynchronousQueue<Runnable>(), 
 			new CallerRunsPolicy());
