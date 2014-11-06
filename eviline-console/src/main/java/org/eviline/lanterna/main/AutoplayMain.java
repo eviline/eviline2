@@ -105,7 +105,7 @@ public class AutoplayMain {
 
 		engine = new Engine(field, new Configuration(null, 1));
 
-		engine.setNext(new ShapeType[3]);
+		engine.setNext(new ShapeType[5]);
 
 		Terminal term;
 		try {

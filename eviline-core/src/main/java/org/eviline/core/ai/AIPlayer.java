@@ -46,12 +46,11 @@ public class AIPlayer implements Player {
 				if(c != Command.SOFT_DROP || allowDrops) {
 					commands.offerFirst(c);
 				} else { // it's a soft drop
-					int originShape = shape;
-					int dropping = originShape;
-					dropping = XYShapes.shiftedDown(dropping);
-					while(!engine.getField().intersects(dropping)) {
+					int originShape = CommandGraph.originOf(g.getVertices(), shape);
+					int undropping = shape;
+					while(undropping != originShape) {
 						commands.offerFirst(Command.SHIFT_DOWN);
-						dropping = XYShapes.shiftedDown(dropping);
+						undropping = XYShapes.shiftedUp(undropping);
 					}
 				}
 				if(CommandGraph.originOf(g.getVertices(), shape) != CommandGraph.NULL_ORIGIN) {
