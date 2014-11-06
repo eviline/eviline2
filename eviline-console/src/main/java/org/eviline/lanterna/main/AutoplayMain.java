@@ -14,6 +14,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -64,48 +65,80 @@ public class AutoplayMain {
 	private static boolean syncDisplay = false;
 
 	private static ScheduledExecutorService exec;
+	
+	private static ReentrantLock drawLock = new ReentrantLock();
 
 	private static Runnable blockingDraw = new Runnable() {
-		private AtomicBoolean done = new AtomicBoolean(false);
+		private Semaphore sync = new Semaphore(0);
 		@Override
-		public synchronized void run() {
-			done.set(false);
-			gui.runInEventThread(new Action() {
-				@Override
-				public void doAction() {
-					Engine e = AutoplayMain.engine.clone();
-					w.setEngine(e);
-					w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + MAX_LOOKAHEAD + " lines:" + e.getLines());
-					gui.invalidate();
-					gui.update();
-					if(syncDisplay && (gui.getScreen().getTerminal() instanceof SwingTerminal)) {
-						final SwingTerminal st = (SwingTerminal) gui.getScreen().getTerminal();
-						try {
-							EventQueue.invokeAndWait(new Runnable() {
-								@Override
-								public void run() {
-									JPanel p = (JPanel) st.getJFrame().getContentPane();
-									p.paintImmediately(p.getBounds());
-								}
-							});
-						} catch (Exception e2) {
-							throw new RuntimeException(e2);
+		public void run() {
+			if(!drawLock.tryLock())
+				return;
+			try {
+				final Engine e = AutoplayMain.engine.clone();
+				gui.runInEventThread(new Action() {
+					@Override
+					public void doAction() {
+						w.setEngine(e);
+						w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + MAX_LOOKAHEAD + " lines:" + e.getLines());
+						gui.invalidate();
+						gui.update();
+						if(syncDisplay && (gui.getScreen().getTerminal() instanceof SwingTerminal)) {
+							final SwingTerminal st = (SwingTerminal) gui.getScreen().getTerminal();
+							try {
+								EventQueue.invokeAndWait(new Runnable() {
+									@Override
+									public void run() {
+										JPanel p = (JPanel) st.getJFrame().getContentPane();
+										p.paintImmediately(p.getBounds());
+									}
+								});
+							} catch (Exception e2) {
+								throw new RuntimeException(e2);
+							}
+						}
+						sync.release();
+					}
+				});
+				sync.acquireUninterruptibly();
+			} finally {
+				drawLock.unlock();
+			}
+		}
+	};
+
+	private static Runnable nonblockingDraw = new Runnable() {
+		@Override
+		public void run() {
+			if(!drawLock.tryLock())
+				return;
+			try {
+				final Engine e = AutoplayMain.engine.clone();
+				gui.runInEventThread(new Action() {
+					@Override
+					public void doAction() {
+						w.setEngine(e);
+						w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + MAX_LOOKAHEAD + " lines:" + e.getLines());
+						gui.invalidate();
+						gui.update();
+						if(syncDisplay && (gui.getScreen().getTerminal() instanceof SwingTerminal)) {
+							final SwingTerminal st = (SwingTerminal) gui.getScreen().getTerminal();
+							try {
+								EventQueue.invokeAndWait(new Runnable() {
+									@Override
+									public void run() {
+										JPanel p = (JPanel) st.getJFrame().getContentPane();
+										p.paintImmediately(p.getBounds());
+									}
+								});
+							} catch (Exception e2) {
+								throw new RuntimeException(e2);
+							}
 						}
 					}
-					synchronized(done) {
-						done.set(true);
-						done.notifyAll();
-					}
-				}
-			});
-			synchronized(done) {
-				while(!done.get()) {
-					try {
-						done.wait();
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				}
+				});
+			} finally {
+				drawLock.unlock();
 			}
 		}
 	};
@@ -118,8 +151,13 @@ public class AutoplayMain {
 				engine.tick(c);
 			if(engine.getShape() == -1)
 				player.setAllowDrops(!syncDisplay);
-			if(syncDisplay) {
+			if(syncDisplay)
 				blockingDraw.run();
+			else if(engine.getShape() == -1) {
+				while(engine.getShape() == -1 && !engine.isOver()) {
+					engine.tick(Command.NOP);
+				}
+				nonblockingDraw.run();
 			}
 		}
 	};
@@ -199,7 +237,7 @@ public class AutoplayMain {
 		player.setAllowDrops(true);
 
 		exec.scheduleWithFixedDelay(ticker, 1, 1, TimeUnit.NANOSECONDS);
-		exec.scheduleWithFixedDelay(blockingDraw, 10, 10, TimeUnit.MILLISECONDS);
+//		exec.scheduleAtFixedRate(blockingDraw, 50, 50, TimeUnit.MILLISECONDS);
 
 		gui.getScreen().startScreen();
 
