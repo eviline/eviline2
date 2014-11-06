@@ -30,6 +30,10 @@ public class Engine {
 		this(new Field(), new Configuration());
 	}
 	
+	public synchronized Field cloneField() {
+		return field.clone();
+	}
+	
 	public Engine(Field field, Configuration conf) {
 		this.field = field;
 		this.conf = conf;
@@ -79,7 +83,7 @@ public class Engine {
 			field.shiftUp(tm);
 	}
 	
-	public boolean tick(Command c) {
+	public synchronized boolean tick(Command c) {
 		if(isPaused())
 			return false;
 		boolean success = false;
