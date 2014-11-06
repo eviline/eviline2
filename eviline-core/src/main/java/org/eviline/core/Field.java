@@ -87,7 +87,7 @@ public class Field implements Cloneable {
 		for(int i = 3; i >= 0; i--) {
 			smask = smask >>> 3;
 			int y = s_y + i;
-			for(int x = 0; x < WIDTH; x++) {
+			for(int x = WIDTH-1; x >= 0; x--) {
 				if((smask & 1) != 0)
 					blocks[x + (y+8) * WIDTH] = block;
 				smask = smask >>> 1;
