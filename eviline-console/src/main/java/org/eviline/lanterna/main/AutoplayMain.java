@@ -2,6 +2,7 @@ package org.eviline.lanterna.main;
 
 import java.awt.EventQueue;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -15,6 +16,7 @@ import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.imageio.ImageIO;
+import javax.swing.JPanel;
 
 import org.eviline.core.Command;
 import org.eviline.core.Configuration;
@@ -47,6 +49,7 @@ import com.googlecode.lanterna.gui.listener.WindowAdapter;
 import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.terminal.swing.SwingTerminal;
 import com.googlecode.lanterna.terminal.swing.TerminalAppearance;
 import com.googlecode.lanterna.terminal.swing.TerminalPalette;
 
@@ -75,6 +78,20 @@ public class AutoplayMain {
 					w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + MAX_LOOKAHEAD + " lines:" + e.getLines());
 					gui.invalidate();
 					gui.update();
+					if(syncDisplay && (gui.getScreen().getTerminal() instanceof SwingTerminal)) {
+						final SwingTerminal st = (SwingTerminal) gui.getScreen().getTerminal();
+						try {
+							EventQueue.invokeAndWait(new Runnable() {
+								@Override
+								public void run() {
+									JPanel p = (JPanel) st.getJFrame().getContentPane();
+									p.paintImmediately(p.getBounds());
+								}
+							});
+						} catch (Exception e2) {
+							throw new RuntimeException(e2);
+						}
+					}
 					synchronized(done) {
 						done.set(true);
 						done.notifyAll();
@@ -101,8 +118,9 @@ public class AutoplayMain {
 				engine.tick(c);
 			if(engine.getShape() == -1)
 				player.setAllowDrops(!syncDisplay);
-			if(syncDisplay)
+			if(syncDisplay) {
 				blockingDraw.run();
+			}
 		}
 	};
 
