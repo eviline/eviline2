@@ -2,6 +2,7 @@ package org.eviline.core.ai;
 
 import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
+import org.eviline.core.Shorts;
 
 public class NextFitness implements CoefficientFitness {
 	protected double[] c = new double[] {
@@ -53,35 +54,35 @@ public class NextFitness implements CoefficientFitness {
 		short[] afterMasks = new short[Field.HEIGHT + 4];
 
 		for(int y = -4; y < Field.HEIGHT; y++) {
-			long bm = beforeMasks[y+4] = before.mask(y);
-			long am = afterMasks[y+4] = after.mask(y);
+			short bm = beforeMasks[y+4] = before.mask(y);
+			short am = afterMasks[y+4] = after.mask(y);
 			
 			if(bm != 0 && mhBefore == 0)
 				mhBefore = Field.HEIGHT - y;
 			if(am != 0 && mhAfter == 0)
 				mhAfter = Field.HEIGHT - y;
 			
-			blocksBefore += Long.bitCount(bm);
-			blocksAfter += Long.bitCount(am);
+			blocksBefore += Shorts.bitCount(bm);
+			blocksAfter += Shorts.bitCount(am);
 			
-			htxBefore += Long.bitCount(0b1111111110 & (bm ^ (bm << 1)));
-			htxAfter += Long.bitCount(0b1111111110 & (am ^ (am << 1)));
+			htxBefore += Shorts.bitCount(0b1111111110 & (bm ^ (bm << 1)));
+			htxAfter += Shorts.bitCount(0b1111111110 & (am ^ (am << 1)));
 			
-			pitsBefore += Long.bitCount((bm ^ (bm << 1)) & (bm ^ (bm >>> 1)));
-			pitsAfter += Long.bitCount((am ^ (am << 1)) & (am ^ (am >>> 1)));
+			pitsBefore += Shorts.bitCount((bm ^ (bm << 1)) & (bm ^ (bm >>> 1)));
+			pitsAfter += Shorts.bitCount((am ^ (am << 1)) & (am ^ (am >>> 1)));
 		}
 
-		long bhm = 0;
-		long ahm = 0;
+		short bhm = 0;
+		short ahm = 0;
 		for(int y = -3; y < Field.HEIGHT; y++) {
 			bhm |= beforeMasks[y+3];
 			ahm |= afterMasks[y+3];
 			
-			vtxBefore += Long.bitCount(beforeMasks[y+3] ^ beforeMasks[y+4]);
-			vtxAfter += Long.bitCount(afterMasks[y+3] ^ afterMasks[y+4]);
+			vtxBefore += Shorts.bitCount(beforeMasks[y+3] ^ beforeMasks[y+4]);
+			vtxAfter += Shorts.bitCount(afterMasks[y+3] ^ afterMasks[y+4]);
 			
-			holesBefore += Long.bitCount(bhm & (bhm ^ beforeMasks[y+4]));
-			holesAfter += Long.bitCount(ahm & (ahm ^ afterMasks[y+4]));
+			holesBefore += Shorts.bitCount(bhm & (bhm ^ beforeMasks[y+4]));
+			holesAfter += Shorts.bitCount(ahm & (ahm ^ afterMasks[y+4]));
 		}
 		
 		return 
