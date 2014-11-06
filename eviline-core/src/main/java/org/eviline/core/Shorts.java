@@ -12,20 +12,30 @@ public class Shorts {
 	}
 	
 	public static long pack(short[] s, int off) {
-		long ret = 0;
-		ret |= (0xFFFFL & s[0 + off]) << 48;
-		ret |= (0xFFFFL & s[1 + off]) << 32;
-		ret |= (0xFFFFL & s[2 + off]) << 16;
-		ret |= (0xFFFFL & s[3 + off]) << 0;
-		return ret;
+		long base = 0xffffffffffff0000l;
+		
+		long v = (((long) s[off]) << 48) ^ ((base | s[off+1]) << 32) ^ ((base | s[off+2]) << 16) ^ (base | s[off+3]);
+
+		return v ^ 0xffff0000ffff0000l;
 	}
 	
-	public static void set(short[] dest, int doff, short[] src, int soff, int len) {
+	public static void setBits(short[] dest, int doff, long src) {
+		doff +=3;
+		dest[doff--] |= (short) src;
+		src = src >>> 16;
+		dest[doff--] |= (short) src;
+		src = src >>> 16;
+		dest[doff--] |= (short) src;
+		src = src >>> 16;
+		dest[doff] |= (short) src;
+	}
+	
+	public static void setBits(short[] dest, int doff, short[] src, int soff, int len) {
 		for(int i = 0; i < len; i++)
 			dest[doff + i] |= src[soff + i];
 	}
 	
-	public static void unset(short[] dest, int doff, short[] src, int soff, int len) {
+	public static void clearBits(short[] dest, int doff, short[] src, int soff, int len) {
 		for(int i = 0; i < len; i++)
 			dest[doff + i] &= ~src[soff + i];
 	}

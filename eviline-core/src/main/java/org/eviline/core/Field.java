@@ -67,11 +67,9 @@ public class Field implements Cloneable {
 		int s_x = XYShapes.xFromInt(xyshape);
 		int s_y = XYShapes.yFromInt(xyshape);
 		int s_id = XYShapes.shapeIdFromInt(xyshape);
-		if(s_y >= HEIGHT)
-			return true;
 		long imask = imask(s_y);
 		long smask = Shape.shapeMask(s_id, s_x);
-		return imask != (imask & ~smask);
+		return (imask & smask) != 0;
 	}
 	
 	/**
@@ -84,14 +82,17 @@ public class Field implements Cloneable {
 		int s_y = XYShapes.yFromInt(xyshape);
 		int s_id = XYShapes.shapeIdFromInt(xyshape);
 		long smask = Shape.shapeMask(s_id, s_x);
-		short[] src = Shorts.split(smask);
-		Shorts.set(mask, s_y+8, src, 0, 4);
-		for(int i = 0; i < 4; i++) {
+		Shorts.setBits(mask, s_y+8, smask);
+		Block block = new Block(Shape.fromOrdinal(s_id), id);
+		for(int i = 3; i >= 0; i--) {
+			smask = smask >>> 3;
 			int y = s_y + i;
 			for(int x = 0; x < WIDTH; x++) {
-				if((src[i] & ((1 << 12) >>> x)) != 0)
-					blocks[x + (y+8) * WIDTH] = new Block(Shape.fromOrdinal(s_id), id);
+				if((smask & 1) != 0)
+					blocks[x + (y+8) * WIDTH] = block;
+				smask = smask >>> 1;
 			}
+			smask = smask >>> 3;
 		}
 	}
 	
