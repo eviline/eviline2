@@ -56,6 +56,10 @@ public enum Shape {
 		return shapeMask(ordinal());
 	}
 	
+	public static long shapeMask(int ord, int x) {
+		return shapeMask(ord) >>> (Field.BUFFER + x);
+	}
+	
 	public static long shapeMask(int ord) {
 		switch(ord) {
 		case 0: 
@@ -204,7 +208,7 @@ public enum Shape {
 	}
 	
 	public long mask(int x) {
-		return mask() >>> (Field.BUFFER + x);
+		return shapeMask(ordinal(), x);
 	}
 	
 	public int overY() {

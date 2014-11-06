@@ -66,11 +66,11 @@ public class Field implements Cloneable {
 	public boolean intersects(int xyshape) {
 		int s_x = XYShapes.xFromInt(xyshape);
 		int s_y = XYShapes.yFromInt(xyshape);
-		Shape s_shape = XYShapes.shapeFromInt(xyshape);
+		int s_id = XYShapes.shapeIdFromInt(xyshape);
 		if(s_y >= HEIGHT)
 			return true;
 		long imask = imask(s_y);
-		long smask = s_shape.mask(s_x);
+		long smask = Shape.shapeMask(s_id, s_x);
 		return imask != (imask & ~smask);
 	}
 	
@@ -82,15 +82,15 @@ public class Field implements Cloneable {
 	public void blit(int xyshape, long id) {
 		int s_x = XYShapes.xFromInt(xyshape);
 		int s_y = XYShapes.yFromInt(xyshape);
-		Shape s_shape = XYShapes.shapeFromInt(xyshape);
-		long smask = s_shape.mask(s_x);
+		int s_id = XYShapes.shapeIdFromInt(xyshape);
+		long smask = Shape.shapeMask(s_id, s_x);
 		short[] src = Shorts.split(smask);
 		Shorts.set(mask, s_y+8, src, 0, 4);
 		for(int i = 0; i < 4; i++) {
 			int y = s_y + i;
 			for(int x = 0; x < WIDTH; x++) {
 				if((src[i] & ((1 << 12) >>> x)) != 0)
-					blocks[x + (y+8) * WIDTH] = new Block(s_shape, id);
+					blocks[x + (y+8) * WIDTH] = new Block(Shape.fromOrdinal(s_id), id);
 			}
 		}
 	}

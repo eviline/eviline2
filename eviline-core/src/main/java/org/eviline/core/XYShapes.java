@@ -30,6 +30,10 @@ public class XYShapes {
 		return ((i >>> 4) & 0x1f) - 8;
 	}
 	
+	public static int shapeIdFromInt(int i) {
+		return (i >>> 9);
+	}
+	
 	public static Shape shapeFromInt(int i) {
 		return Shape.fromOrdinal(i >>> 9);
 	}
