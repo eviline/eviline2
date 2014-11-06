@@ -5,8 +5,11 @@ import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -58,11 +61,11 @@ public class AutoplayMain {
 	private static final int MAX_LOOKAHEAD = 3;
 	
 	private static class ManualScreen extends Screen {
-
+		
 		public ManualScreen(Terminal terminal) {
 			super(terminal);
 		}
-
+		
 		public void manualRefresh() {
 			super.refresh();
 		}
@@ -141,10 +144,9 @@ public class AutoplayMain {
 	private static Runnable ticker = new Runnable() {
 		@Override
 		public void run() {
-			while(true) {
+			while(!engine.isOver() && !Thread.interrupted()) {
 				Command c = player.tick();
-				if(!engine.isOver())
-					engine.tick(c);
+				engine.tick(c);
 				if(engine.getShape() == -1)
 					player.setAllowDrops(!syncDisplay);
 				if(syncDisplay)
@@ -156,9 +158,12 @@ public class AutoplayMain {
 					nonblockingDraw.run();
 				}
 			}
+			blockingDraw.run();
 		}
 	};
 
+	private static Future<?> tickerFuture;
+	
 	public static void main(String... args) throws Exception {
 		Field field = new Field();
 
@@ -210,7 +215,9 @@ public class AutoplayMain {
 					System.exit(0);
 					break;
 				case 'r':
+					tickerFuture.cancel(true);
 					engine.reset();
+					tickerFuture = exec.submit(ticker);
 					break;
 				case 's':
 					syncDisplay = !syncDisplay;
@@ -233,7 +240,7 @@ public class AutoplayMain {
 		player = new AIPlayer(ai, engine, 1);
 		player.setAllowDrops(true);
 
-		exec.execute(ticker);
+		tickerFuture = exec.submit(ticker);
 //		exec.scheduleAtFixedRate(nonblockingDraw, 100, 100, TimeUnit.MILLISECONDS);
 		
 		gui.getScreen().startScreen();
