@@ -5,7 +5,25 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class Engine {
+public class Engine implements Cloneable {
+	private static class ImmutableBagSource implements ShapeSource {
+		private final ShapeType[] bag;
+
+		private ImmutableBagSource(ShapeType[] bag) {
+			this.bag = bag;
+		}
+
+		@Override
+		public ShapeType next(Engine engine) {
+			return null;
+		}
+
+		@Override
+		public ShapeType[] getBag() {
+			return bag;
+		}
+	}
+
 	protected Configuration conf;
 	protected Field field;
 	
@@ -30,10 +48,6 @@ public class Engine {
 		this(new Field(), new Configuration());
 	}
 	
-	public synchronized Field cloneField() {
-		return field.clone();
-	}
-	
 	public Engine(Field field, Configuration conf) {
 		this.field = field;
 		this.conf = conf;
@@ -42,7 +56,23 @@ public class Engine {
 		respawnFramesRemaining = conf.respawnFramesRemaining(this);
 	}
 	
-	public void reset() {
+	public synchronized Engine clone() {
+		try {
+			Engine c = (Engine) super.clone();
+			
+			c.field = field.clone();
+			c.shapes = new ImmutableBagSource(shapes.getBag());
+			c.next = next.clone();
+			if(listeners != null)
+				c.listeners = listeners.clone();
+			
+			return c;
+		} catch(CloneNotSupportedException e) {
+			throw new InternalError();
+		}
+	}
+	
+	public synchronized void reset() {
 		field.reset();
 		shape = -1;
 		shapeId = 0;

@@ -18,7 +18,6 @@ import org.eviline.core.Engine;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
-
 import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.AIPlayer;
 import org.eviline.core.ai.DefaultAIKernel;
@@ -54,54 +53,53 @@ public class AutoplayMain {
 	private static DefaultAIKernel ai;
 	private static AIPlayer player;
 	private static boolean syncDisplay = false;
-	private static boolean drawing = false;
-	
-	private static ExecutorService exec;
-	
-	private static Runnable drawer = new Runnable() {
-		private Semaphore lock = new Semaphore(0);
+
+	private static ScheduledExecutorService exec;
+
+	private static Runnable blockingDraw = new Runnable() {
+		private AtomicBoolean done = new AtomicBoolean(false);
 		@Override
-		public void run() {
-			drawing = true;
+		public synchronized void run() {
+			done.set(false);
 			gui.runInEventThread(new Action() {
 				@Override
 				public void doAction() {
-					synchronized(engine) {
-						while(engine.getShape() == -1 && !engine.isOver())
-							engine.tick(Command.NOP);
-						w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + engine.getNext().length + " lines:" + engine.getLines());
-						gui.invalidate();
-						gui.update();
-						lock.release();
+					Engine e = AutoplayMain.engine.clone();
+					w.setEngine(e);
+					w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + e.getNext().length + " lines:" + e.getLines());
+					gui.invalidate();
+					gui.update();
+					synchronized(done) {
+						done.set(true);
+						done.notifyAll();
 					}
 				}
 			});
-			lock.acquireUninterruptibly();
-			drawing = false;
+			synchronized(done) {
+				while(!done.get()) {
+					try {
+						done.wait();
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
 		}
 	};
 
 	private static Runnable ticker = new Runnable() {
 		@Override
 		public void run() {
-			synchronized(engine) {
-				Command c = player.tick();
-				if(!engine.isOver())
-					engine.tick(c);
-			}
-			if(syncDisplay || engine.getShape() == -1) {
-				drawer.run();
-				if(!engine.isOver())
-					exec.execute(ticker);
-			} else {
-				if(!drawing)
-					exec.execute(drawer);
-				if(!engine.isOver())
-					exec.execute(ticker);
-			}
+			Command c = player.tick();
+			if(!engine.isOver())
+				engine.tick(c);
+			if(engine.getShape() == -1)
+				player.setAllowDrops(!syncDisplay);
+			if(syncDisplay)
+				blockingDraw.run();
 		}
 	};
-	
+
 	public static void main(String... args) throws Exception {
 		Field field = new Field();
 
@@ -129,7 +127,7 @@ public class AutoplayMain {
 			gui = new EngineScreen(screen);
 		}
 
-		exec = Executors.newFixedThreadPool(2);
+		exec = Executors.newScheduledThreadPool(3);
 
 		w = new EngineWindow(engine);
 		Panel p = new Panel(Orientation.VERTICAL);
@@ -153,16 +151,10 @@ public class AutoplayMain {
 					System.exit(0);
 					break;
 				case 'r':
-					synchronized(engine) {
-						boolean retick = engine.isOver();
-						engine.reset();
-						if(retick)
-							exec.execute(ticker);
-					}
+					engine.reset();
 					break;
 				case 's':
 					syncDisplay = !syncDisplay;
-					player.setAllowDrops(!syncDisplay);
 					break;
 				}
 				switch(key.getKind()) {
@@ -188,9 +180,10 @@ public class AutoplayMain {
 			}
 		}));
 		player = new AIPlayer(ai, engine, 1);
+		player.setAllowDrops(true);
 
-		
-		exec.execute(ticker);
+		exec.scheduleWithFixedDelay(ticker, 1, 1, TimeUnit.NANOSECONDS);
+		exec.scheduleWithFixedDelay(blockingDraw, 10, 10, TimeUnit.MILLISECONDS);
 
 		gui.getScreen().startScreen();
 
