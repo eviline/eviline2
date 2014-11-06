@@ -151,7 +151,7 @@ public class Field implements Cloneable {
 	 * @return
 	 */
 	public boolean masked(int x, int y) {
-		return ((get(y) & 0xFFFF) & (1 << (12 - x))) != 0;
+		return (get(y) & (1 << (12 - x))) != 0;
 	}
 	
 	/**
@@ -160,7 +160,7 @@ public class Field implements Cloneable {
 	 * @return
 	 */
 	public short mask(int y) {
-		return (short)((get(y) >>> BUFFER) & 0b1111111111);
+		return (short)(0x3ff & (get(y) >>> BUFFER));
 	}
 	
 	/**

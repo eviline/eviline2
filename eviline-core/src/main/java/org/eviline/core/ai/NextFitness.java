@@ -49,9 +49,12 @@ public class NextFitness implements CoefficientFitness {
 		int pitsBefore = 0;
 		int pitsAfter = 0;
 		
+		short[] beforeMasks = new short[Field.HEIGHT + 4];
+		short[] afterMasks = new short[Field.HEIGHT + 4];
+
 		for(int y = -4; y < Field.HEIGHT; y++) {
-			long bm = before.mask(y);
-			long am = after.mask(y);
+			long bm = beforeMasks[y+4] = before.mask(y);
+			long am = afterMasks[y+4] = after.mask(y);
 			
 			if(bm != 0 && mhBefore == 0)
 				mhBefore = Field.HEIGHT - y;
@@ -71,14 +74,14 @@ public class NextFitness implements CoefficientFitness {
 		long bhm = 0;
 		long ahm = 0;
 		for(int y = -3; y < Field.HEIGHT; y++) {
-			bhm |= before.mask(y-1);
-			ahm |= after.mask(y-1);
+			bhm |= beforeMasks[y+3];
+			ahm |= afterMasks[y+3];
 			
-			vtxBefore += Long.bitCount(before.mask(y-1) ^ before.mask(y));
-			vtxAfter += Long.bitCount(after.mask(y-1) ^ after.mask(y));
+			vtxBefore += Long.bitCount(beforeMasks[y+3] ^ beforeMasks[y+4]);
+			vtxAfter += Long.bitCount(afterMasks[y+3] ^ afterMasks[y+4]);
 			
-			holesBefore += Long.bitCount(bhm & (bhm ^ before.mask(y)));
-			holesAfter += Long.bitCount(ahm & (ahm ^ after.mask(y)));
+			holesBefore += Long.bitCount(bhm & (bhm ^ beforeMasks[y+4]));
+			holesAfter += Long.bitCount(ahm & (ahm ^ afterMasks[y+4]));
 		}
 		
 		return 
