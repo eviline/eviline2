@@ -28,6 +28,14 @@ import org.eviline.core.ShapeType;
 import org.eviline.core.XYShapes;
 
 public class DefaultAIKernel implements AIKernel {
+	
+	public static ThreadPoolExecutor createDefaultExecutor() {
+		return new ThreadPoolExecutor(
+				0, 32, 
+				30, TimeUnit.SECONDS, 
+				new SynchronousQueue<Runnable>(), 
+				new CallerRunsPolicy());
+	}
 
 	protected class Best {
 		public final CommandGraph graph;
@@ -46,11 +54,7 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	protected Fitness fitness = new DefaultFitness();
-	protected Executor exec = new ThreadPoolExecutor(
-			0, 32, 
-			30, TimeUnit.SECONDS, 
-			new SynchronousQueue<Runnable>(), 
-			new CallerRunsPolicy());
+	protected Executor exec = createDefaultExecutor();
 	
 	public DefaultAIKernel() {}
 	

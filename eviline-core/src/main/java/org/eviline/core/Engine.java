@@ -120,7 +120,7 @@ public class Engine implements Cloneable {
 			int cleared = field.clearLines();
 			if(cleared > 0) {
 				lines += cleared;
-				score += cleared * cleared * cleared;
+				score += cleared * cleared - 1;
 				return true;
 			}
 		}
