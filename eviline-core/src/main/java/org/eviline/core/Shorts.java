@@ -12,11 +12,11 @@ public class Shorts {
 	}
 
 	public static long pack(short[] s, int off) {
-		long base = 0xffffffffffff0000l;
-
-		long v = (((long) s[off]) << 48) ^ ((base | s[off+1]) << 32) ^ ((base | s[off+2]) << 16) ^ (base | s[off+3]);
-
-		return v ^ 0xffff0000ffff0000l;
+		long v = 0xffffl & s[off + 3];
+		v |= (0xffffl & s[off + 2]) << 16;
+		v |= (0xffffl & s[off + 1]) << 32;
+		v |= (0xffffl & s[off]) << 48;
+		return v;
 	}
 
 	public static void setBits(short[] dest, int doff, long src) {
