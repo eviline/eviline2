@@ -116,6 +116,14 @@ public class Engine implements Cloneable {
 	public synchronized boolean tick(Command c) {
 		if(isPaused())
 			return false;
+		if(shape == -1) {
+			int cleared = field.clearLines();
+			if(cleared > 0) {
+				lines += cleared;
+				score += cleared * cleared * cleared;
+				return true;
+			}
+		}
 		boolean success = false;
 		boolean locked = false;
 		switch(c) {
@@ -258,11 +266,11 @@ public class Engine implements Cloneable {
 			}
 		}
 		
-		if(locked) {
-			int cleared = field.clearLines();
-			lines += cleared;
-			score += cleared * cleared * cleared;
-		}
+//		if(locked) {
+//			int cleared = field.clearLines();
+//			lines += cleared;
+//			score += cleared * cleared * cleared;
+//		}
 		
 		if(shape == -1) {
 			if(respawnFramesRemaining == null) {
