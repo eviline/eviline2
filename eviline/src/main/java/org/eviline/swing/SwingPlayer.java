@@ -158,12 +158,12 @@ public class SwingPlayer implements Player {
 	
 	public SwingPlayer(JComponent controlTarget, boolean appletMode) {
 		this.controlTarget = controlTarget;
-		initKeys(appletMode);
 		controlsListener = new ControlsKeyListener();
-		controlTarget.addKeyListener(controlsListener);
+		if(controlTarget != null)
+			controlTarget.addKeyListener(controlsListener);
 	}
 	
-	protected void initKeys(boolean appletMode) {
+	public void initKeys(boolean appletMode) {
 		controls.put(new Key(KeyEvent.VK_Z), Command.ROTATE_LEFT);
 		controls.put(new Key(KeyEvent.VK_X), Command.ROTATE_RIGHT);
 		controls.put(new Key(KeyEvent.VK_LEFT), Command.SHIFT_LEFT);

@@ -18,11 +18,15 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -46,6 +50,7 @@ import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
 import org.eviline.core.ai.Player;
 import org.eviline.core.ss.EvilBag7NShapeSource;
+import org.eviline.swing.ControlsPanel;
 import org.eviline.swing.EngineComponent;
 import org.eviline.swing.EngineTable;
 import org.eviline.swing.EngineTableModel;
@@ -123,7 +128,37 @@ public class ZeroGravityTableUI {
 		ll.setForeground(new Color(255,64,96));
 		ll.setFont(Resources.getMinecrafter().deriveFont(36f));
 		
-		final SwingPlayer pl = new SwingPlayer(table);
+		final AtomicReference<SwingPlayer> pl = new AtomicReference<SwingPlayer>(new SwingPlayer(table));
+		pl.get().initKeys(false);
+		
+		JButton controls = new JButton("Controls");
+		frame.add(controls, BorderLayout.SOUTH);
+		controls.addActionListener(new ActionListener() {
+			private Map<Command, Key> ctrl = ControlsPanel.DEFAULT_CONTROLS;
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final JDialog dialog = new JDialog(frame, "Edit Controls");
+				dialog.setLayout(new BorderLayout());
+				final ControlsPanel cp = new ControlsPanel(ctrl);
+				JButton ok = new JButton("OK");
+				ok.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						pl.set(cp.getPlayer(table));
+						pl.get().initKeys(false);
+						ctrl = cp.getCtrl();
+						dialog.dispose();
+					}
+				});
+				dialog.add(cp, BorderLayout.CENTER);
+				dialog.add(ok, BorderLayout.SOUTH);
+				dialog.pack();
+				dialog.setModal(true);
+				dialog.setLocationRelativeTo(frame);
+				dialog.setVisible(true);
+			}
+		});
 		
 		engine.addEngineListener(new EngineListener() {
 			private boolean invoked = false;
@@ -138,7 +173,7 @@ public class ZeroGravityTableUI {
 						stats.ticked(engine, c);
 						StatisticsTableModel m = stats.getModel();
 						for(Command cmd : Command.values()) {
-							SwingPlayer.Key key = pl.forCommand(cmd);
+							SwingPlayer.Key key = pl.get().forCommand(cmd);
 							if(key == null)
 								continue;
 							m.write(cmd + ": " + key + "\n");
@@ -157,7 +192,7 @@ public class ZeroGravityTableUI {
 			private boolean invoked = false;
 			@Override
 			public void run() {
-				Command c = pl.tick();
+				Command c = pl.get().tick();
 				if(!engine.isOver())
 					engine.tick(c);
 				if(invoked)
