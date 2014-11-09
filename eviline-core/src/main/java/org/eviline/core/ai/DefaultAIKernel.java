@@ -3,6 +3,7 @@ package org.eviline.core.ai;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -281,21 +282,21 @@ public class DefaultAIKernel implements AIKernel {
 		return worst.type;
 	}
 
-	protected Best worstNext(Field originalField, Field currentField, List<ShapeType> bag, int lookahead) {
+	protected Best worstNext(Field originalField, Field currentField, List<ShapeType> bag, int lookahead, ShapeType type) {
 		if(lookahead == 0 || bag.size() == 0) {
-			return new Best(null, -1, fitness.badness(originalField, currentField, ShapeType.NONE), currentField, null);
+			return new Best(null, -1, fitness.badness(originalField, currentField, new ShapeType[] {type}), currentField, null);
 		}
 		
 		currentField.clearLines();
 		
 		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null);
 		
-		for(ShapeType type : new HashSet<>(bag)) {
-			int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
-			Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1);
-			List<ShapeType> nextBag = new ArrayList<>(bag);
-			nextBag.remove(type);
-			Best shapeWorst = worstNext(originalField, shapeBest.after, nextBag, lookahead - 1);
+		int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
+		Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1);
+		List<ShapeType> nextBag = new ArrayList<>(bag);
+		nextBag.remove(type);
+		for(ShapeType next : EnumSet.copyOf(nextBag)) {
+			Best shapeWorst = worstNext(originalField, shapeBest.after, nextBag, lookahead - 1, type);
 			if(shapeWorst.score > worst.score)
 				worst = new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
 		}
