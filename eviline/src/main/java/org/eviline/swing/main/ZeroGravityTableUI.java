@@ -141,8 +141,8 @@ public class ZeroGravityTableUI {
 				final JDialog dialog = new JDialog(frame, "Edit Controls");
 				dialog.setLayout(new BorderLayout());
 				final ControlsPanel cp = new ControlsPanel(ctrl);
-				JButton ok = new JButton("OK");
-				ok.addActionListener(new ActionListener() {
+				JButton apply = new JButton("Apply");
+				apply.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						pl.set(cp.getPlayer(table));
@@ -151,8 +151,18 @@ public class ZeroGravityTableUI {
 						dialog.dispose();
 					}
 				});
+				JButton cancel = new JButton("Cancel");
+				cancel.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						dialog.dispose();
+					}
+				});
 				dialog.add(cp, BorderLayout.CENTER);
-				dialog.add(ok, BorderLayout.SOUTH);
+				JPanel ac = new JPanel(new GridLayout(1, 0));
+				ac.add(apply);
+				ac.add(cancel);
+				dialog.add(ac, BorderLayout.SOUTH);
 				dialog.pack();
 				dialog.setModal(true);
 				dialog.setLocationRelativeTo(frame);

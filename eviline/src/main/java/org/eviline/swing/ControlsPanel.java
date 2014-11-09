@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -16,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
+import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.AttributeSet;
@@ -42,6 +44,72 @@ public class ControlsPanel extends JPanel {
 		DEFAULT_CONTROLS = Collections.unmodifiableMap(ctrl);
 	}
 	
+	protected class KeyComponents {
+		private Command command;
+		private Key key;
+		
+		private JToggleButton edit;
+		private JTextField delay;
+		
+		public KeyComponents(Command c, Key k) {
+			this.command = c;
+			this.key = k;
+			edit = new JToggleButton(key.toString());
+			delay = new JTextField("");
+			delay.setDocument(new IntegerDocument());
+			delay.setText("" + key.getKeyHold());
+			
+			edit.addKeyListener(new KeyAdapter() {
+				private boolean lastRelease;
+				
+				@Override
+				public void keyPressed(KeyEvent e) {
+					lastRelease = false;
+				}
+				
+				@Override
+				public void keyReleased(KeyEvent e) {
+					if(lastRelease || !edit.isSelected())
+						return;
+					int hold = 0;
+					if(!delay.getText().isEmpty())
+						hold = Integer.parseInt(delay.getText());
+					key = new Key(e.getKeyCode(), e.getModifiersEx(), hold);
+					edit.setText(key.toString());
+					edit.setSelected(false);
+					ctrl.put(command, key);
+					lastRelease = true;
+				}
+			});
+			
+			delay.getDocument().addDocumentListener(new DocumentListener() {
+				private void update() {
+					if(delay.getText().isEmpty())
+						key = new Key(key.getKeyCode(), key.getKeyMods(), key.getKeyHold());
+					else
+						key = new Key(key.getKeyCode(), key.getKeyMods(), Integer.parseInt(delay.getText()));
+					edit.setText(key.toString());
+					ctrl.put(command, key);
+				}
+				
+				@Override
+				public void removeUpdate(DocumentEvent e) {
+					update();
+				}
+				
+				@Override
+				public void insertUpdate(DocumentEvent e) {
+					update();
+				}
+				
+				@Override
+				public void changedUpdate(DocumentEvent e) {
+					update();
+				}
+			});
+		}
+	}
+	
 	protected Map<Command, Key> ctrl;
 	
 	public ControlsPanel() {
@@ -60,32 +128,17 @@ public class ControlsPanel extends JPanel {
 		add(l = new JLabel("Delay"));
 		l.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		
 		for(Map.Entry<Command, Key> k : ctrl.entrySet()) {
 			final Command c = k.getKey();
 			final Key key = k.getValue();
 			if(key == null)
 				continue;
-			final JToggleButton edit = new JToggleButton(KeyEvent.getKeyText(key.getKeyCode()));
-			final JTextField delay = new JTextField("");
-			delay.setDocument(new IntegerDocument());
-			delay.setText("" + key.getKeyHold());
 			
-			edit.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					int hold = 0;
-					if(!delay.getText().isEmpty())
-						hold = Integer.parseInt(delay.getText());
-					ControlsPanel.this.ctrl.put(c, new Key(e.getKeyCode(), 0, hold));
-					edit.setText(KeyEvent.getKeyText(e.getKeyCode()));
-					edit.setSelected(false);
-				}
-			});
+			KeyComponents kc = new KeyComponents(c, key);
 			
 			add(new JLabel(c.toString()));
-			add(edit);
-			add(delay);
+			add(kc.edit);
+			add(kc.delay);
 		}
 	}
 
