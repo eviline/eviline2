@@ -153,6 +153,9 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	protected Best bestPlacement(final Field originalField, final Field currentField, int currentShape, ShapeType[] next, final int lookahead) {
+		if(currentShape != -1 && currentField.intersects(currentShape))
+			return new Best(null, currentShape, Double.POSITIVE_INFINITY, currentField, null);
+		
 		if(currentShape == -1 || lookahead == 0) {
 			return new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null);
 		}
