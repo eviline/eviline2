@@ -34,7 +34,7 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 		ColoredCharacter cc = (ColoredCharacter) value;
 		
 		c.setText(cc.c != null ? cc.c.toString() : null);
-		c.setForeground(cc.color != null ? cc.color : Color.WHITE);
+		c.setForeground(cc.color != null ? cc.color : Color.BLACK);
 
 		ll.set(c);
 		
@@ -46,7 +46,7 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 			setOpaque(false);
 			setBorder(null);
 //			setFont(Resources.getMinecrafter().deriveFont(16f));
-			setFont(getFont().deriveFont(12f));
+			setFont(getFont().deriveFont(12f).deriveFont(Font.BOLD));
 		}
 		
 		public void set(JLabel c) {
@@ -57,7 +57,7 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 		@Override
 		protected void paintComponent(Graphics g) {
 			Color fg = getForeground();
-			setForeground(Color.BLUE.darker());
+			setForeground(Color.WHITE);
 			for(int x = 0; x <= 2; x++) {
 				for(int y = 0; y <= 2; y++) {
 					Graphics gg = g.create();

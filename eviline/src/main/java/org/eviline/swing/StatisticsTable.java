@@ -56,19 +56,20 @@ public class StatisticsTable extends JTable implements EngineListener {
 	@Override
 	public void ticked(Engine e, Command c) {
 		StatisticsTableModel m = getModel();
+		Color darkRed = Color.RED.darker();
 		m.clear();
 		m.write("lines\n");
-		m.write(e.getLines() + "\n", Color.CYAN);
+		m.write(e.getLines() + "\n", darkRed);
 		m.write("score\n");
-		m.write(e.getScore() + "\n", Color.CYAN);
+		m.write(e.getScore() + "\n", darkRed);
 		m.write("time\n");
-		m.write(tdf.format(e.getTickCount() * 1000 / 60) + "\n", Color.CYAN);
+		m.write(tdf.format(e.getTickCount() * 1000 / 60) + "\n", darkRed);
 		
 		m.write("badness\n");
 		if(e.getGhost() != -1) {
 			Field after = e.getField().clone();
 			after.blit(e.getGhost(), 0);
-			m.write(((int) fit.badness(e.getField(), after, e.getNext())) + "\n", Color.CYAN);
+			m.write(((int) fit.badness(e.getField(), after, e.getNext())) + "\n", darkRed);
 		} else
 			m.write("N/A\n");
 		
