@@ -165,6 +165,7 @@ public class ZeroGravityTableUI {
 						table.addKeyListener(pl.get().getControlsListener());
 						ctrl = cp.getCtrl();
 						dialog.dispose();
+						table.requestFocus();
 					}
 				});
 				JButton cancel = new JButton("Cancel");
@@ -172,6 +173,7 @@ public class ZeroGravityTableUI {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						dialog.dispose();
+						table.requestFocus();
 					}
 				});
 				dialog.add(cp, BorderLayout.CENTER);
