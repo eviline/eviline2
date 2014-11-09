@@ -128,8 +128,9 @@ public class ZeroGravityTableUI {
 		ll.setForeground(new Color(255,64,96));
 		ll.setFont(Resources.getMinecrafter().deriveFont(36f));
 		
-		final AtomicReference<SwingPlayer> pl = new AtomicReference<SwingPlayer>(new SwingPlayer(table));
+		final AtomicReference<SwingPlayer> pl = new AtomicReference<SwingPlayer>(new SwingPlayer());
 		pl.get().initKeys(false);
+		table.addKeyListener(pl.get().getControlsListener());
 		
 		JButton controls = new JButton("Controls");
 		frame.add(controls, BorderLayout.SOUTH);
@@ -145,8 +146,10 @@ public class ZeroGravityTableUI {
 				apply.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						pl.set(cp.getPlayer(table));
+						table.removeKeyListener(pl.get().getControlsListener());
+						pl.set(cp.getPlayer());
 						pl.get().initKeys(false);
+						table.addKeyListener(pl.get().getControlsListener());
 						ctrl = cp.getCtrl();
 						dialog.dispose();
 					}

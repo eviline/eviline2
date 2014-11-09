@@ -87,7 +87,6 @@ public class SwingPlayer implements Player {
 	
 	protected Map<Key, Command> controls = new HashMap<>();
 	protected Map<Key, Command> held = new HashMap<>();
-	protected JComponent controlTarget;
 	protected Deque<Command> commands = new ArrayDeque<>();
 	
 	protected class ControlsKeyListener extends KeyAdapter {
@@ -96,6 +95,7 @@ public class SwingPlayer implements Player {
 		
 		public ControlsKeyListener() {
 			for(final Key key : controls.keySet()) {
+				
 				final Command cmd = controls.get(key);
 				if(key.getKeyHold() > 0) {
 					Timer holdTimer = new Timer(key.getKeyHold(), new ActionListener() {
@@ -129,7 +129,7 @@ public class SwingPlayer implements Player {
 						commands.offerLast(controls.get(key));
 					}
 				}
-				controlTarget.requestFocus();
+				e.getComponent().requestFocus();
 			}
 			e.consume();
 		}
@@ -152,15 +152,7 @@ public class SwingPlayer implements Player {
 	
 	protected ControlsKeyListener controlsListener;
 	
-	public SwingPlayer(JComponent controlTarget) {
-		this(controlTarget, false);
-	}
-	
-	public SwingPlayer(JComponent controlTarget, boolean appletMode) {
-		this.controlTarget = controlTarget;
-		controlsListener = new ControlsKeyListener();
-		if(controlTarget != null)
-			controlTarget.addKeyListener(controlsListener);
+	public SwingPlayer() {
 	}
 	
 	public void initKeys(boolean appletMode) {
@@ -179,6 +171,7 @@ public class SwingPlayer implements Player {
 			controls.put(new Key(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK), Command.AUTOSHIFT_RIGHT);
 			controls.put(new Key(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK), Command.SOFT_DROP);
 		}
+		controlsListener = new ControlsKeyListener();
 	}
 
 	@Override

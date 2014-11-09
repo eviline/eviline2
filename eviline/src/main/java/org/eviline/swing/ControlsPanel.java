@@ -36,7 +36,7 @@ public class ControlsPanel extends JPanel {
 	public static final Map<Command, Key> DEFAULT_CONTROLS;
 	static {
 		Map<Command, Key> ctrl = new EnumMap<Command, Key>(Command.class);
-		SwingPlayer p = new SwingPlayer(null);
+		SwingPlayer p = new SwingPlayer();
 		p.initKeys(false);
 		for(Command c : Command.values()) {
 			ctrl.put(c, p.forCommand(c));
@@ -142,8 +142,8 @@ public class ControlsPanel extends JPanel {
 		}
 	}
 
-	public SwingPlayer getPlayer(JComponent target) {
-		return new CustomSwingPlayer(target, ctrl);
+	public SwingPlayer getPlayer() {
+		return new CustomSwingPlayer(ctrl);
 	}
 	
 	public Map<Command, Key> getCtrl() {
