@@ -261,7 +261,7 @@ public class DefaultAIKernel implements AIKernel {
 					Best shapeBest = bestPlacement(field, fbestPlayed, currentShape, ShapeType.NONE, 1);
 					List<ShapeType> nextBag = new ArrayList<>(Arrays.asList(shapes.getBag()));
 					nextBag.remove(type);
-					Best shapeWorst = worstNext(field, shapeBest.after, nextBag, lookahead - 1);
+					Best shapeWorst = worstNext(field, shapeBest.after, nextBag, lookahead, type);
 					return new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
 				}
 			};
@@ -295,8 +295,14 @@ public class DefaultAIKernel implements AIKernel {
 		Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1);
 		List<ShapeType> nextBag = new ArrayList<>(bag);
 		nextBag.remove(type);
-		for(ShapeType next : EnumSet.copyOf(nextBag)) {
-			Best shapeWorst = worstNext(originalField, shapeBest.after, nextBag, lookahead - 1, type);
+		if(nextBag.size() > 0) {
+			for(ShapeType next : EnumSet.copyOf(nextBag)) {
+				Best shapeWorst = worstNext(originalField, shapeBest.after, nextBag, lookahead - 1, next);
+				if(shapeWorst.score > worst.score)
+					worst = new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
+			}
+		} else {
+			Best shapeWorst = worstNext(originalField, shapeBest.after, nextBag, lookahead - 1, null);
 			if(shapeWorst.score > worst.score)
 				worst = new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
 		}
