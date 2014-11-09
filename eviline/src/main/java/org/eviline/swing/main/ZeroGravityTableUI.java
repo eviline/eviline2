@@ -132,9 +132,22 @@ public class ZeroGravityTableUI {
 		pl.get().initKeys(false);
 		table.addKeyListener(pl.get().getControlsListener());
 		
-		JButton controls = new JButton("Controls");
-		frame.add(controls, BorderLayout.SOUTH);
-		controls.addActionListener(new ActionListener() {
+		JPanel console = new JPanel(new GridLayout(0, 1));
+		frame.add(console, BorderLayout.SOUTH);
+		
+		JButton reset = new JButton("Reset Game");
+		reset.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				engine.reset();
+				table.requestFocus();
+			}
+		});
+		console.add(reset);
+		
+		JButton editControls = new JButton("Controls");
+		console.add(editControls);
+		editControls.addActionListener(new ActionListener() {
 			private Map<Command, Key> ctrl = ControlsPanel.DEFAULT_CONTROLS;
 			
 			@Override
@@ -223,15 +236,6 @@ public class ZeroGravityTableUI {
 			}
 		};
 		
-		table.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if(!engine.isOver())
-					return;
-				engine.reset();
-			}
-		});
-
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
