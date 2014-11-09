@@ -14,6 +14,7 @@ import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
 import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.DefaultAIKernel;
+import org.eviline.core.ai.NextFitness;
 
 public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 	public static final EngineFactory<ShapeSource> FACTORY = EngineFactories.createSourceFactory(EvilBag7NShapeSource.class);
@@ -28,7 +29,7 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 	public static final int DEFAULT_N = 4;
 	public static final int DEFAULT_LOOKAHEAD = 2;
 	
-	protected AIKernel ai = new DefaultAIKernel();
+	protected AIKernel ai = new DefaultAIKernel(new NextFitness());
 	protected int n;
 	protected Random random = new Random();
 	
