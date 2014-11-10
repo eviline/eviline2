@@ -147,18 +147,14 @@ public class AutoplayMain {
 					engine.tick(c);
 				if(engine.isOver())
 					break;
+				if(syncDisplay)
+					blockingDraw.run();
+				else
+					nonblockingDraw.run();
 				engine.setShape(player.getDest());
 				engine.tick(Command.SHIFT_DOWN);
 				player.getCommands().clear();
 				player.setAllowDrops(!syncDisplay);
-				if(syncDisplay)
-					blockingDraw.run();
-				else if(engine.getShape() == -1) {
-					while(engine.getShape() == -1 && !engine.isOver()) {
-						engine.tick(Command.NOP);
-					}
-					nonblockingDraw.run();
-				}
 			}
 			blockingDraw.run();
 		}
