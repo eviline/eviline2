@@ -259,7 +259,7 @@ public class DefaultAIKernel implements AIKernel {
 			Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
 				@Override
 				public Best call() throws Exception {
-					Best shapeWorst = worstNext(field, field, bag, lookahead, type);
+					Best shapeWorst = worstNext(field, fbestPlayed, bag, lookahead, type);
 					return new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
 				}
 			};
