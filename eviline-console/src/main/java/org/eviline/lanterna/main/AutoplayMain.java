@@ -86,18 +86,17 @@ public class AutoplayMain {
 
 	private static ScheduledExecutorService exec;
 
-	private static AtomicBoolean drawing = new AtomicBoolean(false);
+	private static ReentrantLock drawLock = new ReentrantLock();
 
 	private static Runnable blockingDraw = new Runnable() {
 		private Semaphore sync = new Semaphore(0);
 		@Override
 		public void run() {
-			if(!drawing.compareAndSet(false, true))
-				return;
 			final Engine e = AutoplayMain.engine.clone();
 			gui.runInEventThread(new Action() {
 				@Override
 				public void doAction() {
+					drawLock.lock();
 					w.setEngine(e);
 					w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + MAX_LOOKAHEAD + " lines:" + e.getLines());
 					mscreen.manualRefresh();
@@ -108,14 +107,13 @@ public class AutoplayMain {
 							public void run() {
 								JPanel p = (JPanel) st.getJFrame().getContentPane();
 								p.paintImmediately(p.getBounds());
-								drawing.set(false);
 								sync.release();
 							}
 						});
 					} else {
-						drawing.set(false);
 						sync.release();
 					}
+					drawLock.unlock();
 				}
 			});
 			sync.acquireUninterruptibly();
@@ -126,16 +124,16 @@ public class AutoplayMain {
 
 		@Override
 		public void run() {
-			if(!drawing.compareAndSet(false, true))
-				return;
 			final Engine e = AutoplayMain.engine.clone();
 			gui.runInEventThread(new Action() {
 				@Override
 				public void doAction() {
+					if(!drawLock.tryLock())
+						return;
 					w.setEngine(e);
 					w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + MAX_LOOKAHEAD + " lines:" + e.getLines());
 					mscreen.manualRefresh();
-					drawing.set(false);
+					drawLock.unlock();
 				}
 			});
 		}
