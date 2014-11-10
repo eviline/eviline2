@@ -3,6 +3,7 @@ package org.eviline.core.ai;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +39,21 @@ public class DefaultAIKernel implements AIKernel {
 				new CallerRunsPolicy());
 	}
 
-	protected class Best {
+	protected static Comparator<Best> WORST_ORDER = new Comparator<DefaultAIKernel.Best>() {
+		@Override
+		public int compare(Best o1, Best o2) {
+			return -Double.compare(o1.score, o2.score);
+		}
+	};
+	
+	protected static Comparator<Best> BEST_ORDER = new Comparator<DefaultAIKernel.Best>() {
+		@Override
+		public int compare(Best o1, Best o2) {
+			return Double.compare(o1.score, o2.score);
+		}
+	};
+	
+	protected static class Best {
 		public final CommandGraph graph;
 		public final int shape;
 		public final double score;
@@ -238,7 +253,22 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	@Override
-	public ShapeType worstNext(final Field field, final ShapeSource shapes, ShapeType[] next, final int lookahead) {
+	public ShapeType bestNext(Field field, ShapeSource shapes,
+			ShapeType[] next, int lookahead) {
+		return searchNext(BEST_ORDER, field, shapes, next, lookahead);
+	}
+	
+	@Override
+	public ShapeType worstNext(Field field, ShapeSource shapes, ShapeType[] next, int lookahead) {
+		return searchNext(WORST_ORDER, field, shapes, next, lookahead);
+	}
+	
+	protected ShapeType searchNext(
+			final Comparator<Best> order,
+			final Field field, 
+			final ShapeSource shapes, 
+			ShapeType[] next, 
+			final int lookahead) {
 		Field bestPlayed = field;
 		if(next.length > 0) {
 			int nextShape = XYShapes.toXYShape(next[0].startX(), next[0].startY(), next[0].start());
@@ -259,7 +289,7 @@ public class DefaultAIKernel implements AIKernel {
 			Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
 				@Override
 				public Best call() throws Exception {
-					Best shapeWorst = worstNext(field, fbestPlayed, bag, lookahead, type);
+					Best shapeWorst = searchNext(order, field, fbestPlayed, bag, lookahead, type);
 					return new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
 				}
 			};
@@ -270,7 +300,7 @@ public class DefaultAIKernel implements AIKernel {
 		
 		try {
 			for(Future<Best> f : futs) {
-				if(f.get().score > worst.score)
+				if(order.compare(f.get(), worst) < 0)
 					worst = f.get();
 			}
 		} catch(Exception e) {
@@ -280,7 +310,13 @@ public class DefaultAIKernel implements AIKernel {
 		return worst.type;
 	}
 
-	protected Best worstNext(final Field originalField, final Field currentField, List<ShapeType> bag, final int lookahead, ShapeType type) {
+	protected Best searchNext(
+			final Comparator<Best> order,
+			final Field originalField, 
+			final Field currentField, 
+			List<ShapeType> bag, 
+			final int lookahead, 
+			ShapeType type) {
 		if(lookahead == 0 || bag.size() == 0) {
 			return new Best(null, -1, fitness.badness(originalField, currentField, new ShapeType[] {type}), currentField, null);
 		}
@@ -301,7 +337,7 @@ public class DefaultAIKernel implements AIKernel {
 				Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
 					@Override
 					public Best call() throws Exception {
-						return worstNext(originalField, shapeBest.after, nextBag, lookahead - 1, next);
+						return searchNext(order, originalField, shapeBest.after, nextBag, lookahead - 1, next);
 					}
 				};
 				FutureTask<Best> fut = new FutureTask<Best>(task);
@@ -315,7 +351,7 @@ public class DefaultAIKernel implements AIKernel {
 			Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
 				@Override
 				public Best call() throws Exception {
-					return worstNext(originalField, shapeBest.after, nextBag, lookahead - 1, null);
+					return searchNext(order, originalField, shapeBest.after, nextBag, lookahead - 1, null);
 				}
 			};
 			FutureTask<Best> fut = new FutureTask<Best>(task);
@@ -330,7 +366,7 @@ public class DefaultAIKernel implements AIKernel {
 			} catch(Exception e) {
 				throw new RuntimeException(e);
 			}
-			if(shapeWorst.score > worst.score)
+			if(order.compare(shapeWorst, worst) < 0)
 				worst = new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
 		}
 		
