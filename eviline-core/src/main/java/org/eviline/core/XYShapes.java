@@ -1,7 +1,22 @@
 package org.eviline.core;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class XYShapes {
 	public static final int SHAPE_MAX = toXYShape(15, 19, Shape.values()[Shape.values().length - 1]);
+	
+	public static final int[] CANONICAL_SHAPES;
+	static {
+		int[] canon = new int[SHAPE_MAX];
+		int count = 0;
+		for(int i = 0; i < SHAPE_MAX; i++) {
+			if(!isSynonym(i))	
+				canon[count++] = i;
+		}
+		CANONICAL_SHAPES = Arrays.copyOf(canon, count);
+	}
 	
 	public static boolean has(int xyshape, int x, int y) {
 		int this_x = xFromInt(xyshape);
@@ -119,24 +134,24 @@ public class XYShapes {
 	private static final int DOWN = 1 << ShapeDirection.DOWN_ORD;
 	private static final int LEFT = 1 << ShapeDirection.LEFT_ORD;
 	
-	private static final int HAS_SYNONYM = (
+	private static final int IS_SYNONYM = (
 			(DOWN | RIGHT) << (ShapeType.S_ORD << 2) |
 			(DOWN | RIGHT) << (ShapeType.Z_ORD << 2) |
 			(DOWN | RIGHT) << (ShapeType.I_ORD << 2) |
 			(DOWN | RIGHT | LEFT) << (ShapeType.O_ORD << 2)
 			);
 	
-	public static boolean hasSynonym(int xyshape) {
+	public static boolean isSynonym(int xyshape) {
 		int id = shapeIdFromInt(xyshape);
 		int synbit = 1 << id;
-		return (HAS_SYNONYM & synbit) != 0;
+		return (IS_SYNONYM & synbit) != 0;
 	}
 	
-	public static int synonym(int xyshape) {
+	public static int canonical(int xyshape) {
 		int id = shapeIdFromInt(xyshape);
 
 		int synbit = 1 << id;
-		if((HAS_SYNONYM & synbit) == 0)
+		if((IS_SYNONYM & synbit) == 0)
 			return xyshape;
 		
 		int x = xFromInt(xyshape);
