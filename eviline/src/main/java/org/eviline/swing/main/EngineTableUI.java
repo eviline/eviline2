@@ -47,7 +47,10 @@ public class EngineTableUI {
 			private int drawn = 0;
 			@Override
 			public void run() {
-				ai.tick();
+				for(Command c = ai.tick(); c == Command.NOP && !engine.isOver(); c = ai.tick())
+					engine.tick(c);
+				if(engine.isOver())
+					return;
 				engine.setShape(ai.getDest());
 				engine.tick(Command.SHIFT_DOWN);
 				ai.getCommands().clear();

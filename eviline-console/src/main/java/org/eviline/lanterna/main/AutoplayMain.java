@@ -145,10 +145,14 @@ public class AutoplayMain {
 		@Override
 		public void run() {
 			while(!engine.isOver() && !Thread.interrupted()) {
-				Command c = player.tick();
-				engine.tick(c);
-				if(engine.getShape() == -1)
-					player.setAllowDrops(!syncDisplay);
+				for(Command c = player.tick(); c == Command.NOP && !engine.isOver(); c = player.tick())
+					engine.tick(c);
+				if(engine.isOver())
+					break;
+				engine.setShape(player.getDest());
+				engine.tick(Command.SHIFT_DOWN);
+				player.getCommands().clear();
+				player.setAllowDrops(!syncDisplay);
 				if(syncDisplay)
 					blockingDraw.run();
 				else if(engine.getShape() == -1) {
