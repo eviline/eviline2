@@ -189,7 +189,7 @@ public class DefaultAIKernel implements AIKernel {
 			} catch(Exception e) {
 				throw new RuntimeException(e);
 			}
-			if(shapeBest.score < best.score)
+			if(BEST_ORDER.compare(shapeBest, best) < 0)
 				best = shapeBest;
 		}
 
