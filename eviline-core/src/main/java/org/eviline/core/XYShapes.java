@@ -87,8 +87,8 @@ public class XYShapes {
 		KickTable kt = (shape = shapeFromInt(xyshape)).leftKick();
 		int[] kicked = new int[kt.table().length];
 		for(int i = 0; i < kicked.length; i++) {
-			int kx = x + kt.table()[i][0];
-			int ks = kicked[i] = toXYShape(kx, y + kt.table()[i][1], shape);
+			int kx = x - kt.table()[i][0];
+			int ks = kicked[i] = toXYShape(kx, y - kt.table()[i][1], shape);
 			if(xFromInt(ks) != kx)
 				kicked[i] = -1;
 		}
@@ -102,8 +102,8 @@ public class XYShapes {
 		KickTable kt = (shape = shapeFromInt(xyshape)).rightKick();
 		int[] kicked = new int[kt.table().length];
 		for(int i = 0; i < kicked.length; i++) {
-			int kx = x + kt.table()[i][0];
-			int ks = kicked[i] = toXYShape(kx, y + kt.table()[i][1], shape);
+			int kx = x - kt.table()[i][0];
+			int ks = kicked[i] = toXYShape(kx, y - kt.table()[i][1], shape);
 			if(xFromInt(ks) != kx)
 				kicked[i] = -1;
 		}
