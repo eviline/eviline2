@@ -253,15 +253,13 @@ public class DefaultAIKernel implements AIKernel {
 		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null);
 		Collection<Future<Best>> futs = new ArrayList<>();
 		
+		final List<ShapeType> bag = Arrays.asList(shapes.getBag());
+		
 		for(final ShapeType type : new HashSet<>(Arrays.asList(shapes.getBag()))) {
 			Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
 				@Override
 				public Best call() throws Exception {
-					int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
-					Best shapeBest = bestPlacement(field, fbestPlayed, currentShape, ShapeType.NONE, 1);
-					List<ShapeType> nextBag = new ArrayList<>(Arrays.asList(shapes.getBag()));
-					nextBag.remove(type);
-					Best shapeWorst = worstNext(field, shapeBest.after, nextBag, lookahead, type);
+					Best shapeWorst = worstNext(field, field, bag, lookahead, type);
 					return new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
 				}
 			};
