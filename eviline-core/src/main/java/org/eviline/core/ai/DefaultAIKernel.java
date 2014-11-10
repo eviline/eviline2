@@ -10,13 +10,16 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
@@ -29,6 +32,16 @@ public class DefaultAIKernel implements AIKernel {
 				0, 32, 
 				30, TimeUnit.SECONDS, 
 				new SynchronousQueue<Runnable>(), 
+				new ThreadFactory() {
+					private ThreadFactory wrapped = Executors.defaultThreadFactory();
+					@Override
+					public Thread newThread(Runnable r) {
+						Thread t = wrapped.newThread(r);
+						t.setDaemon(true);
+						t.setPriority(Math.max(Thread.MIN_PRIORITY, t.getPriority() - 1));
+						return t;
+					}
+				},
 				new CallerRunsPolicy());
 	}
 
