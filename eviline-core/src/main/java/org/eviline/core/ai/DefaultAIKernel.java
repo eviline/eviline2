@@ -282,7 +282,7 @@ public class DefaultAIKernel implements AIKernel {
 		return worst.type;
 	}
 
-	protected Best worstNext(Field originalField, Field currentField, List<ShapeType> bag, int lookahead, ShapeType type) {
+	protected Best worstNext(final Field originalField, final Field currentField, List<ShapeType> bag, final int lookahead, ShapeType type) {
 		if(lookahead == 0 || bag.size() == 0) {
 			return new Best(null, -1, fitness.badness(originalField, currentField, new ShapeType[] {type}), currentField, null);
 		}
@@ -292,17 +292,43 @@ public class DefaultAIKernel implements AIKernel {
 		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null);
 		
 		int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
-		Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1);
-		List<ShapeType> nextBag = new ArrayList<>(bag);
+		final Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1);
+		final List<ShapeType> nextBag = new ArrayList<>(bag);
 		nextBag.remove(type);
+		
+		Collection<Future<Best>> futs = new ArrayList<Future<Best>>();
+		
 		if(nextBag.size() > 0) {
-			for(ShapeType next : EnumSet.copyOf(nextBag)) {
-				Best shapeWorst = worstNext(originalField, shapeBest.after, nextBag, lookahead - 1, next);
-				if(shapeWorst.score > worst.score)
-					worst = new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
+			for(final ShapeType next : EnumSet.copyOf(nextBag)) {
+				Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
+					@Override
+					public Best call() throws Exception {
+						return worstNext(originalField, shapeBest.after, nextBag, lookahead - 1, next);
+					}
+				};
+				FutureTask<Best> fut = new FutureTask<Best>(task);
+				exec.execute(fut);
+				futs.add(fut);
 			}
 		} else {
-			Best shapeWorst = worstNext(originalField, shapeBest.after, nextBag, lookahead - 1, null);
+			Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
+				@Override
+				public Best call() throws Exception {
+					return worstNext(originalField, shapeBest.after, nextBag, lookahead - 1, null);
+				}
+			};
+			FutureTask<Best> fut = new FutureTask<Best>(task);
+			fut.run();
+			futs.add(fut);
+		}
+		
+		for(Future<Best> fut : futs) {
+			Best shapeWorst;
+			try {
+				shapeWorst = fut.get();
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
 			if(shapeWorst.score > worst.score)
 				worst = new Best(null, shapeWorst.shape, shapeWorst.score, shapeWorst.after, type);
 		}
