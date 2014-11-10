@@ -283,7 +283,7 @@ public enum Shape {
 		throw new InternalError("impossible switch fallthrough");
 	}
 	
-	public KickTable rightKick() {
+	public KickTable leftKick() {
 		switch(this) {
 		case S_UP: 
 		case Z_UP:
@@ -325,7 +325,7 @@ public enum Shape {
 		throw new InternalError("impossible switch fallthrough");
 	}
 	
-	public KickTable leftKick() {
+	public KickTable rightKick() {
 		switch(this) {
 		case S_UP: 
 		case Z_UP:

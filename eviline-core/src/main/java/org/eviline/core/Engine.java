@@ -177,6 +177,8 @@ public class Engine implements Cloneable {
 				success = true;
 			} else {
 				for(int kicked : XYShapes.kickedLeft(moved)) {
+					if(kicked == -1)
+						continue;
 					if(!field.intersects(kicked)) {
 						shape = kicked;
 						success = true;
@@ -194,6 +196,8 @@ public class Engine implements Cloneable {
 				success = true;
 			} else {
 				for(int kicked : XYShapes.kickedRight(moved)) {
+					if(kicked == -1)
+						continue;
 					if(!field.intersects(kicked)) {
 						shape = kicked;
 						success = true;

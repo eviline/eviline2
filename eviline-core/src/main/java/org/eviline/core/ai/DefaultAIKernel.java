@@ -79,7 +79,7 @@ public class DefaultAIKernel implements AIKernel {
 		final CommandGraph g = new CommandGraph(field, current);
 		double badness = Double.POSITIVE_INFINITY;
 		
-		Best best = new Best(null, -1, Double.POSITIVE_INFINITY, field, null);
+		Best best = new Best(null, current, Double.POSITIVE_INFINITY, field, null);
 		
 		final int nextShape;
 		final ShapeType[] nextNext;

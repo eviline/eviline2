@@ -11,6 +11,7 @@ public class AIPlayer implements Player {
 	protected AIKernel ai;
 	protected Engine engine;
 	
+	protected CommandGraph graph;
 	protected int dest;
 	protected Deque<Command> commands = new ArrayDeque<>();
 	
@@ -30,30 +31,34 @@ public class AIPlayer implements Player {
 	public Command tick() {
 		if(engine.isOver()) {
 			dest = -1;
+			graph = null;
 			return Command.NOP;
 		}
 		
 		if(commands.size() == 0) {
-			if(engine.getShape() == -1)
+			if(engine.getShape() == -1) {
+				dest = -1;
+				graph = null;
 				return Command.NOP;
-			CommandGraph g = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext(), lookahead);
-			int shape = g.getSelectedShape();
+			}
+			graph = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext(), lookahead);
+			int shape = graph.getSelectedShape();
 			dest = shape;
-			Command c = CommandGraph.commandOf(g.getVertices(), shape);
+			Command c = CommandGraph.commandOf(graph.getVertices(), shape);
 			while(c != null) {
 				if(c != Command.SOFT_DROP || allowDrops) {
 					commands.offerFirst(c);
 				} else { // it's a soft drop
-					int originShape = CommandGraph.originOf(g.getVertices(), shape);
+					int originShape = CommandGraph.originOf(graph.getVertices(), shape);
 					int undropping = shape;
 					while(undropping != originShape) {
 						commands.offerFirst(Command.SHIFT_DOWN);
 						undropping = XYShapes.shiftedUp(undropping);
 					}
 				}
-				if(CommandGraph.originOf(g.getVertices(), shape) != CommandGraph.NULL_ORIGIN) {
-					shape = CommandGraph.originOf(g.getVertices(), shape);
-					c = CommandGraph.commandOf(g.getVertices(), shape);
+				if(CommandGraph.originOf(graph.getVertices(), shape) != CommandGraph.NULL_ORIGIN) {
+					shape = CommandGraph.originOf(graph.getVertices(), shape);
+					c = CommandGraph.commandOf(graph.getVertices(), shape);
 				} else
 					c = null;
 				
@@ -71,6 +76,10 @@ public class AIPlayer implements Player {
 	
 	public int getDest() {
 		return dest;
+	}
+	
+	public CommandGraph getGraph() {
+		return graph;
 	}
 	
 	public Deque<Command> getCommands() {
