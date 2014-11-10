@@ -98,7 +98,7 @@ public class DefaultAIKernel implements AIKernel {
 		
 		Collection<Future<Best>> futs = new ArrayList<Future<Best>>();
 		
-		for(int i : XYShapes.CANONICAL_SHAPES) {
+		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			final int shape;
 			if(CommandGraph.originOf(vertices, shape = i) == CommandGraph.NULL_ORIGIN)
 				continue;
@@ -163,7 +163,7 @@ public class DefaultAIKernel implements AIKernel {
 		
 		Collection<Future<Best>> futs = new ArrayList<Future<Best>>();
 		
-		for(int i : XYShapes.CANONICAL_SHAPES) {
+		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			if(CommandGraph.originOf(g.getVertices(), i) == CommandGraph.NULL_ORIGIN)
 				continue;
 			final int shape = i;
