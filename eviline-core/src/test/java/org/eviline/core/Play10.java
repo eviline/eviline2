@@ -3,8 +3,6 @@ package org.eviline.core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executors;
-
 import org.eviline.core.ai.AIPlayer;
 import org.eviline.core.ai.DefaultAIKernel;
 import org.eviline.core.ai.NextFitness;
@@ -13,7 +11,6 @@ public class Play10 {
 
 	public static void main(String[] args) {
 		DefaultAIKernel aik = new DefaultAIKernel(new NextFitness());
-		aik.setExec(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
 		Engine engine = new Engine();
 		AIPlayer ai = new AIPlayer(aik, engine, 0);
 

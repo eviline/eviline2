@@ -13,14 +13,10 @@ import com.googlecode.lanterna.gui.listener.ContainerListener;
 
 public class EngineWindow extends BorderLayoutWindow {
 
-	protected Engine engine;
-	
 	protected EngineComponent engineComponent;
 	
 	public EngineWindow(Engine engine) {
 		super("eviline2");
-		
-		this.engine = engine;
 		
 		addComponent(engineComponent = new EngineComponent(engine), BorderLayout.LEFT);
 		
@@ -28,6 +24,14 @@ public class EngineWindow extends BorderLayoutWindow {
 
 	public EngineComponent getEngineComponent() {
 		return engineComponent;
+	}
+	
+	public Engine getEngine() {
+		return getEngineComponent().getEngine();
+	}
+	
+	public void setEngine(Engine engine) {
+		getEngineComponent().setEngine(engine);
 	}
 	
 }

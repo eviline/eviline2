@@ -2,18 +2,12 @@ package org.eviline.core.ai;
 
 import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
+import org.eviline.core.Shorts;
 
 public class NextFitness implements CoefficientFitness {
 	protected double[] c = new double[] {
 			
-			1.237927804539232, 0.8372468711750208, 7.519580036189341, 10.033990328817746, 1.6673921025605043,
-			0.5178969800542423, 0.24288633752976954, 6.438465550239929, 9.871760760944694, 0.05425830048215226, 
-			0.6790464784623796, 0.38176680864140417, 6.869751319530422, 10.79022022563639, 0.4525433663884086, 
-			0.2664348042411383, 0.722177388620118, 7.249679564781709, 10.680110523075603, 0.5189993680009173, 
-			0.11361240918625945, 0.1906553839776781, 7.005125364622191, 11.060907553982656, 0.5485864620427946, 
-			0.1415756319975379, 0.26959094150436874, 6.929180876582973, 11.297784112284274, 0.10830436007345118, 
-			0.3075125387781086, 0.3283471962333028, 6.437827502218317, 9.839017715267227, 0.08885843452382965, 
-			0.3596909282666165, 0.39077370583109533, 6.967421549234407, 9.327408215527983, 0.3969266275225346
+			1.2679804572064999, 1.0272292414104676, 7.655827848467139, 10.088232811812162, 1.4267745527163131, 0.39861934969609003, 0.24361882869666313, 6.453569497353521, 10.016604664812673, 0.07926182456021921, 0.7791633967804836, 0.7694635299746428, 6.870637915792503, 10.80755214008806, 0.8167210672214846, 0.12377837285019885, 0.6429246277988085, 7.556908307880067, 9.934255098506545, 0.4639757448678689, 0.016568478430921352, 0.10555340388492203, 7.241333008965312, 10.6812229565033, 0.1439745896373311, 0.11723810154521, 0.14855102076666332, 6.918430322592078, 11.403059882769503, 0.18970498483145265, 0.10142969642424475, 0.13732731066467305, 6.456079166529966, 9.732660283354484, 0.4739252562195801, 0.40268790838764773, 0.6398284028570906, 6.966444592184877, 9.693477035388883, 0.42874147210642705
 
 	};
 	
@@ -49,36 +43,39 @@ public class NextFitness implements CoefficientFitness {
 		int pitsBefore = 0;
 		int pitsAfter = 0;
 		
+		short[] beforeMasks = new short[Field.HEIGHT + 4];
+		short[] afterMasks = new short[Field.HEIGHT + 4];
+
 		for(int y = -4; y < Field.HEIGHT; y++) {
-			long bm = before.mask(y);
-			long am = after.mask(y);
+			short bm = beforeMasks[y+4] = before.mask(y);
+			short am = afterMasks[y+4] = after.mask(y);
 			
 			if(bm != 0 && mhBefore == 0)
 				mhBefore = Field.HEIGHT - y;
 			if(am != 0 && mhAfter == 0)
 				mhAfter = Field.HEIGHT - y;
 			
-			blocksBefore += Long.bitCount(bm);
-			blocksAfter += Long.bitCount(am);
+			blocksBefore += Shorts.bitCount(bm);
+			blocksAfter += Shorts.bitCount(am);
 			
-			htxBefore += Long.bitCount(0b1111111110 & (bm ^ (bm << 1)));
-			htxAfter += Long.bitCount(0b1111111110 & (am ^ (am << 1)));
+			htxBefore += Shorts.bitCount(0b1111111110 & (bm ^ (bm << 1)));
+			htxAfter += Shorts.bitCount(0b1111111110 & (am ^ (am << 1)));
 			
-			pitsBefore += Long.bitCount((bm ^ (bm << 1)) & (bm ^ (bm >>> 1)));
-			pitsAfter += Long.bitCount((am ^ (am << 1)) & (am ^ (am >>> 1)));
+			pitsBefore += Shorts.bitCount((bm ^ (bm << 1)) & (bm ^ (bm >>> 1)));
+			pitsAfter += Shorts.bitCount((am ^ (am << 1)) & (am ^ (am >>> 1)));
 		}
 
-		long bhm = 0;
-		long ahm = 0;
+		short bhm = 0;
+		short ahm = 0;
 		for(int y = -3; y < Field.HEIGHT; y++) {
-			bhm |= before.mask(y-1);
-			ahm |= after.mask(y-1);
+			bhm |= beforeMasks[y+3];
+			ahm |= afterMasks[y+3];
 			
-			vtxBefore += Long.bitCount(before.mask(y-1) ^ before.mask(y));
-			vtxAfter += Long.bitCount(after.mask(y-1) ^ after.mask(y));
+			vtxBefore += Shorts.bitCount(beforeMasks[y+3] ^ beforeMasks[y+4]);
+			vtxAfter += Shorts.bitCount(afterMasks[y+3] ^ afterMasks[y+4]);
 			
-			holesBefore += Long.bitCount(bhm & (bhm ^ before.mask(y)));
-			holesAfter += Long.bitCount(ahm & (ahm ^ after.mask(y)));
+			holesBefore += Shorts.bitCount(bhm & (bhm ^ beforeMasks[y+4]));
+			holesAfter += Shorts.bitCount(ahm & (ahm ^ afterMasks[y+4]));
 		}
 		
 		return 

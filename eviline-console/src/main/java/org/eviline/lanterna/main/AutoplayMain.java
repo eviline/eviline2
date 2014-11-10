@@ -2,15 +2,25 @@ package org.eviline.lanterna.main;
 
 import java.awt.EventQueue;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.imageio.ImageIO;
+import javax.swing.JPanel;
 
 import org.eviline.core.Command;
 import org.eviline.core.Configuration;
@@ -18,7 +28,6 @@ import org.eviline.core.Engine;
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
-
 import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.AIPlayer;
 import org.eviline.core.ai.DefaultAIKernel;
@@ -44,76 +53,127 @@ import com.googlecode.lanterna.gui.listener.WindowAdapter;
 import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.terminal.swing.SwingTerminal;
 import com.googlecode.lanterna.terminal.swing.TerminalAppearance;
 import com.googlecode.lanterna.terminal.swing.TerminalPalette;
 
 public class AutoplayMain {
+	private static final int MAX_LOOKAHEAD = 3;
+	
+	private static class ManualScreen extends Screen {
+		
+		public ManualScreen(Terminal terminal) {
+			super(terminal);
+		}
+		
+		public void manualRefresh() {
+			super.refresh();
+		}
+
+		@Override
+		public void refresh() {
+		}
+		
+	}
+
 	private static Engine engine;
 	private static EngineScreen gui;
+	private static ManualScreen mscreen;
 	private static EngineWindow w;
 	private static DefaultAIKernel ai;
 	private static AIPlayer player;
 	private static boolean syncDisplay = false;
-	private static boolean drawing = false;
-	
-	private static ExecutorService exec;
-	
-	private static Runnable drawer = new Runnable() {
-		private Semaphore lock = new Semaphore(0);
+
+	private static ScheduledExecutorService exec;
+
+	private static ReentrantLock drawLock = new ReentrantLock();
+
+	private static Runnable blockingDraw = new Runnable() {
+		private Semaphore sync = new Semaphore(0);
 		@Override
 		public void run() {
-			drawing = true;
+			final Engine e = AutoplayMain.engine.clone();
 			gui.runInEventThread(new Action() {
 				@Override
 				public void doAction() {
-					synchronized(engine) {
-						while(engine.getShape() == -1 && !engine.isOver())
-							engine.tick(Command.NOP);
-						w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + engine.getNext().length + " lines:" + engine.getLines());
-						gui.invalidate();
-						gui.update();
-						lock.release();
+					drawLock.lock();
+					w.setEngine(e);
+					w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + MAX_LOOKAHEAD + " lines:" + e.getLines());
+					mscreen.manualRefresh();
+					if(syncDisplay && (gui.getScreen().getTerminal() instanceof SwingTerminal)) {
+						final SwingTerminal st = (SwingTerminal) gui.getScreen().getTerminal();
+						EventQueue.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								JPanel p = (JPanel) st.getJFrame().getContentPane();
+								p.paintImmediately(p.getBounds());
+								sync.release();
+							}
+						});
+					} else {
+						sync.release();
 					}
+					drawLock.unlock();
 				}
 			});
-			lock.acquireUninterruptibly();
-			drawing = false;
+			sync.acquireUninterruptibly();
+		}
+	};
+
+	private static Runnable nonblockingDraw = new Runnable() {
+
+		@Override
+		public void run() {
+			final Engine e = AutoplayMain.engine.clone();
+			gui.runInEventThread(new Action() {
+				@Override
+				public void doAction() {
+					if(!drawLock.tryLock())
+						return;
+					w.setEngine(e);
+					w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + MAX_LOOKAHEAD + " lines:" + e.getLines());
+					mscreen.manualRefresh();
+					drawLock.unlock();
+				}
+			});
 		}
 	};
 
 	private static Runnable ticker = new Runnable() {
 		@Override
 		public void run() {
-			synchronized(engine) {
-				Command c = player.tick();
-				if(!engine.isOver())
+			while(!engine.isOver() && !Thread.interrupted()) {
+				for(Command c = player.tick(); c == Command.NOP && !engine.isOver(); c = player.tick())
 					engine.tick(c);
+				if(engine.isOver())
+					break;
+				if(syncDisplay)
+					blockingDraw.run();
+				else
+					nonblockingDraw.run();
+				engine.setShape(player.getDest());
+				engine.tick(Command.SHIFT_DOWN);
+				player.getCommands().clear();
+				player.setAllowDrops(!syncDisplay);
 			}
-			if(syncDisplay || engine.getShape() == -1) {
-				drawer.run();
-				if(!engine.isOver())
-					exec.execute(ticker);
-			} else {
-				if(!drawing)
-					exec.execute(drawer);
-				if(!engine.isOver())
-					exec.execute(ticker);
-			}
+			blockingDraw.run();
 		}
 	};
+
+	private static Future<?> tickerFuture;
 	
 	public static void main(String... args) throws Exception {
 		Field field = new Field();
 
 		engine = new Engine(field, new Configuration(null, 1));
 
-		engine.setNext(new ShapeType[3]);
+		engine.setNext(new ShapeType[4]);
 
 		Terminal term;
 		try {
 			term = TerminalFacade.createUnixTerminal();
-			Screen screen = TerminalFacade.createScreen(term);
-			gui = new EngineScreen(screen);
+			mscreen = new ManualScreen(term);
+			gui = new EngineScreen(mscreen);
 			gui.getScreen().startScreen();
 			gui.getScreen().stopScreen();
 		} catch(Exception e) {
@@ -125,11 +185,11 @@ public class AutoplayMain {
 							TerminalPalette.XTERM,
 							true)
 					);
-			Screen screen = TerminalFacade.createScreen(term);
-			gui = new EngineScreen(screen);
+			mscreen = new ManualScreen(term);
+			gui = new EngineScreen(mscreen);
 		}
-
-		exec = Executors.newFixedThreadPool(2);
+		
+		exec = Executors.newScheduledThreadPool(3);
 
 		w = new EngineWindow(engine);
 		Panel p = new Panel(Orientation.VERTICAL);
@@ -153,21 +213,17 @@ public class AutoplayMain {
 					System.exit(0);
 					break;
 				case 'r':
-					synchronized(engine) {
-						boolean retick = engine.isOver();
-						engine.reset();
-						if(retick)
-							exec.execute(ticker);
-					}
+					tickerFuture.cancel(true);
+					engine.reset();
+					tickerFuture = exec.submit(ticker);
 					break;
 				case 's':
 					syncDisplay = !syncDisplay;
-					player.setAllowDrops(!syncDisplay);
 					break;
 				}
 				switch(key.getKind()) {
 				case ArrowUp:
-					if(player.getLookahead() < engine.getNext().length)
+					if(player.getLookahead() < MAX_LOOKAHEAD)
 						player.setLookahead(player.getLookahead() + 1);
 					break;
 				case ArrowDown:
@@ -179,19 +235,12 @@ public class AutoplayMain {
 
 		ai = new DefaultAIKernel();
 		ai.setFitness(new NextFitness());
-		ai.setExec(Executors.newCachedThreadPool(new ThreadFactory() {
-			@Override
-			public Thread newThread(Runnable arg0) {
-				Thread t = new Thread(arg0);
-				t.setDaemon(true);
-				return t;
-			}
-		}));
 		player = new AIPlayer(ai, engine, 1);
+		player.setAllowDrops(true);
 
+		tickerFuture = exec.submit(ticker);
+//		exec.scheduleAtFixedRate(nonblockingDraw, 100, 100, TimeUnit.MILLISECONDS);
 		
-		exec.execute(ticker);
-
 		gui.getScreen().startScreen();
 
 		gui.showWindow(w);

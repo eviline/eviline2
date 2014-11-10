@@ -14,11 +14,11 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
 import com.googlecode.lanterna.terminal.TerminalSize;
 
 public class EngineComponent extends AbstractComponent {
-	
+
 	protected ShapeTypeColor color;
 	protected Engine engine;
 	protected boolean ghosting;
-	
+
 	public EngineComponent(Engine engine) {
 		this.engine = engine;
 		color = new ShapeTypeColor();
@@ -40,24 +40,23 @@ public class EngineComponent extends AbstractComponent {
 		g.setBackgroundColor(Color.BLACK);
 		g.setForegroundColor(Color.BLACK);
 		g.fillArea(' ');
-		synchronized(engine) {
-			for(int y = -Field.BUFFER; y < Field.HEIGHT; y++) {
-				for(int x = 0; x < Field.WIDTH; x++) {
-					Block b = engine.block(x, y);
-					ShapeType t = null;
-					if(ghosting && b == null && engine.getGhost() != -1 && XYShapes.has(engine.getGhost(), x, y))
-						t = ShapeType.G;
-					if(t == null && b != null)
-						t = b.shape().type();
-					if(t != null) {
-						g.setBackgroundColor(color.bg(t));
-						g.setForegroundColor(color.fg(t));
-						g.drawString(x*2, y + Field.BUFFER, "\u2592\u2592", ScreenCharacterStyle.Bold);
-					} else if(y == -1) {
-						g.setBackgroundColor(Color.BLACK);
-						g.setForegroundColor(Color.WHITE);
-						g.drawString(x*2, y + Field.BUFFER, "\u2581\u2581");
-					}
+
+		for(int y = -Field.BUFFER; y < Field.HEIGHT; y++) {
+			for(int x = 0; x < Field.WIDTH; x++) {
+				Block b = engine.block(x, y);
+				ShapeType t = null;
+				if(ghosting && b == null && engine.getGhost() != -1 && XYShapes.has(engine.getGhost(), x, y))
+					t = ShapeType.G;
+				if(t == null && b != null)
+					t = b.shape().type();
+				if(t != null) {
+					g.setBackgroundColor(color.bg(t));
+					g.setForegroundColor(color.fg(t));
+					g.drawString(x*2, y + Field.BUFFER, "\u2592\u2592", ScreenCharacterStyle.Bold);
+				} else if(y == -1) {
+					g.setBackgroundColor(Color.BLACK);
+					g.setForegroundColor(Color.WHITE);
+					g.drawString(x*2, y + Field.BUFFER, "\u2581\u2581");
 				}
 			}
 		}
@@ -76,4 +75,11 @@ public class EngineComponent extends AbstractComponent {
 		this.ghosting = ghosting;
 	}
 
+	public Engine getEngine() {
+		return engine;
+	}
+	
+	public void setEngine(Engine engine) {
+		this.engine = engine;
+	}
 }

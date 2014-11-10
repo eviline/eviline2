@@ -6,5 +6,6 @@ import org.eviline.core.ShapeType;
 
 public interface AIKernel {
 	public CommandGraph bestPlacement(Field field, int shape, ShapeType[] next, int lookahead);
+	public ShapeType bestNext(Field field, ShapeSource shapes, ShapeType[] next, int lookahead);
 	public ShapeType worstNext(Field field, ShapeSource shapes, ShapeType[] next, int lookahead);
 }

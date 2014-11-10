@@ -5,7 +5,25 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class Engine {
+public class Engine implements Cloneable {
+	private static class ImmutableBagSource implements ShapeSource {
+		private final ShapeType[] bag;
+
+		private ImmutableBagSource(ShapeType[] bag) {
+			this.bag = bag;
+		}
+
+		@Override
+		public ShapeType next(Engine engine) {
+			return null;
+		}
+
+		@Override
+		public ShapeType[] getBag() {
+			return bag;
+		}
+	}
+
 	protected Configuration conf;
 	protected Field field;
 	
@@ -38,7 +56,23 @@ public class Engine {
 		respawnFramesRemaining = conf.respawnFramesRemaining(this);
 	}
 	
-	public void reset() {
+	public synchronized Engine clone() {
+		try {
+			Engine c = (Engine) super.clone();
+			
+			c.field = field.clone();
+			c.shapes = new ImmutableBagSource(shapes.getBag());
+			c.next = next.clone();
+			if(listeners != null)
+				c.listeners = listeners.clone();
+			
+			return c;
+		} catch(CloneNotSupportedException e) {
+			throw new InternalError();
+		}
+	}
+	
+	public synchronized void reset() {
 		field.reset();
 		shape = -1;
 		shapeId = 0;
@@ -79,9 +113,17 @@ public class Engine {
 			field.shiftUp(tm);
 	}
 	
-	public boolean tick(Command c) {
+	public synchronized boolean tick(Command c) {
 		if(isPaused())
 			return false;
+		if(shape == -1) {
+			int cleared = field.clearLines();
+			if(cleared > 0) {
+				lines += cleared;
+				score += cleared * cleared - 1;
+				return true;
+			}
+		}
 		boolean success = false;
 		boolean locked = false;
 		switch(c) {
@@ -224,11 +266,11 @@ public class Engine {
 			}
 		}
 		
-		if(locked) {
-			int cleared = field.clearLines();
-			lines += cleared;
-			score += cleared * cleared * cleared;
-		}
+//		if(locked) {
+//			int cleared = field.clearLines();
+//			lines += cleared;
+//			score += cleared * cleared * cleared;
+//		}
 		
 		if(shape == -1) {
 			if(respawnFramesRemaining == null) {
