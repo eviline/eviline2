@@ -93,9 +93,7 @@ public class DefaultAIKernel implements AIKernel {
 			
 		int[] vertices = g.getVertices();
 		
-		final List<Callable<Best>> tasks = new ArrayList<Callable<Best>>();
-		final ExecutorCompletionService<Best> cs = new ExecutorCompletionService<Best>(exec);
-		final AtomicInteger incomplete = new AtomicInteger(0);
+		Collection<Future<Best>> futs = new ArrayList<Future<Best>>();
 		
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			final int shape;
@@ -108,45 +106,22 @@ public class DefaultAIKernel implements AIKernel {
 			Callable<Best> task = new Callable<Best>() {
 				@Override
 				public Best call() throws Exception {
-					try {
 						Field after = field.clone();
 						after.blit(shape, 0);
 						Best b = bestPlacement(field, after, nextShape, nextNext, lookahead);
 						Best best = new Best(g, shape, b.score, b.after, XYShapes.shapeFromInt(shape).type());
 						return best;
-					} finally {
-						synchronized(incomplete) {
-							if(incomplete.decrementAndGet() == 0) {
-								incomplete.notify();
-							}
-						}
-					}
 				}
 			};
 			
-			tasks.add(task);
+			FutureTask<Best> fut = new FutureTask<Best>(task);
+			exec.execute(fut);
+			futs.add(fut);
 		}
 		
-		int totalTasks = tasks.size();
-		
-		synchronized(incomplete) {
-			incomplete.addAndGet(tasks.size());
-			for(Callable<Best> task : tasks)
-				cs.submit(task);
-			while(incomplete.get() > 0) {
-				try {
-					incomplete.wait();
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		
-		for(int i = 0; i < totalTasks; i++) {
-			Future<Best> fut;
+		for(Future<Best> fut : futs) {
 			Best b;
 			try {
-				fut = cs.take();
 				b = fut.get();
 			} catch(Exception e) {
 				throw new RuntimeException(e);
@@ -185,9 +160,7 @@ public class DefaultAIKernel implements AIKernel {
 			nextNext = null;
 		}
 		
-		final ExecutorCompletionService<Best> cs = new ExecutorCompletionService<Best>(exec);
-		final List<Callable<Best>> tasks = new ArrayList<Callable<Best>>();
-		final AtomicInteger incomplete = new AtomicInteger(0);
+		Collection<Future<Best>> futs = new ArrayList<Future<Best>>();
 		
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			if(CommandGraph.originOf(g.getVertices(), i) == CommandGraph.NULL_ORIGIN)
@@ -199,42 +172,21 @@ public class DefaultAIKernel implements AIKernel {
 			Callable<Best> task = new Callable<Best>() {
 				@Override
 				public Best call() throws Exception {
-					try {
-						Field nextField = currentField.clone();
-						nextField.blit(shape, 0);
-						return bestPlacement(originalField, nextField, nextShape, nextNext, lookahead - 1);
-					} finally {
-						synchronized(incomplete) {
-							if(incomplete.decrementAndGet() == 0) {
-								incomplete.notify();
-							}
-						}
-					}
+					Field nextField = currentField.clone();
+					nextField.blit(shape, 0);
+					return bestPlacement(originalField, nextField, nextShape, nextNext, lookahead - 1);
 				}
 			};
-
-			tasks.add(task);
+			
+			FutureTask<Best> fut = new FutureTask<Best>(task);
+			exec.execute(fut);
+			futs.add(fut);
 		}
 		
-		int totalTasks = tasks.size();
-		
-		synchronized(incomplete) {
-			incomplete.addAndGet(tasks.size());
-			for(Callable<Best> task : tasks)
-				cs.submit(task);
-			while(incomplete.get() > 0) {
-				try {
-					incomplete.wait();
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		
-		for(int i = 0; i < totalTasks; i++) {
+		for(Future<Best> fut : futs) {
 			Best shapeBest;
 			try {
-				shapeBest = cs.take().get();
+				shapeBest = fut.get();
 			} catch(Exception e) {
 				throw new RuntimeException(e);
 			}
