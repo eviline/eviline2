@@ -32,16 +32,6 @@ public class DefaultAIKernel implements AIKernel {
 				0, 32, 
 				30, TimeUnit.SECONDS, 
 				new SynchronousQueue<Runnable>(), 
-				new ThreadFactory() {
-					private ThreadFactory wrapped = Executors.defaultThreadFactory();
-					@Override
-					public Thread newThread(Runnable r) {
-						Thread t = wrapped.newThread(r);
-						t.setDaemon(true);
-						t.setPriority(Math.max(Thread.MIN_PRIORITY, t.getPriority() - 1));
-						return t;
-					}
-				},
 				new CallerRunsPolicy());
 	}
 
