@@ -1,12 +1,10 @@
 package org.eviline.core.ai;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Deque;
 
 import org.eviline.core.Command;
 import org.eviline.core.Engine;
-import org.eviline.core.ShapeType;
 import org.eviline.core.XYShapes;
 
 public class AIPlayer implements Player {

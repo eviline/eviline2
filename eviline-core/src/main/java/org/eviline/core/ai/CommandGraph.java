@@ -1,12 +1,5 @@
 package org.eviline.core.ai;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eviline.core.Command;
 import org.eviline.core.Field;
 import org.eviline.core.XYShapes;

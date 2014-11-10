@@ -1,7 +1,5 @@
 package org.eviline.core;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 public class XYShapes {
 	public static final int SHAPE_MAX = toXYShape(15, 19, Shape.values()[Shape.values().length - 1]);
 	

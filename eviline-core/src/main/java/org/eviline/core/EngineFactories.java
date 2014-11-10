@@ -1,8 +1,5 @@
 package org.eviline.core;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 public class EngineFactories {
 
 	public static EngineFactory<Integer> createIntegerFactory(final Integer value) {
