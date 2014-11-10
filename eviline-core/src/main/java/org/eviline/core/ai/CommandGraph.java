@@ -65,7 +65,6 @@ public class CommandGraph {
 	}
 	
 	protected void searchRoot(int shape, Field f) {
-		shape = XYShapes.canonical(shape);
 		setVertex(shape, NULL_ORIGIN, NULL_COMMAND, 0);
 		search(shape, f);
 		while(pendingHead != pendingTail) {
@@ -77,7 +76,6 @@ public class CommandGraph {
 	}
 	
 	protected void maybeUpdate(int shape, int origin, Command command, int pathLength, Field f) {
-		shape = XYShapes.canonical(shape);
 		if(pathLength >= pathLengthOf(vertices, shape))
 			return;
 		setVertex(shape, origin, command.ordinal(), pathLength);
