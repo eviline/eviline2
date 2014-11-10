@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
@@ -98,6 +99,8 @@ public class DefaultAIKernel implements AIKernel {
 		
 		Collection<Future<Best>> futs = new ArrayList<Future<Best>>();
 		
+		Set<Integer> blitted = new HashSet<>();
+		
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			final int shape;
 			if(CommandGraph.originOf(vertices, shape = i) == CommandGraph.NULL_ORIGIN)
@@ -105,7 +108,10 @@ public class DefaultAIKernel implements AIKernel {
 			if(!field.intersects(XYShapes.shiftedDown(shape))) {
 				continue;
 			}
-
+			
+			if(!blitted.add(XYShapes.canonical(shape)))
+				continue;
+			
 			Callable<Best> task = new Callable<Best>() {
 				@Override
 				public Best call() throws Exception {
@@ -163,11 +169,16 @@ public class DefaultAIKernel implements AIKernel {
 		
 		Collection<Future<Best>> futs = new ArrayList<Future<Best>>();
 		
+		Set<Integer> blitted = new HashSet<>();
+		
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			if(CommandGraph.originOf(g.getVertices(), i) == CommandGraph.NULL_ORIGIN)
 				continue;
 			final int shape = i;
 			if(!currentField.intersects(XYShapes.shiftedDown(shape)))
+				continue;
+			
+			if(!blitted.add(XYShapes.canonical(shape)))
 				continue;
 			
 			Callable<Best> task = new Callable<Best>() {
