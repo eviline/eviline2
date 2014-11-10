@@ -12,6 +12,14 @@ public enum ShapeType {
 	G, // garbage
 	;
 	
+	public static final int S_ORD = 0;
+	public static final int Z_ORD = 1;
+	public static final int J_ORD = 2;
+	public static final int L_ORD = 3;
+	public static final int T_ORD = 4;
+	public static final int I_ORD = 5;
+	public static final int O_ORD = 6;
+	
 	public Shape start() {
 		switch(this) {
 		case S: return S_UP;

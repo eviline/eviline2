@@ -13,13 +13,17 @@ public class XYShapes {
 	}
 	
 	public static int toXYShape(int x, int y, Shape shape) {
+		return toXYShape(x, y, shape.ordinal());
+	}
+	
+	public static int toXYShape(int x, int y, int shape) {
 		int i = 0;
 		i |= ((x+3) & 0xf);
 		i |= (((y+8) & 0x1f) << 4);
-		i |= (shape.ordinal() << 9);
+		i |= (shape << 9);
 		return i;
 	}
-	
+
 	public static int xFromInt(int i) {
 		return (i & 0xf) - 3;
 	}
@@ -108,5 +112,43 @@ public class XYShapes {
 				kicked[i] = -1;
 		}
 		return kicked;
+	}
+	
+	private static final int UP = 1 << ShapeDirection.UP_ORD;
+	private static final int RIGHT = 1 << ShapeDirection.RIGHT_ORD;
+	private static final int DOWN = 1 << ShapeDirection.DOWN_ORD;
+	private static final int LEFT = 1 << ShapeDirection.LEFT_ORD;
+	
+	private static final int HAS_SYNONYM = (
+			(DOWN | RIGHT) << (ShapeType.S_ORD << 2) |
+			(DOWN | RIGHT) << (ShapeType.Z_ORD << 2) |
+			(DOWN | RIGHT) << (ShapeType.I_ORD << 2) |
+			(DOWN | RIGHT | LEFT) << (ShapeType.O_ORD << 2)
+			);
+	
+	public static boolean hasSynonym(int xyshape) {
+		int id = shapeIdFromInt(xyshape);
+		int synbit = 1 << id;
+		return (HAS_SYNONYM & synbit) != 0;
+	}
+	
+	public static int synonym(int xyshape) {
+		int id = shapeIdFromInt(xyshape);
+
+		int synbit = 1 << id;
+		if((HAS_SYNONYM & synbit) == 0)
+			return xyshape;
+		
+		int x = xFromInt(xyshape);
+		int y = yFromInt(xyshape);
+		
+		int dir = id & 0x3;
+		int type = id >>> 2;
+		if(type == ShapeType.O_ORD)
+			return toXYShape(x, type, (id & ~3) | ShapeDirection.UP_ORD);
+		else if(dir == ShapeDirection.RIGHT_ORD)
+			return toXYShape(x+1, y, (id & ~3) | ShapeDirection.LEFT_ORD);
+		else
+			return toXYShape(x, y+1, (id & ~3) | ShapeDirection.UP_ORD);
 	}
 }

@@ -62,135 +62,135 @@ public enum Shape {
 	
 	public static long shapeMask(int ord) {
 		switch(ord) {
-		case 0: 
+		case 0: // S_UP
 			return 
 					(0b0110L << 60) |
 					(0b1100L << 44) ;
-		case 1:
+		case 1: // S_RIGHT
 			return
 					(0b0100L << 60) |
 					(0b0110L << 44) |
 					(0b0010L << 28) ;
-		case 2:
+		case 2: // S_DOWN
 			return
 					(0b0000L << 60) |
 					(0b0110L << 44) |
 					(0b1100L << 28) ;
-		case 3:
+		case 3: // S_LEFT
 			return
 					(0b1000L << 60) |
 					(0b1100L << 44) |
 					(0b0100L << 28) ;
-		case 4:
+		case 4: // Z_UP
 			return
 					(0b1100L << 60) |
 					(0b0110L << 44) ;
-		case 5:
+		case 5: // Z_RIGHT
 			return
 					(0b0010L << 60) |
 					(0b0110L << 44) |
 					(0b0100L << 28) ;
-		case 6:
+		case 6: // Z_DOWN
 			return
 					(0b0000L << 60) |
 					(0b1100L << 44) |
 					(0b0110L << 28) ;
-		case 7:
+		case 7: // Z_LEFT
 			return
 					(0b0100L << 60) |
 					(0b1100L << 44) |
 					(0b1000L << 28) ;
-		case 8:
+		case 8: // J_UP
 			return
 					(0b1000L << 60) |
 					(0b1110L << 44) ;
-		case 9:
+		case 9: // J_RIGHT
 			return
 					(0b0110L << 60) |
 					(0b0100L << 44) |
 					(0b0100L << 28) ;
-		case 10:
+		case 10: // J_DOWN
 			return
 					(0b0000L << 60) |
 					(0b1110L << 44) |
 					(0b0010L << 28) ;
-		case 11:
+		case 11: // J_LEFT
 			return
 					(0b0100L << 60) |
 					(0b0100L << 44) |
 					(0b1100L << 28) ;
-		case 12:
+		case 12: // L_UP
 			return
 					(0b0010L << 60) |
 					(0b1110L << 44) ;
-		case 13:
+		case 13: // L_RIGHT
 			return
 					(0b0100L << 60) |
 					(0b0100L << 44) |
 					(0b0110L << 28) ;
-		case 14:
+		case 14: // L_DOWN
 			return
 					(0b0000L << 60) |
 					(0b1110L << 44) |
 					(0b1000L << 28) ;
-		case 15:
+		case 15: // L_LEFT
 			return
 					(0b1100L << 60) |
 					(0b0100L << 44) |
 					(0b0100L << 28) ;
-		case 16:
+		case 16: // T_UP
 			return
 					(0b0100L << 60) |
 					(0b1110L << 44) ;
-		case 17:
+		case 17: // T_RIGHT
 			return
 					(0b0100L << 60) |
 					(0b0110L << 44) |
 					(0b0100L << 28) ;
-		case 18:
+		case 18: // T_DOWN
 			return
 					(0b0000L << 60) |
 					(0b1110L << 44) |
 					(0b0100L << 28) ;
-		case 19:
+		case 19: // T_LEFT
 			return
 					(0b0100L << 60) |
 					(0b1100L << 44) |
 					(0b0100L << 28) ;
-		case 20:
+		case 20: // I_UP
 			return
 					(0b0000L << 60) |
 					(0b1111L << 44) ;
-		case 21:
+		case 21: // I_RIGHT
 			return
 					(0b0010L << 60) |
 					(0b0010L << 44) |
 					(0b0010L << 28) |
 					(0b0010L << 12) ;
-		case 22:
+		case 22: // I_DOWN
 			return
 					(0b0000L << 60) |
 					(0b0000L << 44) |
 					(0b1111L << 28) ;
-		case 23:
+		case 23: // I_LEFT
 			return
 					(0b0100L << 60) |
 					(0b0100L << 44) |
 					(0b0100L << 28) |
 					(0b0100L << 12) ;
-		case 24:
+		case 24: // O_UP
 			return
 					(0b1100L << 60) |
 					(0b1100L << 44);
-		case 25:
+		case 25: // O_RIGHT
 			return
 					(0b1100L << 60) |
 					(0b1100L << 44);
-		case 26:
+		case 26: // O_DOWN
 			return
 					(0b1100L << 60) |
 					(0b1100L << 44);
-		case 27:
+		case 27: // O_LEFT
 			return
 					(0b1100L << 60) |
 					(0b1100L << 44);
