@@ -92,6 +92,8 @@ public class CommandGraph {
 		int next;
 		
 		for(int kicked : XYShapes.kickedLeft(XYShapes.rotatedLeft(shape))) {
+			if(kicked == -1)
+				continue;
 			if(!f.intersects(kicked)) {
 				maybeUpdate(kicked, shape, Command.ROTATE_LEFT, nextPathLength, f);
 				break;
@@ -99,6 +101,8 @@ public class CommandGraph {
 		}
 		
 		for(int kicked : XYShapes.kickedRight(XYShapes.rotatedRight(shape))) {
+			if(kicked == -1)
+				continue;
 			if(!f.intersects(kicked)) {
 				maybeUpdate(kicked, shape, Command.ROTATE_RIGHT, nextPathLength, f);
 				break;
