@@ -209,7 +209,10 @@ public class DefaultAIKernel implements AIKernel {
 			};
 			
 			FutureTask<Best> fut = new FutureTask<Best>(task);
-			exec.execute(fut);
+			if(lookahead <= 1)
+				fut.run();
+			else
+				exec.execute(fut);
 			futs.add(fut);
 		}
 		
