@@ -7,7 +7,9 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
@@ -81,6 +83,8 @@ public class DefaultAIKernel implements AIKernel {
 	
 	protected boolean dropsOnly;
 	
+	protected int pruneTop = Integer.MAX_VALUE;
+	
 	public DefaultAIKernel() {}
 	
 	public DefaultAIKernel(Fitness fitness) {
@@ -112,6 +116,8 @@ public class DefaultAIKernel implements AIKernel {
 		
 		Set<Integer> blitted = new HashSet<>();
 		
+		Map<Double, Callable<Best>> tasks = new TreeMap<Double, Callable<Best>>();
+		
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			if(Thread.interrupted())
 				throw new RuntimeException(new InterruptedException());
@@ -125,20 +131,28 @@ public class DefaultAIKernel implements AIKernel {
 			if(!blitted.add(XYShapes.canonical(shape)))
 				continue;
 			
+			final Field after = field.clone();
+			after.blit(shape, 0);
+
 			Callable<Best> task = new Callable<Best>() {
 				@Override
 				public Best call() throws Exception {
-						Field after = field.clone();
-						after.blit(shape, 0);
 						Best b = bestPlacement(field, after, nextShape, nextNext, lookahead);
 						Best best = new Best(g, shape, b.score, after, XYShapes.shapeFromInt(shape).type(), b);
 						return best;
 				}
 			};
 			
+			double score = fitness.badness(field, after, nextNext);
+			tasks.put(score, task);
+		}
+		
+		for(Callable<Best> task : tasks.values()) {
 			FutureTask<Best> fut = new FutureTask<Best>(task);
 			exec.execute(fut);
 			futs.add(fut);
+			if(futs.size() >= pruneTop)
+				break;
 		}
 		
 		for(Future<Best> fut : futs) {
@@ -186,6 +200,8 @@ public class DefaultAIKernel implements AIKernel {
 		
 		Set<Integer> blitted = new HashSet<>();
 		
+		Map<Double, Callable<Best>> tasks = new TreeMap<Double, Callable<Best>>();
+		
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			if(Thread.interrupted())
 				throw new RuntimeException(new InterruptedException());
@@ -198,22 +214,30 @@ public class DefaultAIKernel implements AIKernel {
 			if(!blitted.add(XYShapes.canonical(shape)))
 				continue;
 			
+			final Field nextField = currentField.clone();
+			nextField.blit(shape, 0);
+
 			Callable<Best> task = new Callable<Best>() {
 				@Override
 				public Best call() throws Exception {
-					Field nextField = currentField.clone();
-					nextField.blit(shape, 0);
 					Best nextBest = bestPlacement(originalField, nextField, nextShape, nextNext, lookahead - 1);
 					return new Best(g, shape, nextBest.score, nextField, XYShapes.shapeFromInt(shape).type(), nextBest);
 				}
 			};
 			
+			double score = fitness.badness(originalField, nextField, nextNext);
+			tasks.put(score, task);
+		}
+		
+		for(Callable<Best> task : tasks.values()) {
 			FutureTask<Best> fut = new FutureTask<Best>(task);
 			if(lookahead <= 1)
 				fut.run();
 			else
 				exec.execute(fut);
 			futs.add(fut);
+			if(futs.size() >= pruneTop)
+				break;
 		}
 		
 		for(Future<Best> fut : futs) {
@@ -376,5 +400,13 @@ public class DefaultAIKernel implements AIKernel {
 
 	public void setDropsOnly(boolean dropsOnly) {
 		this.dropsOnly = dropsOnly;
+	}
+
+	public int getPruneTop() {
+		return pruneTop;
+	}
+
+	public void setPruneTop(int pruneTop) {
+		this.pruneTop = pruneTop;
 	}
 }
