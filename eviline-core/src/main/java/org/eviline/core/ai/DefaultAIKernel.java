@@ -79,6 +79,8 @@ public class DefaultAIKernel implements AIKernel {
 	protected Fitness fitness = new DefaultFitness();
 	protected Executor exec = createDefaultExecutor();
 	
+	protected boolean dropsOnly;
+	
 	public DefaultAIKernel() {}
 	
 	public DefaultAIKernel(Fitness fitness) {
@@ -87,7 +89,7 @@ public class DefaultAIKernel implements AIKernel {
 	
 	@Override
 	public CommandGraph bestPlacement(final Field field, int current, ShapeType[] next, final int lookahead) {
-		final CommandGraph g = new CommandGraph(field, current);
+		final CommandGraph g = new CommandGraph(field, current, dropsOnly);
 		
 		Best best = new Best(null, current, Double.POSITIVE_INFINITY, field, null, null);
 		
@@ -155,7 +157,7 @@ public class DefaultAIKernel implements AIKernel {
 	public Best bestPlacement(final Field originalField, final Field currentField, int currentShape, ShapeType[] next, final int lookahead) {
 
 		if(currentShape != -1 && currentField.intersects(currentShape))
-			return new Best(new CommandGraph(currentField, currentShape), currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
+			return new Best(new CommandGraph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
 		
 		if(currentShape == -1 || lookahead <= 0) {
 			return new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null, null);
@@ -163,7 +165,7 @@ public class DefaultAIKernel implements AIKernel {
 		
 		currentField.clearLines();
 		
-		final CommandGraph g = new CommandGraph(currentField, currentShape);
+		final CommandGraph g = new CommandGraph(currentField, currentShape, dropsOnly);
 		Best best = new Best(g, currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
 
 		final int nextShape;
@@ -356,5 +358,13 @@ public class DefaultAIKernel implements AIKernel {
 	
 	public void setExec(Executor exec) {
 		this.exec = exec;
+	}
+
+	public boolean isDropsOnly() {
+		return dropsOnly;
+	}
+
+	public void setDropsOnly(boolean dropsOnly) {
+		this.dropsOnly = dropsOnly;
 	}
 }
