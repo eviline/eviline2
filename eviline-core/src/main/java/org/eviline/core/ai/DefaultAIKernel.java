@@ -36,21 +36,21 @@ public class DefaultAIKernel implements AIKernel {
 				new CallerRunsPolicy());
 	}
 
-	protected static Comparator<Best> WORST_ORDER = new Comparator<DefaultAIKernel.Best>() {
+	public static Comparator<Best> WORST_ORDER = new Comparator<DefaultAIKernel.Best>() {
 		@Override
 		public int compare(Best o1, Best o2) {
 			return -Double.compare(o1.score, o2.score);
 		}
 	};
 	
-	protected static Comparator<Best> BEST_ORDER = new Comparator<DefaultAIKernel.Best>() {
+	public static Comparator<Best> BEST_ORDER = new Comparator<DefaultAIKernel.Best>() {
 		@Override
 		public int compare(Best o1, Best o2) {
 			return Double.compare(o1.score, o2.score);
 		}
 	};
 	
-	protected static class Best {
+	public static class Best {
 		public final CommandGraph graph;
 		public final int shape;
 		public final double score;
@@ -78,7 +78,6 @@ public class DefaultAIKernel implements AIKernel {
 	@Override
 	public CommandGraph bestPlacement(final Field field, int current, ShapeType[] next, final int lookahead) {
 		final CommandGraph g = new CommandGraph(field, current);
-		double badness = Double.POSITIVE_INFINITY;
 		
 		Best best = new Best(null, current, Double.POSITIVE_INFINITY, field, null);
 		
@@ -143,9 +142,10 @@ public class DefaultAIKernel implements AIKernel {
 		return g;
 	}
 	
-	protected Best bestPlacement(final Field originalField, final Field currentField, int currentShape, ShapeType[] next, final int lookahead) {
+	public Best bestPlacement(final Field originalField, final Field currentField, int currentShape, ShapeType[] next, final int lookahead) {
+
 		if(currentShape != -1 && currentField.intersects(currentShape))
-			return new Best(null, currentShape, Double.POSITIVE_INFINITY, currentField, null);
+			return new Best(new CommandGraph(currentField, currentShape), currentShape, Double.POSITIVE_INFINITY, currentField, null);
 		
 		if(currentShape == -1 || lookahead <= 0) {
 			return new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null);
@@ -154,8 +154,7 @@ public class DefaultAIKernel implements AIKernel {
 		currentField.clearLines();
 		
 		final CommandGraph g = new CommandGraph(currentField, currentShape);
-		
-		Best best = new Best(null, currentShape, Double.POSITIVE_INFINITY, currentField, null);
+		Best best = new Best(g, currentShape, Double.POSITIVE_INFINITY, currentField, null);
 
 		final int nextShape;
 		final ShapeType[] nextNext;
@@ -201,12 +200,15 @@ public class DefaultAIKernel implements AIKernel {
 			try {
 				shapeBest = fut.get();
 			} catch(Exception e) {
+				e.printStackTrace();
 				throw new RuntimeException(e);
 			}
 			if(BEST_ORDER.compare(shapeBest, best) < 0)
 				best = shapeBest;
 		}
 
+		best.graph.setSelectedShape(best.shape);
+		
 		return best;
 	}
 	
@@ -221,7 +223,7 @@ public class DefaultAIKernel implements AIKernel {
 		return searchNext(WORST_ORDER, field, shapes, next, lookahead);
 	}
 	
-	protected ShapeType searchNext(
+	public ShapeType searchNext(
 			final Comparator<Best> order,
 			final Field field, 
 			final ShapeSource shapes, 
@@ -267,7 +269,7 @@ public class DefaultAIKernel implements AIKernel {
 		return worst.type;
 	}
 
-	protected Best searchNext(
+	public Best searchNext(
 			final Comparator<Best> order,
 			final Field originalField, 
 			final Field currentField, 

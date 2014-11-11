@@ -6,11 +6,13 @@ import java.util.Deque;
 import org.eviline.core.Command;
 import org.eviline.core.Engine;
 import org.eviline.core.XYShapes;
+import org.eviline.core.ai.DefaultAIKernel.Best;
 
 public class AIPlayer implements Player {
-	protected AIKernel ai;
+	protected DefaultAIKernel ai;
 	protected Engine engine;
 	
+	protected Best best;
 	protected CommandGraph graph;
 	protected int dest;
 	protected Deque<Command> commands = new ArrayDeque<>();
@@ -22,7 +24,7 @@ public class AIPlayer implements Player {
 		this(new DefaultAIKernel(), engine, engine.getNext().length);
 	}
 	
-	public AIPlayer(AIKernel ai, Engine engine, int lookahead) {
+	public AIPlayer(DefaultAIKernel ai, Engine engine, int lookahead) {
 		this.ai = ai;
 		this.engine = engine;
 		this.lookahead = lookahead;
@@ -41,7 +43,8 @@ public class AIPlayer implements Player {
 				graph = null;
 				return Command.NOP;
 			}
-			graph = ai.bestPlacement(engine.getField(), engine.getShape(), engine.getNext(), lookahead);
+			best = ai.bestPlacement(engine.getField(), engine.getField(), engine.getShape(), engine.getNext(), lookahead);
+			graph = best.graph;
 			int shape = graph.getSelectedShape();
 			dest = shape;
 			Command c = CommandGraph.commandOf(graph.getVertices(), shape);
@@ -72,6 +75,10 @@ public class AIPlayer implements Player {
 		}
 		
 		return commands.pollFirst();
+	}
+	
+	public Best getBest() {
+		return best;
 	}
 	
 	public int getDest() {

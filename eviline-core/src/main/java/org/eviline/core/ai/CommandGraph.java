@@ -55,7 +55,8 @@ public class CommandGraph {
 			vertices[i * 3 + COMMAND] = NULL_COMMAND;
 			vertices[i * 3 + PATH_LENGTH] = Integer.MAX_VALUE;
 		}
-		searchRoot(start, field);
+		if(!field.intersects(start))
+			searchRoot(start, field);
 	}
 
 	protected void setVertex(int shape, int origin, int command, int pathLength) {
