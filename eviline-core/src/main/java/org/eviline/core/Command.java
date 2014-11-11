@@ -11,4 +11,14 @@ public enum Command {
 	SHIFT_DOWN,
 	SOFT_DROP,
 	HARD_DROP,
+	
+	;
+	
+	private static final Command[] VALUES = values();
+	
+	public static Command fromOrdinal(int ordinal) {
+		if(ordinal < 0)
+			return null;
+		return VALUES[ordinal];
+	}
 }
