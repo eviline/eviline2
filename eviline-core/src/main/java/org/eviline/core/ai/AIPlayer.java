@@ -34,6 +34,7 @@ public class AIPlayer implements Player {
 		if(engine.isOver()) {
 			dest = -1;
 			graph = null;
+			best = null;
 			return Command.NOP;
 		}
 		
@@ -41,6 +42,7 @@ public class AIPlayer implements Player {
 			if(engine.getShape() == -1) {
 				dest = -1;
 				graph = null;
+				best = null;
 				return Command.NOP;
 			}
 			best = ai.bestPlacement(engine.getField(), engine.getField(), engine.getShape(), engine.getNext(), lookahead);
@@ -71,6 +73,8 @@ public class AIPlayer implements Player {
 		
 		if(commands.size() == 0) {
 			dest = -1;
+			graph = null;
+			best = null;
 			return Command.NOP;
 		}
 		

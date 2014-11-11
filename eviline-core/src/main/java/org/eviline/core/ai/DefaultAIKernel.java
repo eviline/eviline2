@@ -56,13 +56,23 @@ public class DefaultAIKernel implements AIKernel {
 		public final double score;
 		public final Field after;
 		public final ShapeType type;
+		public final Best deeper;
 		
-		public Best(CommandGraph graph, int shape, double score, Field after, ShapeType type) {
+		public Best(CommandGraph graph, int shape, double score, Field after, ShapeType type, Best deeper) {
 			this.graph = graph;
 			this.shape = shape;
 			this.score = score;
-			this.after = after;
+			this.after = after.clone();
+			this.after.clearLines();
 			this.type = type;
+			this.deeper = deeper;
+		}
+		
+		public Best deepest() {
+			Best b = this;
+			while(b.deeper != null)
+				b = b.deeper;
+			return b;
 		}
 	}
 	
@@ -79,7 +89,7 @@ public class DefaultAIKernel implements AIKernel {
 	public CommandGraph bestPlacement(final Field field, int current, ShapeType[] next, final int lookahead) {
 		final CommandGraph g = new CommandGraph(field, current);
 		
-		Best best = new Best(null, current, Double.POSITIVE_INFINITY, field, null);
+		Best best = new Best(null, current, Double.POSITIVE_INFINITY, field, null, null);
 		
 		final int nextShape;
 		final ShapeType[] nextNext;
@@ -116,8 +126,8 @@ public class DefaultAIKernel implements AIKernel {
 				public Best call() throws Exception {
 						Field after = field.clone();
 						after.blit(shape, 0);
-						Best b = bestPlacement(field, after, nextShape, nextNext, lookahead - 1);
-						Best best = new Best(g, shape, b.score, b.after, XYShapes.shapeFromInt(shape).type());
+						Best b = bestPlacement(field, after, nextShape, nextNext, lookahead);
+						Best best = new Best(g, shape, b.score, after, XYShapes.shapeFromInt(shape).type(), b);
 						return best;
 				}
 			};
@@ -145,16 +155,16 @@ public class DefaultAIKernel implements AIKernel {
 	public Best bestPlacement(final Field originalField, final Field currentField, int currentShape, ShapeType[] next, final int lookahead) {
 
 		if(currentShape != -1 && currentField.intersects(currentShape))
-			return new Best(new CommandGraph(currentField, currentShape), currentShape, Double.POSITIVE_INFINITY, currentField, null);
+			return new Best(new CommandGraph(currentField, currentShape), currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
 		
 		if(currentShape == -1 || lookahead <= 0) {
-			return new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null);
+			return new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null, null);
 		}
 		
 		currentField.clearLines();
 		
 		final CommandGraph g = new CommandGraph(currentField, currentShape);
-		Best best = new Best(g, currentShape, Double.POSITIVE_INFINITY, currentField, null);
+		Best best = new Best(g, currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
 
 		final int nextShape;
 		final ShapeType[] nextNext;
@@ -186,7 +196,7 @@ public class DefaultAIKernel implements AIKernel {
 					Field nextField = currentField.clone();
 					nextField.blit(shape, 0);
 					Best nextBest = bestPlacement(originalField, nextField, nextShape, nextNext, lookahead - 1);
-					return new Best(g, shape, nextBest.score, nextBest.after, XYShapes.shapeFromInt(shape).type());
+					return new Best(g, shape, nextBest.score, nextField, XYShapes.shapeFromInt(shape).type(), nextBest);
 				}
 			};
 			
@@ -240,7 +250,7 @@ public class DefaultAIKernel implements AIKernel {
 
 		bestPlayed.clearLines();
 		
-		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null);
+		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null, null);
 		Collection<Future<Best>> futs = new ArrayList<>();
 		
 		final List<ShapeType> bag = Arrays.asList(shapes.getBag());
@@ -277,12 +287,12 @@ public class DefaultAIKernel implements AIKernel {
 			final int lookahead, 
 			ShapeType type) {
 		if(lookahead == 0 || bag.size() == 0) {
-			return new Best(null, -1, fitness.badness(originalField, currentField, new ShapeType[] {type}), currentField, type);
+			return new Best(null, -1, fitness.badness(originalField, currentField, new ShapeType[] {type}), currentField, type, null);
 		}
 		
 		currentField.clearLines();
 		
-		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null);
+		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null, null);
 		
 		int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
 		final Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1);
