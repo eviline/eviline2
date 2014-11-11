@@ -117,7 +117,7 @@ public class DefaultAIKernel implements AIKernel {
 				public Best call() throws Exception {
 						Field after = field.clone();
 						after.blit(shape, 0);
-						Best b = bestPlacement(field, after, nextShape, nextNext, lookahead);
+						Best b = bestPlacement(field, after, nextShape, nextNext, lookahead - 1);
 						Best best = new Best(g, shape, b.score, b.after, XYShapes.shapeFromInt(shape).type());
 						return best;
 				}
