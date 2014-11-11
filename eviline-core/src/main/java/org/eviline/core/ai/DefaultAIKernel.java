@@ -113,6 +113,8 @@ public class DefaultAIKernel implements AIKernel {
 		Set<Integer> blitted = new HashSet<>();
 		
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
+			if(Thread.interrupted())
+				throw new RuntimeException(new InterruptedException());
 			final int shape;
 			if(CommandGraph.originOf(vertices, shape = i) == CommandGraph.NULL_ORIGIN)
 				continue;
@@ -144,6 +146,8 @@ public class DefaultAIKernel implements AIKernel {
 			try {
 				b = fut.get();
 			} catch(Exception e) {
+				for(Future<Best> f : futs)
+					f.cancel(true);
 				throw new RuntimeException(e);
 			}
 			if(BEST_ORDER.compare(b, best) < 0)
@@ -183,6 +187,8 @@ public class DefaultAIKernel implements AIKernel {
 		Set<Integer> blitted = new HashSet<>();
 		
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
+			if(Thread.interrupted())
+				throw new RuntimeException(new InterruptedException());
 			if(CommandGraph.originOf(g.getVertices(), i) == CommandGraph.NULL_ORIGIN)
 				continue;
 			final int shape = i;
@@ -212,7 +218,8 @@ public class DefaultAIKernel implements AIKernel {
 			try {
 				shapeBest = fut.get();
 			} catch(Exception e) {
-				e.printStackTrace();
+				for(Future<Best> f : futs)
+					f.cancel(true);
 				throw new RuntimeException(e);
 			}
 			if(BEST_ORDER.compare(shapeBest, best) < 0)
