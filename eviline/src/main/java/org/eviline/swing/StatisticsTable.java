@@ -2,13 +2,10 @@ package org.eviline.swing;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.TimeZone;
 
-import javax.imageio.ImageIO;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
@@ -16,7 +13,6 @@ import org.eviline.core.Command;
 import org.eviline.core.Engine;
 import org.eviline.core.EngineListener;
 import org.eviline.core.Field;
-import org.eviline.core.ShapeType;
 import org.eviline.core.ai.DefaultFitness;
 import org.eviline.core.ai.Fitness;
 

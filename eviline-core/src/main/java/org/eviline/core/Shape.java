@@ -1,6 +1,12 @@
 package org.eviline.core;
 
-import static org.eviline.core.ShapeType.*;
+import static org.eviline.core.ShapeType.I;
+import static org.eviline.core.ShapeType.J;
+import static org.eviline.core.ShapeType.L;
+import static org.eviline.core.ShapeType.O;
+import static org.eviline.core.ShapeType.S;
+import static org.eviline.core.ShapeType.T;
+import static org.eviline.core.ShapeType.Z;
 
 public enum Shape {
 	S_UP(S), 

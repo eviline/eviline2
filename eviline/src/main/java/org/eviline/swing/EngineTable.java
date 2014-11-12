@@ -4,18 +4,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.io.IOException;
 import java.util.Collections;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
 import org.eviline.core.Engine;
-import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
 
 public class EngineTable extends JTable {

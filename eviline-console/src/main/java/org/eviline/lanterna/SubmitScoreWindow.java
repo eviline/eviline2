@@ -1,6 +1,5 @@
 package org.eviline.lanterna;
 
-import java.io.IOException;
 import java.net.URL;
 
 import org.eviline.core.Engine;
@@ -8,14 +7,13 @@ import org.eviline.core.EngineStats;
 import org.eviline.core.EngineStatsSubmitter;
 
 import com.googlecode.lanterna.gui.Action;
-import com.googlecode.lanterna.gui.GUIScreen;
-import com.googlecode.lanterna.gui.Window;
 import com.googlecode.lanterna.gui.GUIScreen.Position;
+import com.googlecode.lanterna.gui.Window;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.Label;
 import com.googlecode.lanterna.gui.component.Panel;
-import com.googlecode.lanterna.gui.component.TextBox;
 import com.googlecode.lanterna.gui.component.Panel.Orientation;
+import com.googlecode.lanterna.gui.component.TextBox;
 
 public class SubmitScoreWindow extends Window {
 	protected URL url;

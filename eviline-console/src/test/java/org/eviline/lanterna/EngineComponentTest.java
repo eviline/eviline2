@@ -1,6 +1,5 @@
 package org.eviline.lanterna;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -10,11 +9,8 @@ import org.junit.Assume;
 import org.junit.Test;
 
 import com.googlecode.lanterna.TerminalFacade;
-import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
-import com.googlecode.lanterna.gui.layout.LayoutParameter;
-import com.googlecode.lanterna.terminal.Terminal;
 
 public class EngineComponentTest {
 	private static Engine engine;

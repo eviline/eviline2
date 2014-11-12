@@ -1,6 +1,5 @@
 package org.eviline.lanterna;
 
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
