@@ -27,8 +27,12 @@ import org.eviline.core.XYShapes;
 public class DefaultAIKernel implements AIKernel {
 	
 	public static ThreadPoolExecutor createDefaultExecutor() {
+		return createDefaultExecutor(32);
+	}
+	
+	public static ThreadPoolExecutor createDefaultExecutor(int size) {
 		return new ThreadPoolExecutor(
-				0, 32, 
+				0, size, 
 				30, TimeUnit.SECONDS, 
 				new SynchronousQueue<Runnable>(), 
 				new CallerRunsPolicy());
