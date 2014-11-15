@@ -227,12 +227,12 @@ public class DefaultAIKernel implements AIKernel {
 		
 		for(Callable<Best> task : tasks.values()) {
 			FutureTask<Best> fut = new FutureTask<Best>(task);
+			futs.add(fut);
 			if(lookahead <= 1)
 				fut.run();
 			else
 				exec.execute(fut);
-			futs.add(fut);
-			if(futs.size() >= pruneTop)
+			if(futs.size() >= pruneTop || lookahead <= 1)
 				break;
 		}
 		
