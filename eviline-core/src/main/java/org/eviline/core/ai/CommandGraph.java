@@ -49,13 +49,17 @@ public class CommandGraph {
 	
 	protected int selectedShape;
 	
-	public CommandGraph(Field field, int start) {
+	protected boolean dropsOnly;
+	
+	public CommandGraph(Field field, int start, boolean dropsOnly) {
+		this.dropsOnly = dropsOnly;
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			vertices[i * 3 + ORIGIN] = NULL_ORIGIN;
 			vertices[i * 3 + COMMAND] = NULL_COMMAND;
 			vertices[i * 3 + PATH_LENGTH] = Integer.MAX_VALUE;
 		}
-		searchRoot(start, field.clone());
+		if(!field.intersects(start))
+			searchRoot(start, field);
 	}
 
 	protected void setVertex(int shape, int origin, int command, int pathLength) {
@@ -131,7 +135,8 @@ public class CommandGraph {
 		
 		next = XYShapes.shiftedDown(shape);
 		if(!f.intersects(next)) {
-			maybeUpdate(next, shape, Command.SHIFT_DOWN, nextPathLength, f);
+			if(!dropsOnly)
+				maybeUpdate(next, shape, Command.SHIFT_DOWN, nextPathLength, f);
 
 			while(!f.intersects(next))
 				next = XYShapes.shiftedDown(next);

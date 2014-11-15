@@ -2,8 +2,6 @@ package org.eviline.swing;
 
 import java.util.Map;
 
-import javax.swing.JComponent;
-
 import org.eviline.core.Command;
 
 public class CustomSwingPlayer extends SwingPlayer {

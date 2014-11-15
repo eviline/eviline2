@@ -1,7 +1,20 @@
 package org.eviline.core;
 
+import java.util.Arrays;
+
 public class XYShapes {
 	public static final int SHAPE_MAX = toXYShape(15, 19, Shape.values()[Shape.values().length - 1]);
+	
+	public static final int[] CANONICAL_SHAPES;
+	static {
+		int[] canon = new int[SHAPE_MAX];
+		int count = 0;
+		for(int i = 0; i < SHAPE_MAX; i++) {
+			if(!isSynonym(i))	
+				canon[count++] = i;
+		}
+		CANONICAL_SHAPES = Arrays.copyOf(canon, count);
+	}
 	
 	public static boolean has(int xyshape, int x, int y) {
 		int this_x = xFromInt(xyshape);
@@ -13,13 +26,17 @@ public class XYShapes {
 	}
 	
 	public static int toXYShape(int x, int y, Shape shape) {
+		return toXYShape(x, y, shape.ordinal());
+	}
+	
+	public static int toXYShape(int x, int y, int shape) {
 		int i = 0;
 		i |= ((x+3) & 0xf);
 		i |= (((y+8) & 0x1f) << 4);
-		i |= (shape.ordinal() << 9);
+		i |= (shape << 9);
 		return i;
 	}
-	
+
 	public static int xFromInt(int i) {
 		return (i & 0xf) - 3;
 	}
@@ -88,8 +105,9 @@ public class XYShapes {
 		int[] kicked = new int[kt.table().length];
 		for(int i = 0; i < kicked.length; i++) {
 			int kx = x - kt.table()[i][0];
-			int ks = kicked[i] = toXYShape(kx, y - kt.table()[i][1], shape);
-			if(xFromInt(ks) != kx)
+			int ky = y - kt.table()[i][1];
+			int ks = kicked[i] = toXYShape(kx, ky, shape);
+			if(xFromInt(ks) != kx || yFromInt(ks) != y)
 				kicked[i] = -1;
 		}
 		return kicked;
@@ -103,10 +121,49 @@ public class XYShapes {
 		int[] kicked = new int[kt.table().length];
 		for(int i = 0; i < kicked.length; i++) {
 			int kx = x - kt.table()[i][0];
-			int ks = kicked[i] = toXYShape(kx, y - kt.table()[i][1], shape);
-			if(xFromInt(ks) != kx)
+			int ky = y - kt.table()[i][1];
+			int ks = kicked[i] = toXYShape(kx, ky, shape);
+			if(xFromInt(ks) != kx || yFromInt(ks) != y)
 				kicked[i] = -1;
 		}
 		return kicked;
+	}
+	
+	private static final int UP = 1 << ShapeDirection.UP_ORD;
+	private static final int RIGHT = 1 << ShapeDirection.RIGHT_ORD;
+	private static final int DOWN = 1 << ShapeDirection.DOWN_ORD;
+	private static final int LEFT = 1 << ShapeDirection.LEFT_ORD;
+	
+	private static final int IS_SYNONYM = (
+			(DOWN | RIGHT) << (ShapeType.S_ORD << 2) |
+			(DOWN | RIGHT) << (ShapeType.Z_ORD << 2) |
+			(DOWN | RIGHT) << (ShapeType.I_ORD << 2) |
+			(DOWN | RIGHT | LEFT) << (ShapeType.O_ORD << 2)
+			);
+	
+	public static boolean isSynonym(int xyshape) {
+		int id = shapeIdFromInt(xyshape);
+		int synbit = 1 << id;
+		return (IS_SYNONYM & synbit) != 0;
+	}
+	
+	public static int canonical(int xyshape) {
+		int id = shapeIdFromInt(xyshape);
+
+		int synbit = 1 << id;
+		if((IS_SYNONYM & synbit) == 0)
+			return xyshape;
+		
+		int x = xFromInt(xyshape);
+		int y = yFromInt(xyshape);
+		
+		int dir = id & 0x3;
+		int type = id >>> 2;
+		if(type == ShapeType.O_ORD)
+			return toXYShape(x, type, (id & ~3) | ShapeDirection.UP_ORD);
+		else if(dir == ShapeDirection.RIGHT_ORD)
+			return toXYShape(x+1, y, (id & ~3) | ShapeDirection.LEFT_ORD);
+		else
+			return toXYShape(x, y+1, (id & ~3) | ShapeDirection.UP_ORD);
 	}
 }

@@ -2,20 +2,15 @@ package org.eviline.swing;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.eviline.core.Engine;
-import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
 
 public class ShapeSourceComponent extends JComponent {

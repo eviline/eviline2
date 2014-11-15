@@ -1,6 +1,33 @@
 package org.eviline.core;
 
-import static org.eviline.core.Shape.*;
+import static org.eviline.core.Shape.I_DOWN;
+import static org.eviline.core.Shape.I_LEFT;
+import static org.eviline.core.Shape.I_RIGHT;
+import static org.eviline.core.Shape.I_UP;
+import static org.eviline.core.Shape.J_DOWN;
+import static org.eviline.core.Shape.J_LEFT;
+import static org.eviline.core.Shape.J_RIGHT;
+import static org.eviline.core.Shape.J_UP;
+import static org.eviline.core.Shape.L_DOWN;
+import static org.eviline.core.Shape.L_LEFT;
+import static org.eviline.core.Shape.L_RIGHT;
+import static org.eviline.core.Shape.L_UP;
+import static org.eviline.core.Shape.O_DOWN;
+import static org.eviline.core.Shape.O_LEFT;
+import static org.eviline.core.Shape.O_RIGHT;
+import static org.eviline.core.Shape.O_UP;
+import static org.eviline.core.Shape.S_DOWN;
+import static org.eviline.core.Shape.S_LEFT;
+import static org.eviline.core.Shape.S_RIGHT;
+import static org.eviline.core.Shape.S_UP;
+import static org.eviline.core.Shape.T_DOWN;
+import static org.eviline.core.Shape.T_LEFT;
+import static org.eviline.core.Shape.T_RIGHT;
+import static org.eviline.core.Shape.T_UP;
+import static org.eviline.core.Shape.Z_DOWN;
+import static org.eviline.core.Shape.Z_LEFT;
+import static org.eviline.core.Shape.Z_RIGHT;
+import static org.eviline.core.Shape.Z_UP;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -11,6 +38,14 @@ public enum ShapeType {
 	// meta types
 	G, // garbage
 	;
+	
+	public static final int S_ORD = 0;
+	public static final int Z_ORD = 1;
+	public static final int J_ORD = 2;
+	public static final int L_ORD = 3;
+	public static final int T_ORD = 4;
+	public static final int I_ORD = 5;
+	public static final int O_ORD = 6;
 	
 	public Shape start() {
 		switch(this) {

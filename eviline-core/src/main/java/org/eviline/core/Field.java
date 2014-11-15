@@ -17,6 +17,11 @@ public class Field implements Cloneable {
 		reset();
 	}
 	
+	public void copyFrom(Field other) {
+		this.mask = other.mask.clone();
+		this.blocks = other.blocks.clone();
+	}
+	
 	public Field clone() {
 		try {
 			Field f = (Field) super.clone();

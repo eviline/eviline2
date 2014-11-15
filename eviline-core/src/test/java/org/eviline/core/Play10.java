@@ -3,6 +3,7 @@ package org.eviline.core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.eviline.core.ai.AIPlayer;
 import org.eviline.core.ai.DefaultAIKernel;
 import org.eviline.core.ai.NextFitness;
