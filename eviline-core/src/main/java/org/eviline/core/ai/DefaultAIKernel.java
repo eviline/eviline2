@@ -14,6 +14,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
@@ -27,15 +28,14 @@ import org.eviline.core.XYShapes;
 public class DefaultAIKernel implements AIKernel {
 	
 	public static ThreadPoolExecutor createDefaultExecutor() {
-		return createDefaultExecutor(32);
+		return createDefaultExecutor(Runtime.getRuntime().availableProcessors());
 	}
 	
 	public static ThreadPoolExecutor createDefaultExecutor(int size) {
 		return new ThreadPoolExecutor(
-				0, size, 
+				size, size, 
 				30, TimeUnit.SECONDS, 
-				new SynchronousQueue<Runnable>(), 
-				new CallerRunsPolicy());
+				new LinkedBlockingQueue<Runnable>());
 	}
 
 	public static Comparator<Best> WORST_ORDER = new Comparator<DefaultAIKernel.Best>() {
@@ -79,7 +79,7 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	protected Fitness fitness = new DefaultFitness();
-	protected Executor exec = createDefaultExecutor();
+	protected ThreadPoolExecutor exec = createDefaultExecutor();
 	
 	protected boolean dropsOnly;
 	
@@ -157,6 +157,12 @@ public class DefaultAIKernel implements AIKernel {
 		
 		for(Future<Best> fut : futs) {
 			Best b;
+			while(!fut.isDone()) {
+				Runnable task = exec.getQueue().poll();
+				if(task == null)
+					break;
+				task.run();
+			}
 			try {
 				b = fut.get();
 			} catch(Exception e) {
@@ -232,16 +238,19 @@ public class DefaultAIKernel implements AIKernel {
 		for(Callable<Best> task : tasks.values()) {
 			FutureTask<Best> fut = new FutureTask<Best>(task);
 			futs.add(fut);
-			if(lookahead <= 1)
-				fut.run();
-			else
-				exec.execute(fut);
+			exec.execute(fut);
 			if(futs.size() >= pruneTop || lookahead <= 1)
 				break;
 		}
 		
 		for(Future<Best> fut : futs) {
 			Best shapeBest;
+			while(!fut.isDone()) {
+				Runnable task = exec.getQueue().poll();
+				if(task == null)
+					break;
+				task.run();
+			}
 			try {
 				shapeBest = fut.get();
 			} catch(Exception e) {
@@ -390,7 +399,7 @@ public class DefaultAIKernel implements AIKernel {
 		return exec;
 	}
 	
-	public void setExec(Executor exec) {
+	public void setExec(ThreadPoolExecutor exec) {
 		this.exec = exec;
 	}
 
