@@ -25,6 +25,7 @@ import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
 import org.eviline.core.XYShapes;
+import org.eviline.core.conc.SubtaskExecutor;
 
 public class DefaultAIKernel implements AIKernel {
 
@@ -84,7 +85,7 @@ public class DefaultAIKernel implements AIKernel {
 	}
 
 	protected Fitness fitness = new DefaultFitness();
-	protected ThreadPoolExecutor exec = createDefaultExecutor();
+	protected SubtaskExecutor exec = new SubtaskExecutor(createDefaultExecutor());
 
 	protected boolean dropsOnly;
 
@@ -153,21 +154,13 @@ public class DefaultAIKernel implements AIKernel {
 		}
 
 		for(Callable<Best> task : tasks.values()) {
-			FutureTask<Best> fut = new FutureTask<Best>(task);
-			exec.execute(fut);
-			futs.add(fut);
+			futs.add(exec.submit(task));
 			if(futs.size() >= pruneTop )
 				break;
 		}
 
 		for(Future<Best> fut : futs) {
 			Best b;
-			while(!fut.isDone()) {
-				Runnable task = exec.getQueue().poll();
-				if(task == null)
-					break;
-				task.run();
-			}
 			try {
 				b = fut.get();
 			} catch(Exception e) {
@@ -241,12 +234,7 @@ public class DefaultAIKernel implements AIKernel {
 		}
 
 		for(Callable<Best> task : tasks.values()) {
-			FutureTask<Best> fut = new FutureTask<Best>(task);
-			futs.add(fut);
-			if(lookahead <= 1)
-				fut.run();
-			else
-				exec.execute(fut);
+			futs.add(exec.submit(task));
 			if(futs.size() >= pruneTop - depth || lookahead <= 1)
 				break;
 		}
@@ -254,13 +242,6 @@ public class DefaultAIKernel implements AIKernel {
 		for(Future<Best> fut : futs) {
 			Best shapeBest;
 			try {
-				while(!fut.isDone()) {
-					Runnable task = exec.getQueue().poll();
-					if(task != null)
-						task.run();
-					else
-						break;
-				}
 				shapeBest = fut.get();
 			} catch(Exception e) {
 				for(Future<Best> f : futs)
@@ -316,19 +297,11 @@ public class DefaultAIKernel implements AIKernel {
 					return searchNext(order, field, fbestPlayed, bag, lookahead, type);
 				}
 			};
-			FutureTask<Best> f = new FutureTask<>(task);
-			exec.execute(f);
-			futs.add(f);
+			futs.add(exec.submit(task));
 		}
 
 		try {
 			for(Future<Best> fut : futs) {
-				while(!fut.isDone()) {
-					Runnable task = exec.getQueue().poll();
-					if(task == null)
-						break;
-					task.run();
-				}
 				if(order.compare(fut.get(), worst) < 0)
 					worst = fut.get();
 			}
@@ -369,12 +342,7 @@ public class DefaultAIKernel implements AIKernel {
 						return searchNext(order, originalField, shapeBest.after, nextBag, lookahead - 1, next);
 					}
 				};
-				FutureTask<Best> fut = new FutureTask<Best>(task);
-				if(lookahead - 1 > 0)
-					exec.execute(fut);
-				else
-					fut.run();
-				futs.add(fut);
+				futs.add(exec.submit(task));
 			}
 		} else {
 			Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
@@ -383,19 +351,11 @@ public class DefaultAIKernel implements AIKernel {
 					return searchNext(order, originalField, shapeBest.after, nextBag, lookahead - 1, null);
 				}
 			};
-			FutureTask<Best> fut = new FutureTask<Best>(task);
-			fut.run();
-			futs.add(fut);
+			futs.add(exec.submit(task));
 		}
 
 		for(Future<Best> fut : futs) {
 			Best shapeWorst;
-			while(!fut.isDone()) {
-				Runnable task = exec.getQueue().poll();
-				if(task == null)
-					break;
-				task.run();
-			}
 			try {
 				shapeWorst = fut.get();
 			} catch(Exception e) {
@@ -416,11 +376,11 @@ public class DefaultAIKernel implements AIKernel {
 		this.fitness = fitness;
 	}
 
-	public ThreadPoolExecutor getExec() {
+	public SubtaskExecutor getExec() {
 		return exec;
 	}
 
-	public void setExec(ThreadPoolExecutor exec) {
+	public void setExec(SubtaskExecutor exec) {
 		this.exec = exec;
 	}
 
