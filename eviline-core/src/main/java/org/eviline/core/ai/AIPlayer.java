@@ -45,7 +45,7 @@ public class AIPlayer implements Player {
 				best = null;
 				return Command.NOP;
 			}
-			best = ai.bestPlacement(engine.getField(), engine.getField(), engine.getShape(), engine.getNext(), lookahead + 1);
+			best = ai.bestPlacement(engine.getField(), engine.getField(), engine.getShape(), engine.getNext(), lookahead + 1, 0);
 			graph = best.graph;
 			int shape = graph.getSelectedShape();
 			dest = shape;
