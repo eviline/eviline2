@@ -322,9 +322,15 @@ public class DefaultAIKernel implements AIKernel {
 		}
 
 		try {
-			for(Future<Best> f : futs) {
-				if(order.compare(f.get(), worst) < 0)
-					worst = f.get();
+			for(Future<Best> fut : futs) {
+				while(!fut.isDone()) {
+					Runnable task = exec.getQueue().poll();
+					if(task == null)
+						break;
+					task.run();
+				}
+				if(order.compare(fut.get(), worst) < 0)
+					worst = fut.get();
 			}
 		} catch(Exception e) {
 			throw new RuntimeException(e);
@@ -384,6 +390,12 @@ public class DefaultAIKernel implements AIKernel {
 
 		for(Future<Best> fut : futs) {
 			Best shapeWorst;
+			while(!fut.isDone()) {
+				Runnable task = exec.getQueue().poll();
+				if(task == null)
+					break;
+				task.run();
+			}
 			try {
 				shapeWorst = fut.get();
 			} catch(Exception e) {
