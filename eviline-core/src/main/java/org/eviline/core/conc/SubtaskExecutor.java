@@ -1,5 +1,7 @@
 package org.eviline.core.conc;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -11,17 +13,22 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SubtaskExecutor implements Executor {
 
 	protected Executor executor;
-	protected BlockingQueue<SyncFutureTask<?>> tasks;
-	protected Object sync;
+	protected Deque<SyncFutureTask<?>> tasks;
+	protected ReentrantLock sync;
+	protected Condition mutex;
 	
 	public SubtaskExecutor(Executor executor) {
 		this.executor = executor;
-		tasks = new LinkedBlockingQueue<SyncFutureTask<?>>();
-		sync = new Object();
+		tasks = new ArrayDeque<>();
+		sync = new ReentrantLock();
+		mutex = sync.newCondition();
 	}
 	
 	@Override
@@ -29,73 +36,90 @@ public class SubtaskExecutor implements Executor {
 		submit(command);
 	}
 	
-	public Future<?> submit(Runnable task) {
+	public SyncFutureTask<?> submit(Runnable task) {
 		return submit(task, null);
 	}
 
-	public <V> Future<V> submit(Runnable task, V result) {
+	public <V> SyncFutureTask<V> submit(Runnable task, V result) {
 		return submit(Executors.callable(task, result));
 	}
 
-	public <V> Future<V> submit(Callable<V> task) {
+	public <V> SyncFutureTask<V> submit(Callable<V> task) {
 		SyncFutureTask<V> future = new SyncFutureTask<V>(task);
 		executor.execute(future);
-		tasks.offer(future);
-		synchronized(sync) {
-			sync.notifyAll();
+		sync.lock();
+		try {
+			tasks.offer(future);
+			mutex.signal();
+		} finally {
+			sync.unlock();
 		}
 		return future;
 	}
 
-	public void await(Future<?> future) throws InterruptedException {
-		while(!future.isDone()) {
-			FutureTask<?> subtask = tasks.poll();
-			if(subtask != null) {
-				subtask.run();
-			} else {
-				synchronized(sync) {
-					while(!future.isDone() && (subtask = tasks.peek()) == null)
-						sync.wait();
+	public void await(Future<?> future) {
+		sync.lock();
+		try {
+			while(!future.isDone()) {
+				FutureTask<?> subtask = tasks.poll();
+				if(subtask != null) {
+					sync.unlock();
+					try {
+						subtask.run();
+					} finally {
+						sync.lock();
+					}
+				} else {
+					while(!future.isDone() && tasks.size() == 0) {
+						mutex.awaitUninterruptibly();
+						mutex.signal();
+					}
 				}
 			}
+		} finally {
+			sync.unlock();
 		}
 	}
 	
-	
-	public void call(Runnable task) throws InterruptedException, ExecutionException {
+	public void call(Runnable task) throws ExecutionException {
 		submit(task).get();
 	}
 
-	public <V> V call(Runnable task, V result) throws InterruptedException, ExecutionException {
+	public <V> V call(Runnable task, V result) throws ExecutionException {
 		return submit(task, result).get();
 	}
 
-	public <V> V call(Callable<V> task) throws InterruptedException, ExecutionException {
+	public <V> V call(Callable<V> task) throws ExecutionException {
 		return submit(task).get();
 	}
 	
-	protected class SyncFutureTask<V> extends FutureTask<V> {
-		public SyncFutureTask(Callable<V> task) {
+	public class SyncFutureTask<V> extends FutureTask<V> {
+		protected SyncFutureTask(Callable<V> task) {
 			super(task);
 		}
 		
 		@Override
-		public void run() {
-			super.run();
-			synchronized(sync) {
-				sync.notifyAll();
+		protected void done() {
+			sync.lock();
+			try {
+				mutex.signal();
+			} finally {
+				sync.unlock();
 			}
 		}
 		
 		@Override
-		public V get() throws InterruptedException, ExecutionException {
+		public V get() throws ExecutionException {
 			await(this);
-			return super.get();
+			try {
+				return super.get();
+			} catch(InterruptedException e) {
+				throw new Error("Impossible interrupt?", e);
+			}
 		}
 	}
-	
-	public void shutdown() {
-		if(executor instanceof ExecutorService)
-			((ExecutorService) executor).shutdown();
+
+	public Executor getExecutor() {
+		return executor;
 	}
 }

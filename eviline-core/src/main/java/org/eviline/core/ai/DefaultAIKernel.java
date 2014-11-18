@@ -29,18 +29,6 @@ import org.eviline.core.conc.SubtaskExecutor;
 
 public class DefaultAIKernel implements AIKernel {
 
-	public static ThreadPoolExecutor createDefaultExecutor() {
-		return createDefaultExecutor(Runtime.getRuntime().availableProcessors());
-	}
-
-	public static ThreadPoolExecutor createDefaultExecutor(int size) {
-		Executors.newFixedThreadPool(1);
-		return new ThreadPoolExecutor(
-				size, size, 
-				30, TimeUnit.SECONDS, 
-				new LinkedBlockingQueue<Runnable>());
-	}
-
 	public static Comparator<Best> WORST_ORDER = new Comparator<DefaultAIKernel.Best>() {
 		@Override
 		public int compare(Best o1, Best o2) {
@@ -84,16 +72,27 @@ public class DefaultAIKernel implements AIKernel {
 		}
 	}
 
-	protected Fitness fitness = new DefaultFitness();
-	protected SubtaskExecutor exec = new SubtaskExecutor(createDefaultExecutor());
+	protected Fitness fitness;
+	protected SubtaskExecutor exec;
 
 	protected boolean dropsOnly;
 
 	protected int pruneTop = Integer.MAX_VALUE;
 
-	public DefaultAIKernel() {}
-
+	public DefaultAIKernel() {
+		this(new DefaultFitness());
+	}
+	
 	public DefaultAIKernel(Fitness fitness) {
+		this(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()), fitness);
+	}
+	
+	public DefaultAIKernel(Executor exec, Fitness fitness) {
+		this(new SubtaskExecutor(exec), fitness);
+	}
+
+	public DefaultAIKernel(SubtaskExecutor exec, Fitness fitness) {
+		this.exec = new SubtaskExecutor(exec);
 		this.fitness = fitness;
 	}
 
