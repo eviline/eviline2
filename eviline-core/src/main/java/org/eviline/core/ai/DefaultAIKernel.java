@@ -287,7 +287,8 @@ public class DefaultAIKernel implements AIKernel {
 			Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
 				@Override
 				public Best call() throws Exception {
-					return searchNext(order, field, fbestPlayed, bag, lookahead, type);
+					Best worst = searchNext(order, field, fbestPlayed, bag, lookahead, type);
+					return new Best(null, XYShapes.toXYShape(type.startX(), type.startY(), type.start()), worst.score, worst.after, type, worst);
 				}
 			};
 			futs.add(exec.submit(task));
@@ -332,7 +333,8 @@ public class DefaultAIKernel implements AIKernel {
 				Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
 					@Override
 					public Best call() throws Exception {
-						return searchNext(order, originalField, shapeBest.after, nextBag, lookahead - 1, next);
+						Best worst = searchNext(order, originalField, shapeBest.after, nextBag, lookahead - 1, next);
+						return new Best(null, XYShapes.toXYShape(next.startX(), next.startY(), next.start()), worst.score, worst.after, next, worst);
 					}
 				};
 				futs.add(exec.submit(task));
@@ -341,7 +343,8 @@ public class DefaultAIKernel implements AIKernel {
 			Callable<Best> task = new Callable<DefaultAIKernel.Best>() {
 				@Override
 				public Best call() throws Exception {
-					return searchNext(order, originalField, shapeBest.after, nextBag, lookahead - 1, null);
+					Best worst = searchNext(order, originalField, shapeBest.after, nextBag, lookahead - 1, null);
+					return new Best(null, -1, worst.score, worst.after, null, worst);
 				}
 			};
 			futs.add(exec.submit(task));
