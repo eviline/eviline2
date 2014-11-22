@@ -138,7 +138,8 @@ public class Field implements Cloneable {
 			}
 		}
 		lines += cleared;
-		score += cleared * cleared - 1;
+		if(cleared > 0)
+			score += cleared * cleared - 1;
 		return cleared;
 	}
 	
