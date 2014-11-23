@@ -17,6 +17,7 @@ import org.eviline.core.ShapeType;
 import org.eviline.core.ai.AIPlayer;
 import org.eviline.core.ai.DefaultAIKernel;
 import org.eviline.core.ai.NextFitness;
+import org.eviline.core.ai.ScoreFitness;
 import org.eviline.lanterna.EngineScreen;
 import org.eviline.lanterna.EngineWindow;
 import org.eviline.lanterna.MarkupLabel;
@@ -110,7 +111,7 @@ public class AutoplayMain {
 					if(!drawLock.tryLock())
 						return;
 					w.setEngine(e);
-					w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + MAX_LOOKAHEAD + " lines:" + e.getLines());
+					w.getContentPane().setTitle("eviline2: lookahead:" + player.getLookahead() + "/" + MAX_LOOKAHEAD + " score:" + e.getScore());
 					mscreen.manualRefresh();
 					drawLock.unlock();
 				}
@@ -213,7 +214,7 @@ public class AutoplayMain {
 		});
 
 		ai = new DefaultAIKernel();
-		ai.setFitness(new NextFitness());
+		ai.setFitness(new ScoreFitness());
 		player = new AIPlayer(ai, engine, 1);
 		player.setAllowDrops(true);
 
