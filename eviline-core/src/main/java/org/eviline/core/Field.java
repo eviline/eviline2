@@ -7,6 +7,11 @@ public class Field implements Cloneable {
 	public static final int DEFAULT_HEIGHT = 20;
 	public static final int BUFFER = 3;
 	
+	protected static final long SPAWN_MASK =
+			(0b1111L << 60) |
+			(0b1111L << 44) ;
+			
+	
 	public final int WIDTH;
 	public final int HEIGHT;
 	
@@ -95,6 +100,12 @@ public class Field implements Cloneable {
 		int s_id = XYShapes.shapeIdFromInt(xyshape);
 		long imask = imask(s_y);
 		long smask = Shape.shapeMask(s_id, s_x);
+		return (imask & smask) != 0;
+	}
+	
+	public boolean isSpawnEndangered() {
+		long imask = imask(-2);
+		long smask = SPAWN_MASK >>> (BUFFER + WIDTH / 2 - 2);
 		return (imask & smask) != 0;
 	}
 	

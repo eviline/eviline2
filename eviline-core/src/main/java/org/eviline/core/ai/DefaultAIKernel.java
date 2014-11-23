@@ -126,6 +126,8 @@ public class DefaultAIKernel implements AIKernel {
 			if(!field.intersects(XYShapes.shiftedDown(shape))) {
 				continue;
 			}
+			if(XYShapes.yFromInt(shape) <= XYShapes.yFromInt(current))
+				continue;
 
 			if(!blitted.add(XYShapes.canonical(shape)))
 				continue;
@@ -143,6 +145,8 @@ public class DefaultAIKernel implements AIKernel {
 			};
 
 			double score = fitness.badness(field, after, nextNext);
+			if(after.isSpawnEndangered())
+				score = Double.POSITIVE_INFINITY;
 			tasks.put(score, task);
 		}
 
@@ -175,6 +179,8 @@ public class DefaultAIKernel implements AIKernel {
 			return new Best(new CommandGraph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
 
 		if(currentShape == -1 || lookahead <= 0) {
+			if(currentField.isSpawnEndangered())
+				return new Best(new CommandGraph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
 			return new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null, null);
 		}
 
@@ -211,6 +217,9 @@ public class DefaultAIKernel implements AIKernel {
 			if(!blitted.add(XYShapes.canonical(shape)))
 				continue;
 
+			if(XYShapes.yFromInt(shape) <= XYShapes.yFromInt(currentShape))
+				continue;
+
 			final Field nextField = currentField.clone();
 			nextField.blit(shape, 0);
 
@@ -223,6 +232,8 @@ public class DefaultAIKernel implements AIKernel {
 			};
 
 			double score = fitness.badness(originalField, nextField, nextNext);
+			if(nextField.isSpawnEndangered())
+				score = Double.POSITIVE_INFINITY;
 			tasks.put(score, task);
 		}
 
