@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 import org.eviline.core.Field;
 
 public class StatisticsTableModel extends AbstractTableModel {
-	private static final int DIM = Field.HEIGHT;
+	private static final int DIM = Field.DEFAULT_HEIGHT;
 
 	public static class ColoredCharacter {
 		public final Character c;

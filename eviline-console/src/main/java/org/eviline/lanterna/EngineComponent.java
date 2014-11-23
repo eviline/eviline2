@@ -26,23 +26,24 @@ public class EngineComponent extends AbstractComponent {
 
 	@Override
 	public void repaint(TextGraphics g) {
+		Field field = engine.getField();
 		g.setForegroundColor(Color.BLACK);
 		g.setBackgroundColor(Color.WHITE);
 		g.drawString(0, 0, "\u2554");
-		g.drawString(0, Field.BUFFER + Field.HEIGHT + 1, "\u255a");
-		g.drawString(Field.WIDTH*2 + 1, 0, "\u2557");
-		g.drawString(Field.WIDTH*2 + 1, Field.BUFFER + Field.HEIGHT + 1, "\u255d");
-		g.fillRectangle('\u2550', new TerminalPosition(1, 0), new TerminalSize(Field.WIDTH*2, 1));
-		g.fillRectangle('\u2550', new TerminalPosition(1, Field.BUFFER + Field.HEIGHT + 1), new TerminalSize(Field.WIDTH*2, 1));
-		g.fillRectangle('\u2551', new TerminalPosition(0, 1), new TerminalSize(1, Field.BUFFER + Field.HEIGHT));
-		g.fillRectangle('\u2551', new TerminalPosition(Field.WIDTH*2 + 1, 1), new TerminalSize(1, Field.BUFFER + Field.HEIGHT));
-		g = g.subAreaGraphics(new TerminalPosition(1, 1), new TerminalSize(Field.WIDTH*2, Field.BUFFER + Field.HEIGHT));
+		g.drawString(0, field.BUFFER + field.HEIGHT + 1, "\u255a");
+		g.drawString(field.WIDTH*2 + 1, 0, "\u2557");
+		g.drawString(field.WIDTH*2 + 1, field.BUFFER + field.HEIGHT + 1, "\u255d");
+		g.fillRectangle('\u2550', new TerminalPosition(1, 0), new TerminalSize(field.WIDTH*2, 1));
+		g.fillRectangle('\u2550', new TerminalPosition(1, field.BUFFER + field.HEIGHT + 1), new TerminalSize(field.WIDTH*2, 1));
+		g.fillRectangle('\u2551', new TerminalPosition(0, 1), new TerminalSize(1, field.BUFFER + field.HEIGHT));
+		g.fillRectangle('\u2551', new TerminalPosition(field.WIDTH*2 + 1, 1), new TerminalSize(1, field.BUFFER + field.HEIGHT));
+		g = g.subAreaGraphics(new TerminalPosition(1, 1), new TerminalSize(field.WIDTH*2, field.BUFFER + field.HEIGHT));
 		g.setBackgroundColor(Color.BLACK);
 		g.setForegroundColor(Color.BLACK);
 		g.fillArea(' ');
 
-		for(int y = -Field.BUFFER; y < Field.HEIGHT; y++) {
-			for(int x = 0; x < Field.WIDTH; x++) {
+		for(int y = -field.BUFFER; y < field.HEIGHT; y++) {
+			for(int x = 0; x < field.WIDTH; x++) {
 				Block b = engine.block(x, y);
 				ShapeType t = null;
 				if(ghosting && b == null && engine.getGhost() != -1 && XYShapes.has(engine.getGhost(), x, y))
@@ -52,11 +53,11 @@ public class EngineComponent extends AbstractComponent {
 				if(t != null) {
 					g.setBackgroundColor(color.bg(t));
 					g.setForegroundColor(color.fg(t));
-					g.drawString(x*2, y + Field.BUFFER, "\u2592\u2592", ScreenCharacterStyle.Bold);
+					g.drawString(x*2, y + field.BUFFER, "\u2592\u2592", ScreenCharacterStyle.Bold);
 				} else if(y == -1) {
 					g.setBackgroundColor(Color.BLACK);
 					g.setForegroundColor(Color.WHITE);
-					g.drawString(x*2, y + Field.BUFFER, "\u2581\u2581");
+					g.drawString(x*2, y + field.BUFFER, "\u2581\u2581");
 				}
 			}
 		}
@@ -64,7 +65,8 @@ public class EngineComponent extends AbstractComponent {
 
 	@Override
 	protected TerminalSize calculatePreferredSize() {
-		return new TerminalSize(Field.WIDTH*2 + 2, Field.BUFFER + Field.HEIGHT + 2);
+		Field field = engine.getField();
+		return new TerminalSize(field.WIDTH*2 + 2, field.BUFFER + field.HEIGHT + 2);
 	}
 
 	public boolean isGhosting() {

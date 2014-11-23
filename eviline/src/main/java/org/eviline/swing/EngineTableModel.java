@@ -23,12 +23,14 @@ public class EngineTableModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return Field.HEIGHT + Field.BUFFER;
+		Field field = engine.getField();
+		return field.HEIGHT + Field.BUFFER;
 	}
 
 	@Override
 	public int getColumnCount() {
-		return Field.WIDTH;
+		Field field = engine.getField();
+		return field.WIDTH;
 	}
 
 	@Override
