@@ -17,6 +17,9 @@ public class Field implements Cloneable {
 	
 	protected Block[] blocks;
 	
+	protected long lines;
+	protected long score;
+	
 	public Field() {
 		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	}
@@ -34,6 +37,8 @@ public class Field implements Cloneable {
 	public void copyFrom(Field other) {
 		this.mask = other.mask.clone();
 		this.blocks = other.blocks.clone();
+		this.lines = other.lines;
+		this.score = other.score;
 	}
 	
 	public Field clone() {
@@ -58,6 +63,8 @@ public class Field implements Cloneable {
 		
 		// reset the blocks
 		blocks = new Block[(HEIGHT+12) * WIDTH];
+		lines = 0;
+		score = 0;
 	}
 	
 	protected short get(int y) {
@@ -144,6 +151,9 @@ public class Field implements Cloneable {
 				cleared++;
 			}
 		}
+		lines += cleared;
+		if(cleared > 0)
+			score += cleared * cleared - 1;
 		return cleared;
 	}
 	
@@ -216,5 +226,13 @@ public class Field implements Cloneable {
 			sb.append("\n");
 		}
 		return sb.toString();
-	}	
+	}
+
+	public long getLines() {
+		return lines;
+	}
+
+	public long getScore() {
+		return score;
+	}
 }
