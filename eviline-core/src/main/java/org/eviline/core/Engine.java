@@ -107,7 +107,7 @@ public class Engine implements Cloneable {
 	
 	public void garbage(int lines) {
 		short tm = 0b1111111111;
-		short thm = (short)(1 << (int)(Field.WIDTH * Math.random()));
+		short thm = (short)(1 << (int)(field.WIDTH * Math.random()));
 		tm = (short)(tm & ~thm);
 		for(int i = 0; i < lines; i++)
 			field.shiftUp(tm);

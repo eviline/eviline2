@@ -33,14 +33,14 @@ public class DefaultFitness implements CoefficientFitness {
 		int pitsBefore = 0;
 		int pitsAfter = 0;
 		
-		for(int y = -4; y < Field.HEIGHT; y++) {
+		for(int y = -4; y < after.HEIGHT; y++) {
 			short bm = before.mask(y);
 			short am = after.mask(y);
 			
 			if(bm != 0 && mhBefore == 0)
-				mhBefore = Field.HEIGHT - y;
+				mhBefore = Field.DEFAULT_HEIGHT - y;
 			if(am != 0 && mhAfter == 0)
-				mhAfter = Field.HEIGHT - y;
+				mhAfter = Field.DEFAULT_HEIGHT - y;
 			
 			blocksBefore += Shorts.bitCount(bm);
 			blocksAfter += Shorts.bitCount(am);
@@ -54,7 +54,7 @@ public class DefaultFitness implements CoefficientFitness {
 
 		short bhm = 0;
 		short ahm = 0;
-		for(int y = -3; y < Field.HEIGHT; y++) {
+		for(int y = -3; y < after.HEIGHT; y++) {
 			bhm |= before.mask(y-1);
 			ahm |= after.mask(y-1);
 			
