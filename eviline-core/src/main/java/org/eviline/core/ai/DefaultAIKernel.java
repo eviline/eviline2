@@ -183,7 +183,9 @@ public class DefaultAIKernel implements AIKernel {
 	}
 
 	public Best bestPlacement(final Field originalField, final Field currentField, int currentShape, ShapeType[] next, final int lookahead, final int depth) {
-
+		if(Thread.interrupted())
+			throw new RuntimeException(new InterruptedException());
+		
 		if(currentShape != -1 && currentField.intersects(currentShape))
 			return new Best(new CommandGraph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
 
