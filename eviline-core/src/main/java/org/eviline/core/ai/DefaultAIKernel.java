@@ -20,6 +20,8 @@ import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
 import org.eviline.core.XYShapes;
+import org.eviline.core.conc.ConstantFuture;
+import org.eviline.core.conc.QuietCallable;
 import org.eviline.core.conc.SubtaskExecutor;
 
 public class DefaultAIKernel implements AIKernel {
@@ -116,7 +118,7 @@ public class DefaultAIKernel implements AIKernel {
 
 		Set<Integer> blitted = new HashSet<>();
 
-		Map<Double, Callable<Best>> tasks = new TreeMap<Double, Callable<Best>>();
+		Map<Double, QuietCallable<Best>> tasks = new TreeMap<Double, QuietCallable<Best>>();
 
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			if(Thread.interrupted())
@@ -137,9 +139,9 @@ public class DefaultAIKernel implements AIKernel {
 			after.blit(shape, 0);
 			after.clearLines();
 
-			Callable<Best> task = new Callable<Best>() {
+			QuietCallable<Best> task = new QuietCallable<Best>() {
 				@Override
-				public Best call() throws Exception {
+				public Best call() {
 					Best b = bestPlacement(field, after, nextShape, nextNext, lookahead, 1);
 					Best best = new Best(g, shape, b.score, after, XYShapes.shapeFromInt(shape).type(), b);
 					return best;
@@ -152,13 +154,11 @@ public class DefaultAIKernel implements AIKernel {
 			tasks.put(score, task);
 		}
 
-		for(Callable<Best> task : tasks.values()) {
+		for(QuietCallable<Best> task : tasks.values()) {
 			if(lookahead > 1 && futs.size() < pruneTop - 1)
 				futs.add(exec.submit(task));
 			else {
-				FutureTask<Best> fut = new FutureTask<>(task);
-				fut.run();
-				futs.add(fut);
+				futs.add(new ConstantFuture<>(task));
 				break;
 			}
 			if(futs.size() >= pruneTop)
@@ -212,7 +212,7 @@ public class DefaultAIKernel implements AIKernel {
 
 		Set<Integer> blitted = new HashSet<>();
 
-		Map<Double, Callable<Best>> tasks = new TreeMap<Double, Callable<Best>>();
+		Map<Double, QuietCallable<Best>> tasks = new TreeMap<Double, QuietCallable<Best>>();
 
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			if(Thread.interrupted())
@@ -233,9 +233,9 @@ public class DefaultAIKernel implements AIKernel {
 			nextField.blit(shape, 0);
 			nextField.clearLines();
 
-			Callable<Best> task = new Callable<Best>() {
+			QuietCallable<Best> task = new QuietCallable<Best>() {
 				@Override
-				public Best call() throws Exception {
+				public Best call() {
 					Best nextBest = bestPlacement(originalField, nextField, nextShape, nextNext, lookahead - 1, depth + 1);
 					return new Best(g, shape, nextBest.score, nextField, XYShapes.shapeFromInt(shape).type(), nextBest);
 				}
@@ -247,13 +247,11 @@ public class DefaultAIKernel implements AIKernel {
 			tasks.put(score, task);
 		}
 
-		for(Callable<Best> task : tasks.values()) {
+		for(QuietCallable<Best> task : tasks.values()) {
 			if(lookahead > 1 && futs.size() < pruneTop - depth - 1)
 				futs.add(exec.submit(task));
 			else {
-				FutureTask<Best> fut = new FutureTask<>(task);
-				fut.run();
-				futs.add(fut);
+				futs.add(new ConstantFuture<>(task));
 				break;
 			}
 			if(futs.size() >= pruneTop - depth)
