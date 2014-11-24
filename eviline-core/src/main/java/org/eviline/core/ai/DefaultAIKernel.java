@@ -14,6 +14,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
@@ -240,8 +241,15 @@ public class DefaultAIKernel implements AIKernel {
 		}
 
 		for(Callable<Best> task : tasks.values()) {
-			futs.add(exec.submit(task));
-			if(futs.size() >= pruneTop - depth || lookahead <= 1)
+			if(lookahead > 1)
+				futs.add(exec.submit(task));
+			else {
+				FutureTask<Best> fut = new FutureTask<>(task);
+				fut.run();
+				futs.add(fut);
+				break;
+			}
+			if(futs.size() >= pruneTop - depth)
 				break;
 		}
 
