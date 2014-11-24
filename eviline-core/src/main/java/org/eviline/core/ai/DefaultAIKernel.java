@@ -153,8 +153,15 @@ public class DefaultAIKernel implements AIKernel {
 		}
 
 		for(Callable<Best> task : tasks.values()) {
-			futs.add(exec.submit(task));
-			if(futs.size() >= pruneTop )
+			if(lookahead > 1 && futs.size() < pruneTop - 1)
+				futs.add(exec.submit(task));
+			else {
+				FutureTask<Best> fut = new FutureTask<>(task);
+				fut.run();
+				futs.add(fut);
+				break;
+			}
+			if(futs.size() >= pruneTop)
 				break;
 		}
 
@@ -241,7 +248,7 @@ public class DefaultAIKernel implements AIKernel {
 		}
 
 		for(Callable<Best> task : tasks.values()) {
-			if(lookahead > 1)
+			if(lookahead > 1 && futs.size() < pruneTop - depth - 1)
 				futs.add(exec.submit(task));
 			else {
 				FutureTask<Best> fut = new FutureTask<>(task);
