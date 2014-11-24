@@ -29,9 +29,6 @@ public class NextFitness implements CoefficientFitness {
 //			return df.badness(before, after, next);
 		}
 		
-		after = after.clone();
-		after.clearLines();
-		
 		int mhBefore = 0;
 		int mhAfter = 0;
 		

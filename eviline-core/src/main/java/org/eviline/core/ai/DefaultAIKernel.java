@@ -134,6 +134,7 @@ public class DefaultAIKernel implements AIKernel {
 
 			final Field after = field.clone();
 			after.blit(shape, 0);
+			after.clearLines();
 
 			Callable<Best> task = new Callable<Best>() {
 				@Override
@@ -222,6 +223,7 @@ public class DefaultAIKernel implements AIKernel {
 
 			final Field nextField = currentField.clone();
 			nextField.blit(shape, 0);
+			nextField.clearLines();
 
 			Callable<Best> task = new Callable<Best>() {
 				@Override

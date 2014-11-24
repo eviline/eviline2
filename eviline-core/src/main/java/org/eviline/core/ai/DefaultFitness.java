@@ -12,9 +12,6 @@ public class DefaultFitness implements CoefficientFitness {
 	
 	@Override
 	public double badness(Field before, Field after, ShapeType[] next) {
-		after = after.clone();
-		after.clearLines();
-		
 		int mhBefore = 0;
 		int mhAfter = 0;
 		
