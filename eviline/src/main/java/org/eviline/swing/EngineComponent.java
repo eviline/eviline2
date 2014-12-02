@@ -62,18 +62,22 @@ public class EngineComponent extends JComponent {
 	public Dimension getPreferredSize() {
 		if(isPreferredSizeSet())
 			return super.getPreferredSize();
-		return new Dimension((int)(blockSizeX * Field.WIDTH), (int)(blockSizeY * (Field.HEIGHT + Field.BUFFER)));
+		Field field = engine.getField();
+		return new Dimension((int)(blockSizeX * field.WIDTH), (int)(blockSizeY * (field.HEIGHT + field.BUFFER)));
 	}
 	
 	@Override
 	public Dimension getMinimumSize() {
-		return new Dimension((int)(blockSizeX * Field.WIDTH), (int)(blockSizeY * (Field.HEIGHT + Field.BUFFER)));
+		Field field = engine.getField();
+		return new Dimension((int)(blockSizeX * field.WIDTH), (int)(blockSizeY * (field.HEIGHT + field.BUFFER)));
 	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-		blockSizeX = getWidth() / (double) Field.WIDTH;
-		blockSizeY = getHeight() / (double) (Field.HEIGHT + Field.BUFFER);
+		Field field = engine.getField();
+		
+		blockSizeX = getWidth() / (double) field.WIDTH;
+		blockSizeY = getHeight() / (double) (field.HEIGHT + field.BUFFER);
 
 		((Graphics2D) g).scale(blockSizeX / (int) blockSizeX, blockSizeY / (int) blockSizeY);
 		blockSizeX = (int) blockSizeX;
@@ -84,16 +88,16 @@ public class EngineComponent extends JComponent {
 		
 		g.setColor(getForeground());
 		((Graphics2D) g).setStroke(new BasicStroke(1f));
-		for(int y = -Field.BUFFER; y < Field.HEIGHT; y++) {
-			for(int x = 0; x < Field.WIDTH; x++) {
+		for(int y = -field.BUFFER; y < field.HEIGHT; y++) {
+			for(int x = 0; x < field.WIDTH; x++) {
 				int px = (int)(x * blockSizeX);
-				int py = (int)((y + Field.BUFFER) * blockSizeY);
+				int py = (int)((y + field.BUFFER) * blockSizeY);
 				g.drawRect(px-1, py-1, 1, 1);
 			}
 		}
 		
-		for(int y = -Field.BUFFER; y < Field.HEIGHT; y++) {
-			for(int x = 0; x < Field.WIDTH; x++) {
+		for(int y = -field.BUFFER; y < field.HEIGHT; y++) {
+			for(int x = 0; x < field.WIDTH; x++) {
 				Block b = engine.block(x, y);
 				
 				boolean ghost = false;
@@ -102,7 +106,7 @@ public class EngineComponent extends JComponent {
 				
 				if(y < 0 && !ghost) {
 					g.setColor(new Color(255,255,255,128));
-					g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), (int) blockSizeX, (int) blockSizeY);
+					g.fillRect((int)(x*blockSizeX), (int)((y+field.BUFFER)*blockSizeY), (int) blockSizeX, (int) blockSizeY);
 				}
 				
 				if(b != null) {
@@ -114,33 +118,33 @@ public class EngineComponent extends JComponent {
 				
 					if(type != null) {
 						if(images != null) {
-							g.drawImage(images.get(type), (int)(x*blockSizeX), (int)((y+Field.BUFFER) * blockSizeY), (int) blockSizeX, (int) blockSizeY, null);
+							g.drawImage(images.get(type), (int)(x*blockSizeX), (int)((y+field.BUFFER) * blockSizeY), (int) blockSizeX, (int) blockSizeY, null);
 						} else {
 							g.setColor(colors.get(type));
-							g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), (int)blockSizeX, (int)blockSizeY);
+							g.fillRect((int)(x*blockSizeX), (int)((y+field.BUFFER)*blockSizeY), (int)blockSizeX, (int)blockSizeY);
 						}
 					}
 				}
 				
 				if(ghost) {
 					g.setColor(new Color(255,255,255));
-					g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), (int) blockSizeX, (int) blockSizeY);
+					g.fillRect((int)(x*blockSizeX), (int)((y+field.BUFFER)*blockSizeY), (int) blockSizeX, (int) blockSizeY);
 				}
 
 				if(b != null) {
 					g.setColor(Color.BLACK);
 					Block adj = (x > 0) ? engine.block(x-1, y) : null;
 					if(adj == null || b.id() != adj.id())
-						g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), 1, (int)blockSizeY);
-					adj = (x < Field.WIDTH - 1) ? engine.block(x+1, y) : null;
+						g.fillRect((int)(x*blockSizeX), (int)((y+field.BUFFER)*blockSizeY), 1, (int)blockSizeY);
+					adj = (x < field.WIDTH - 1) ? engine.block(x+1, y) : null;
 					if(adj == null || b.id() != adj.id())
-						g.fillRect((int)((x+1)*blockSizeX)-1, (int)((y+Field.BUFFER)*blockSizeY), 1, (int)blockSizeY);
-					adj = (y >= -Field.BUFFER) ? engine.block(x, y+1) : null;
+						g.fillRect((int)((x+1)*blockSizeX)-1, (int)((y+field.BUFFER)*blockSizeY), 1, (int)blockSizeY);
+					adj = (y >= -field.BUFFER) ? engine.block(x, y+1) : null;
 					if(adj == null || b.id() != adj.id())
-						g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER+1)*blockSizeY)-1, (int)blockSizeX, 1);
-					adj = (y < Field.HEIGHT) ? engine.block(x, y-1) : null;
+						g.fillRect((int)(x*blockSizeX), (int)((y+field.BUFFER+1)*blockSizeY)-1, (int)blockSizeX, 1);
+					adj = (y < field.HEIGHT) ? engine.block(x, y-1) : null;
 					if(adj == null || b.id() != adj.id())
-						g.fillRect((int)(x*blockSizeX), (int)((y+Field.BUFFER)*blockSizeY), (int)blockSizeX, 1);
+						g.fillRect((int)(x*blockSizeX), (int)((y+field.BUFFER)*blockSizeY), (int)blockSizeX, 1);
 				}
 			}
 		}
@@ -154,7 +158,7 @@ public class EngineComponent extends JComponent {
 			for(int i = 0; i < over.length(); i++) {
 				String s = over.substring(i, i+1);
 				int w = g.getFontMetrics().stringWidth(s);
-				g.drawString(s, (int)((Field.WIDTH / 2) * blockSizeX) - w/2, (int)((Field.BUFFER + i*2+2) * blockSizeY));
+				g.drawString(s, (int)((field.WIDTH / 2) * blockSizeX) - w/2, (int)((field.BUFFER + i*2+2) * blockSizeY));
 			}
 		}
 	}

@@ -28,8 +28,6 @@ public class Engine implements Cloneable {
 	protected Field field;
 	
 	protected ShapeSource shapes;
-	protected long lines;
-	protected long score;
 	protected boolean over;
 	protected long tickCount;
 	protected long shapeCount;
@@ -76,8 +74,6 @@ public class Engine implements Cloneable {
 		field.reset();
 		shape = -1;
 		shapeId = 0;
-		lines = 0;
-		score = 0;
 		tickCount = 0;
 		shapeCount = 0;
 		shapes = conf.shapes(this);
@@ -107,7 +103,7 @@ public class Engine implements Cloneable {
 	
 	public void garbage(int lines) {
 		short tm = 0b1111111111;
-		short thm = (short)(1 << (int)(Field.WIDTH * Math.random()));
+		short thm = (short)(1 << (int)(field.WIDTH * Math.random()));
 		tm = (short)(tm & ~thm);
 		for(int i = 0; i < lines; i++)
 			field.shiftUp(tm);
@@ -119,8 +115,6 @@ public class Engine implements Cloneable {
 		if(shape == -1) {
 			int cleared = field.clearLines();
 			if(cleared > 0) {
-				lines += cleared;
-				score += cleared * cleared - 1;
 				return true;
 			}
 		}
@@ -344,7 +338,7 @@ public class Engine implements Cloneable {
 	}
 
 	public long getLines() {
-		return lines;
+		return field.getLines();
 	}
 
 	public boolean isOver() {
@@ -379,7 +373,7 @@ public class Engine implements Cloneable {
 	}
 
 	public long getScore() {
-		return score;
+		return field.getScore();
 	}
 
 	public boolean isPaused() {

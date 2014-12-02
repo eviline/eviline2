@@ -4,10 +4,10 @@ import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
 import org.eviline.core.Shorts;
 
-public class DefaultFitness implements CoefficientFitness {
+public class ScoreFitness implements CoefficientFitness {
 
 	protected double[] c = new double[] {
-			0.4336283987124731, 0.36005330744432673, 6.98229343443467, 9.862352551247495, -0.02320808076007677
+			-0.7250521730158973, 0.3211340710022499, 1.7441273747563424, 6.882339388399415, -0.013908941267288526, -5.051846625785866
 	};
 	
 	@Override
@@ -68,6 +68,7 @@ public class DefaultFitness implements CoefficientFitness {
 				+ c[2] * (mhAfter - mhBefore)
 				+ c[3] * (holesAfter-holesBefore)
 				+ c[4] * (pitsAfter - pitsBefore)
+				+ c[5] * (after.getScore() - before.getScore())
 				;
 	}
 

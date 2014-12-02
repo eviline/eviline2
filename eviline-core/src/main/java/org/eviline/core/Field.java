@@ -3,23 +3,47 @@ package org.eviline.core;
 import java.util.Arrays;
 
 public class Field implements Cloneable {
-	public static final int WIDTH = 10;
-	public static final int HEIGHT = 20;
+	public static final int DEFAULT_WIDTH = 10;
+	public static final int DEFAULT_HEIGHT = 20;
 	public static final int BUFFER = 3;
 	
-	protected static final short WALL = (short) 0b1110000000000111;
+	protected static final long SPAWN_MASK =
+			(0b1111L << 60) |
+			(0b1111L << 44) ;
+			
+	
+	public final int WIDTH;
+	public final int HEIGHT;
+	
+	protected final short WALL; // = (short) 0b1110000000000111;
+	protected final short CLEAR;
 	
 	protected short[] mask;
 	
 	protected Block[] blocks;
 	
+	protected long lines;
+	protected long score;
+	
 	public Field() {
+		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	}
+	
+	public Field(int width, int height) {
+		if(width < 1 || width > 10 || height < 1 || height > 20)
+			throw new IllegalArgumentException();
+		WIDTH = width;
+		HEIGHT = height;
+		WALL = (short)(0b1110000000000000 | (7 << (10 - WIDTH)));
+		CLEAR = (short)(-1 << (10 - WIDTH));
 		reset();
 	}
 	
 	public void copyFrom(Field other) {
 		this.mask = other.mask.clone();
 		this.blocks = other.blocks.clone();
+		this.lines = other.lines;
+		this.score = other.score;
 	}
 	
 	public Field clone() {
@@ -37,13 +61,15 @@ public class Field implements Cloneable {
 		// reset the mask
 		mask = new short[32];
 		int y;
-		for(y = -8; y < Field.HEIGHT; y++)
+		for(y = -8; y < HEIGHT; y++)
 			set(y, WALL);
-		for(; y < Field.HEIGHT + BUFFER; y++)
+		for(; y < HEIGHT + BUFFER; y++)
 			set(y, (short) -1);
 		
 		// reset the blocks
 		blocks = new Block[(HEIGHT+12) * WIDTH];
+		lines = 0;
+		score = 0;
 	}
 	
 	protected short get(int y) {
@@ -74,6 +100,12 @@ public class Field implements Cloneable {
 		int s_id = XYShapes.shapeIdFromInt(xyshape);
 		long imask = imask(s_y);
 		long smask = Shape.shapeMask(s_id, s_x);
+		return (imask & smask) != 0;
+	}
+	
+	public boolean isSpawnEndangered() {
+		long imask = imask(-2);
+		long smask = SPAWN_MASK >>> (BUFFER + WIDTH / 2 - 2);
 		return (imask & smask) != 0;
 	}
 	
@@ -124,27 +156,30 @@ public class Field implements Cloneable {
 	public int clearLines() {
 		int cleared = 0;
 		for(int y = HEIGHT - 1; y >= -8; y--) {
-			if(get(y) == (short) 0xffff) {
+			if(get(y) == CLEAR) {
 				clear(y);
 				y++;
 				cleared++;
 			}
 		}
+		lines += cleared;
+		if(cleared > 0)
+			score += cleared * cleared - 1;
 		return cleared;
 	}
 	
 	public void shiftUp(short trashMask) {
 		trashMask |= (short) 0b11100000000111;
-		for(int i = -8+1; i < Field.HEIGHT; i++)
+		for(int i = -8+1; i < HEIGHT; i++)
 			set(i-1, get(i));
-		set(Field.HEIGHT - 1, trashMask);
-		System.arraycopy(blocks, WIDTH, blocks, 0, WIDTH * (Field.HEIGHT + 8-1));
+		set(HEIGHT - 1, trashMask);
+		System.arraycopy(blocks, WIDTH, blocks, 0, WIDTH * (HEIGHT + 8-1));
 		long m = 0b1000;
 		for(int x = WIDTH-1; x >= 0; x--) {
 			Block b = null;
 			if((trashMask & m) == m)
 				b = new Block(Block.MASK_GARBAGE);
-			blocks[x + WIDTH * (Field.HEIGHT + 8-1)] = b;
+			blocks[x + WIDTH * (HEIGHT + 8-1)] = b;
 			m = m << 1;
 		}
 	}
@@ -202,5 +237,13 @@ public class Field implements Cloneable {
 			sb.append("\n");
 		}
 		return sb.toString();
-	}	
+	}
+
+	public long getLines() {
+		return lines;
+	}
+
+	public long getScore() {
+		return score;
+	}
 }
