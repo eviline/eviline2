@@ -47,6 +47,8 @@ public class Field implements Cloneable {
 		this.blocks = other.blocks.clone();
 		this.lines = other.lines;
 		this.score = other.score;
+		this.combos = other.combos;
+		this.comboMultiplier = other.comboMultiplier;
 	}
 	
 	public Field clone() {
@@ -73,6 +75,7 @@ public class Field implements Cloneable {
 		blocks = new Block[(HEIGHT+12) * WIDTH];
 		lines = 0;
 		score = 0;
+		combos = false;
 		comboMultiplier = 0;
 	}
 	
