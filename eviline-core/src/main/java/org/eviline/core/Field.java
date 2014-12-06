@@ -25,6 +25,9 @@ public class Field implements Cloneable {
 	protected long lines;
 	protected long score;
 	
+	protected boolean combos;
+	protected int comboMultiplier;
+	
 	public Field() {
 		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	}
@@ -70,6 +73,7 @@ public class Field implements Cloneable {
 		blocks = new Block[(HEIGHT+12) * WIDTH];
 		lines = 0;
 		score = 0;
+		comboMultiplier = 0;
 	}
 	
 	protected short get(int y) {
@@ -163,8 +167,10 @@ public class Field implements Cloneable {
 			}
 		}
 		lines += cleared;
-		if(cleared > 0)
-			score += cleared * cleared - 1;
+		if(cleared > 0) {
+			score += cleared * cleared * (++comboMultiplier) - 1;
+		} else
+			comboMultiplier = 0;
 		return cleared;
 	}
 	
@@ -245,5 +251,13 @@ public class Field implements Cloneable {
 
 	public long getScore() {
 		return score;
+	}
+
+	public boolean isCombos() {
+		return combos;
+	}
+
+	public void setCombos(boolean combos) {
+		this.combos = combos;
 	}
 }
