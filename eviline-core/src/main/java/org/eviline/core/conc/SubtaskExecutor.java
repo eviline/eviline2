@@ -12,24 +12,32 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SubtaskExecutor implements Executor {
+	public static final long DEFAULT_BUSY_WAIT_MILLIS = 10;
 
 	protected Executor executor;
 	protected Deque<SyncFutureTask<?>> tasks;
 	protected ReentrantLock sync;
 	protected Condition mutex;
-	
+	protected long busyWaitMillis;
+
 	public SubtaskExecutor(Executor executor) {
+		this(executor, DEFAULT_BUSY_WAIT_MILLIS);
+	}
+
+	public SubtaskExecutor(Executor executor, long busyWaitMillis) {
 		this.executor = executor;
+		this.busyWaitMillis = busyWaitMillis;
 		tasks = new ArrayDeque<>();
 		sync = new ReentrantLock();
 		mutex = sync.newCondition();
+
 	}
-	
+
 	@Override
 	public void execute(Runnable command) {
 		submit(command);
 	}
-	
+
 	public SyncFutureTask<?> submit(Runnable task) {
 		return submit(task, null);
 	}
@@ -52,29 +60,41 @@ public class SubtaskExecutor implements Executor {
 	}
 
 	public void await(Future<?> future) {
-		sync.lock();
-		try {
-			while(!future.isDone()) {
-				FutureTask<?> subtask = tasks.poll();
-				if(subtask != null) {
-					sync.unlock();
-					try {
-						subtask.run();
-					} finally {
-						sync.lock();
-					}
-				} else {
-					while(!future.isDone() && tasks.size() == 0) {
+		while(!future.isDone()) {
+			long busyTimeout = System.currentTimeMillis() + busyWaitMillis;
+			while(System.currentTimeMillis() < busyTimeout
+					&& !future.isDone()
+					&& tasks.size() == 0)
+				;
+			if(future.isDone())
+				return;
+			FutureTask<?> subtask;
+			sync.lock();
+			try {
+				subtask = tasks.poll();
+			} finally {
+				sync.unlock();
+			}
+			if(subtask != null) {
+				subtask.run();
+				continue;
+			}
+			if(!future.isDone() && tasks.size() == 0) {
+				sync.lock();
+				try {
+					if(!future.isDone() && tasks.size() == 0) {
 						mutex.awaitUninterruptibly();
-						mutex.signal();
+						if(!future.isDone() && tasks.size() == 0)
+							mutex.signal();
 					}
+				} finally {
+					sync.unlock();
 				}
 			}
-		} finally {
-			sync.unlock();
 		}
+		
 	}
-	
+
 	public void call(Runnable task) throws ExecutionException {
 		submit(task).get();
 	}
@@ -86,12 +106,12 @@ public class SubtaskExecutor implements Executor {
 	public <V> V call(Callable<V> task) throws ExecutionException {
 		return submit(task).get();
 	}
-	
+
 	public class SyncFutureTask<V> extends FutureTask<V> {
 		protected SyncFutureTask(Callable<V> task) {
 			super(task);
 		}
-		
+
 		@Override
 		protected void done() {
 			sync.lock();
@@ -101,7 +121,7 @@ public class SubtaskExecutor implements Executor {
 				sync.unlock();
 			}
 		}
-		
+
 		@Override
 		public V get() throws ExecutionException {
 			await(this);
