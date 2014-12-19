@@ -248,7 +248,6 @@ public class Engine implements Cloneable {
 						shape = moved;
 					else {
 						field.blit(shape, shapeId);
-						field.clearLines();
 						shape = -1;
 						shapeId++;
 						locked = true;
@@ -259,11 +258,9 @@ public class Engine implements Cloneable {
 			}
 		}
 		
-//		if(locked) {
-//			int cleared = field.clearLines();
-//			lines += cleared;
-//			score += cleared * cleared * cleared;
-//		}
+		if(locked) {
+			field.clearLines();
+		}
 		
 		if(shape == -1) {
 			if(respawnFramesRemaining == null) {
