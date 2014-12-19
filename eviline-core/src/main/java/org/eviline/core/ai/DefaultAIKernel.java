@@ -195,8 +195,6 @@ public class DefaultAIKernel implements AIKernel {
 			return new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null, null);
 		}
 
-		currentField.clearLines();
-
 		final CommandGraph g = new CommandGraph(currentField, currentShape, dropsOnly);
 		Best best = new Best(g, currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
 
