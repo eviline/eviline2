@@ -112,12 +112,6 @@ public class Engine implements Cloneable {
 	public synchronized boolean tick(Command c) {
 		if(isPaused())
 			return false;
-		if(shape == -1) {
-			int cleared = field.clearLines();
-			if(cleared > 0) {
-				return true;
-			}
-		}
 		boolean success = false;
 		boolean locked = false;
 		switch(c) {
@@ -254,6 +248,7 @@ public class Engine implements Cloneable {
 						shape = moved;
 					else {
 						field.blit(shape, shapeId);
+						field.clearLines();
 						shape = -1;
 						shapeId++;
 						locked = true;
