@@ -170,7 +170,8 @@ public class Field implements Cloneable {
 		lines += cleared;
 		if(cleared > 0) {
 			score += cleared * cleared - 1;
-			comboScore += cleared * cleared * (++comboMultiplier) - 1;
+			comboMultiplier += cleared;
+			comboScore += cleared * comboMultiplier - 1;
 		} else
 			comboMultiplier = 0;
 		return cleared;
