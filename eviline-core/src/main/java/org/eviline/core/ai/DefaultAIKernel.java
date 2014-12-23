@@ -52,10 +52,9 @@ public class DefaultAIKernel implements AIKernel {
 			this.graph = graph;
 			this.shape = shape;
 			this.score = score;
-			if(after != null) {
+			if(after != null)
 				this.after = after.clone();
-				this.after.clearLines();
-			} else
+			else
 				this.after = null;
 			this.type = type;
 			this.deeper = deeper;
