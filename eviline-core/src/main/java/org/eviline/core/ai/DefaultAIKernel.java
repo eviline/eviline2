@@ -68,12 +68,34 @@ public class DefaultAIKernel implements AIKernel {
 		}
 	}
 
+	public static interface BestAdjuster {
+		public Best adjust(Best best);
+	}
+	
+	public static class IdentityBestAdjuster implements BestAdjuster {
+		private static final IdentityBestAdjuster instance = new IdentityBestAdjuster();
+		
+		public static IdentityBestAdjuster get() {
+			return instance;
+		}
+		
+		private IdentityBestAdjuster() {}
+		
+		@Override
+		public Best adjust(Best best) {
+			return best;
+		}
+		
+	}
+	
 	protected Fitness fitness;
 	protected SubtaskExecutor exec;
 
 	protected boolean dropsOnly;
 
 	protected int pruneTop = Integer.MAX_VALUE;
+	
+	protected BestAdjuster adjuster = IdentityBestAdjuster.get();
 
 	public DefaultAIKernel() {
 		this(new DefaultFitness());
@@ -186,12 +208,12 @@ public class DefaultAIKernel implements AIKernel {
 			throw new RuntimeException(new InterruptedException());
 		
 		if(currentShape != -1 && currentField.intersects(currentShape))
-			return new Best(new CommandGraph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
+			return adjuster.adjust(new Best(new CommandGraph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null));
 
 		if(currentShape == -1 || lookahead <= 0) {
 			if(currentField.isSpawnEndangered())
-				return new Best(new CommandGraph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
-			return new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null, null);
+				return adjuster.adjust(new Best(new CommandGraph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null));
+			return adjuster.adjust(new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null, null));
 		}
 
 		final CommandGraph g = new CommandGraph(currentField, currentShape, dropsOnly);
@@ -341,7 +363,7 @@ public class DefaultAIKernel implements AIKernel {
 			final int lookahead, 
 			ShapeType type) {
 		if(lookahead <= 0 || bag.size() == 0) {
-			return new Best(null, -1, fitness.badness(originalField, currentField, new ShapeType[] {type}), currentField, type, null);
+			return adjuster.adjust(new Best(null, -1, fitness.badness(originalField, currentField, new ShapeType[] {type}), currentField, type, null));
 		}
 
 		currentField.clearLines();
@@ -421,5 +443,13 @@ public class DefaultAIKernel implements AIKernel {
 
 	public void setPruneTop(int pruneTop) {
 		this.pruneTop = pruneTop;
+	}
+	
+	public BestAdjuster getAdjuster() {
+		return adjuster;
+	}
+	
+	public void setAdjuster(BestAdjuster adjuster) {
+		this.adjuster = adjuster;
 	}
 }
