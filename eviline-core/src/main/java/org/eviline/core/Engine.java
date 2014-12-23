@@ -392,4 +392,8 @@ public class Engine implements Cloneable {
 	public long getShapeId() {
 		return shapeId;
 	}
+	
+	public void setShapes(ShapeSource shapes) {
+		this.shapes = shapes;
+	}
 }

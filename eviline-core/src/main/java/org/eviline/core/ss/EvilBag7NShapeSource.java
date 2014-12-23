@@ -84,6 +84,14 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 					bag.addAll(Arrays.asList(ShapeType.blocks()));
 		}
 	}
+	
+	public AIKernel getAi() {
+		return ai;
+	}
+	
+	public void setAi(AIKernel ai) {
+		this.ai = ai;
+	}
 
 	public int getLookahead() {
 		return lookahead;
