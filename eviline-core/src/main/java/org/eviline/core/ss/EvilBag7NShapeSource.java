@@ -75,6 +75,16 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 		return bag.toArray(new ShapeType[bag.size()]);
 	}
 
+	public boolean remove(ShapeType type) {
+		try {
+			return bag.remove(type);
+		} finally {
+			if(bag.size() == 0)
+				for(int i = 0; i < n; i++)
+					bag.addAll(Arrays.asList(ShapeType.blocks()));
+		}
+	}
+
 	public int getLookahead() {
 		return lookahead;
 	}

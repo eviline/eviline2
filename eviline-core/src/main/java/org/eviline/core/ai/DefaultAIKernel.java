@@ -339,7 +339,7 @@ public class DefaultAIKernel implements AIKernel {
 			List<ShapeType> bag, 
 			final int lookahead, 
 			ShapeType type) {
-		if(lookahead == 0 || bag.size() == 0) {
+		if(lookahead <= 0 || bag.size() == 0) {
 			return new Best(null, -1, fitness.badness(originalField, currentField, new ShapeType[] {type}), currentField, type, null);
 		}
 
@@ -348,7 +348,7 @@ public class DefaultAIKernel implements AIKernel {
 		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null, null);
 
 		int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
-		final Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1, 0);
+		final Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1, 1);
 		final List<ShapeType> nextBag = new ArrayList<>(bag);
 		nextBag.remove(type);
 

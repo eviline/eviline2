@@ -22,6 +22,11 @@ public class Engine implements Cloneable {
 		public ShapeType[] getBag() {
 			return bag;
 		}
+		
+		@Override
+		public boolean remove(ShapeType type) {
+			return false;
+		}
 	}
 
 	protected Configuration conf;
