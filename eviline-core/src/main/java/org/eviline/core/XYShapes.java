@@ -49,6 +49,10 @@ public class XYShapes {
 		return (i >>> 9);
 	}
 	
+	public static int shapeTypeIdFromInt(int i) {
+		return shapeIdFromInt(i) >>> 2;
+	}
+	
 	public static Shape shapeFromInt(int i) {
 		return Shape.fromOrdinal(i >>> 9);
 	}

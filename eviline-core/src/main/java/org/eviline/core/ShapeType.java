@@ -39,6 +39,8 @@ public enum ShapeType {
 	G, // garbage
 	;
 	
+	public static final int COUNT = 7;
+	
 	public static final int S_ORD = 0;
 	public static final int Z_ORD = 1;
 	public static final int J_ORD = 2;

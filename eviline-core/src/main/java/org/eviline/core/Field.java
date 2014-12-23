@@ -28,6 +28,8 @@ public class Field implements Cloneable {
 	protected int comboMultiplier;
 	protected long comboScore;
 	
+	protected long[] typeBlitCounts;
+	
 	public Field() {
 		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	}
@@ -45,6 +47,7 @@ public class Field implements Cloneable {
 	public void copyFrom(Field other) {
 		this.mask = other.mask.clone();
 		this.blocks = other.blocks.clone();
+		this.typeBlitCounts = other.typeBlitCounts.clone();
 		this.lines = other.lines;
 		this.score = other.score;
 		this.comboMultiplier = other.comboMultiplier;
@@ -55,6 +58,7 @@ public class Field implements Cloneable {
 			Field f = (Field) super.clone();
 			f.mask = mask.clone();
 			f.blocks = blocks.clone();
+			f.typeBlitCounts = typeBlitCounts.clone();
 			return f;
 		} catch(CloneNotSupportedException e) {
 			throw new InternalError("clone not supported?");
@@ -75,6 +79,7 @@ public class Field implements Cloneable {
 		lines = 0;
 		score = 0;
 		comboMultiplier = 0;
+		typeBlitCounts = new long[ShapeType.COUNT];
 	}
 	
 	protected short get(int y) {
@@ -123,6 +128,7 @@ public class Field implements Cloneable {
 		int s_x = XYShapes.xFromInt(xyshape);
 		int s_y = XYShapes.yFromInt(xyshape);
 		int s_id = XYShapes.shapeIdFromInt(xyshape);
+		int s_ti = XYShapes.shapeTypeIdFromInt(xyshape);
 		long smask = Shape.shapeMask(s_id, s_x);
 		Shorts.setBits(mask, s_y+8, smask);
 		Block block = new Block(Shape.fromOrdinal(s_id), id);
@@ -136,6 +142,7 @@ public class Field implements Cloneable {
 			}
 			smask = smask >>> 3;
 		}
+		typeBlitCounts[s_ti]++;
 	}
 	
 	/**
@@ -258,5 +265,9 @@ public class Field implements Cloneable {
 
 	public long getComboScore() {
 		return comboScore;
+	}
+	
+	public long[] getTypeBlitCounts() {
+		return typeBlitCounts;
 	}
 }
