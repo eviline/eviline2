@@ -58,7 +58,7 @@ public class CommandGraph {
 			vertices[i * 3 + COMMAND] = NULL_COMMAND;
 			vertices[i * 3 + PATH_LENGTH] = Integer.MAX_VALUE;
 		}
-		if(!field.intersects(start))
+		if(start != -1 && !field.intersects(start))
 			searchRoot(start, field);
 	}
 
