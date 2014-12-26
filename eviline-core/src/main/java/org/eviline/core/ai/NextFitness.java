@@ -18,7 +18,7 @@ public class NextFitness implements CoefficientFitness {
 
 	};
 	
-//	protected DefaultFitness df = new DefaultFitness();
+	protected DefaultFitness df = new DefaultFitness();
 	
 	@Override
 	public double badness(Field before, Field after, ShapeType[] next) {
@@ -26,7 +26,7 @@ public class NextFitness implements CoefficientFitness {
 		if(next != null && next.length > 0 && next[0] != null) {
 			off = 5 + 5 * next[0].ordinal();
 		} else {
-//			return df.badness(before, after, next);
+			return df.badness(before, after, next);
 		}
 		
 		int mhBefore = 0;
