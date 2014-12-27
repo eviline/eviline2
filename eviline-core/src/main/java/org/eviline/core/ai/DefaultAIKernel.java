@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -89,7 +90,7 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	protected Fitness fitness;
-	protected SubtaskExecutor exec;
+	protected ExecutorService exec;
 
 	protected boolean dropsOnly;
 
@@ -105,12 +106,8 @@ public class DefaultAIKernel implements AIKernel {
 		this(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()), fitness);
 	}
 	
-	public DefaultAIKernel(Executor exec, Fitness fitness) {
-		this(new SubtaskExecutor(exec), fitness);
-	}
-
-	public DefaultAIKernel(SubtaskExecutor exec, Fitness fitness) {
-		this.exec = new SubtaskExecutor(exec);
+	public DefaultAIKernel(ExecutorService exec, Fitness fitness) {
+		this.exec = exec;
 		this.fitness = fitness;
 	}
 
@@ -421,11 +418,11 @@ public class DefaultAIKernel implements AIKernel {
 		this.fitness = fitness;
 	}
 
-	public SubtaskExecutor getExec() {
+	public ExecutorService getExec() {
 		return exec;
 	}
 
-	public void setExec(SubtaskExecutor exec) {
+	public void setExec(ExecutorService exec) {
 		this.exec = exec;
 	}
 
