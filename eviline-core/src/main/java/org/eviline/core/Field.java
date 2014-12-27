@@ -51,10 +51,12 @@ public class Field implements Cloneable {
 	public void copyFrom(Field other) {
 		this.mask = other.mask.clone();
 		this.blocks = other.blocks.clone();
-		this.typeBlitCounts = other.typeBlitCounts.clone();
 		this.lines = other.lines;
 		this.score = other.score;
 		this.comboMultiplier = other.comboMultiplier;
+		this.comboScore = other.comboScore;
+		this.typeBlitCounts = other.typeBlitCounts;
+		this.noBlocks = other.noBlocks;
 	}
 
 	public Field clone() {
