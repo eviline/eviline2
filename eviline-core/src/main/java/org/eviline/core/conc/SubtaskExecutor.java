@@ -19,6 +19,7 @@ public class SubtaskExecutor implements Executor {
 	protected ReentrantLock sync;
 	protected Condition mutex;
 	protected long busyWaitMillis;
+	protected int awaiting = 0;
 
 	public SubtaskExecutor(Executor executor) {
 		this(executor, DEFAULT_BUSY_WAIT_MILLIS);
@@ -48,11 +49,14 @@ public class SubtaskExecutor implements Executor {
 
 	public <V> SyncFutureTask<V> submit(Callable<V> task) {
 		SyncFutureTask<V> future = new SyncFutureTask<V>(task);
-		executor.execute(future);
 		sync.lock();
 		try {
-			tasks.offer(future);
-			mutex.signal();
+			if(awaiting == 0)
+				executor.execute(future);
+			else {
+				tasks.offer(future);
+				mutex.signal();
+			}
 		} finally {
 			sync.unlock();
 		}
@@ -60,39 +64,41 @@ public class SubtaskExecutor implements Executor {
 	}
 
 	public void await(Future<?> future) {
-		while(!future.isDone()) {
-			long busyTimeout = System.currentTimeMillis() + busyWaitMillis;
-			while(System.currentTimeMillis() < busyTimeout
-					&& !future.isDone()
-					&& tasks.size() == 0)
-				;
-			if(future.isDone())
-				return;
-			FutureTask<?> subtask;
-			sync.lock();
-			try {
+		sync.lock();
+		try {
+			awaiting++;
+			while(!future.isDone()) {
+				long busyTimeout = System.currentTimeMillis() + busyWaitMillis;
+				while(System.currentTimeMillis() < busyTimeout
+						&& !future.isDone()
+						&& tasks.size() == 0)
+					;
+				if(future.isDone())
+					return;
+				FutureTask<?> subtask;
 				subtask = tasks.poll();
-			} finally {
-				sync.unlock();
-			}
-			if(subtask != null) {
-				subtask.run();
-				continue;
-			}
-			if(!future.isDone() && tasks.size() == 0) {
-				sync.lock();
-				try {
+				
+				if(subtask != null) {
+					sync.unlock();
+					try {
+						subtask.run();
+						continue;
+					} finally {
+						sync.lock();
+					}
+				}
+				if(!future.isDone() && tasks.size() == 0) {
 					if(!future.isDone() && tasks.size() == 0) {
 						mutex.awaitUninterruptibly();
 						if(!future.isDone() && tasks.size() == 0)
 							mutex.signal();
 					}
-				} finally {
-					sync.unlock();
 				}
 			}
+		} finally {
+			awaiting--;
+			sync.unlock();
 		}
-		
 	}
 
 	public void call(Runnable task) throws ExecutionException {

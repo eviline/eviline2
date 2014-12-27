@@ -90,7 +90,7 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	protected Fitness fitness;
-	protected ExecutorService exec;
+	protected SubtaskExecutor exec;
 
 	protected boolean dropsOnly;
 
@@ -107,7 +107,7 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	public DefaultAIKernel(ExecutorService exec, Fitness fitness) {
-		this.exec = exec;
+		this.exec = new SubtaskExecutor(exec, 0);
 		this.fitness = fitness;
 	}
 
@@ -418,13 +418,13 @@ public class DefaultAIKernel implements AIKernel {
 		this.fitness = fitness;
 	}
 
-	public ExecutorService getExec() {
-		return exec;
-	}
-
-	public void setExec(ExecutorService exec) {
-		this.exec = exec;
-	}
+//	public ExecutorService getExec() {
+//		return exec;
+//	}
+//
+//	public void setExec(ExecutorService exec) {
+//		this.exec = exec;
+//	}
 
 	public boolean isDropsOnly() {
 		return dropsOnly;
