@@ -79,12 +79,14 @@ public class SubtaskExecutor implements Executor {
 				subtask = tasks.poll();
 				
 				if(subtask != null) {
+					awaiting--;
 					sync.unlock();
 					try {
 						subtask.run();
 						continue;
 					} finally {
 						sync.lock();
+						awaiting++;
 					}
 				}
 				if(!future.isDone() && tasks.size() == 0) {
