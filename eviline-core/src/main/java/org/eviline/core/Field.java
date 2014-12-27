@@ -244,9 +244,6 @@ public class Field implements Cloneable {
 	}
 
 	public void setBlock(int x, int y, Block b) {
-		if(noBlocks)
-			return;
-		blocks[x + (y+8) * WIDTH] = b;
 		short bm = 0b1000;
 		bm = (short) (bm << (WIDTH - (x+1)));
 		if(b != null) {
@@ -254,6 +251,9 @@ public class Field implements Cloneable {
 		} else {
 			set(y, (short)(get(y) & ~bm));
 		}
+		if(noBlocks)
+			return;
+		blocks[x + (y+8) * WIDTH] = b;
 	}
 
 	@Override
