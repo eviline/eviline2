@@ -6,7 +6,7 @@ import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
 
 public class SurfaceFitness implements CoefficientFitness {
-	protected static final int DF_SCALE_FACTOR = 4;
+	protected static final double DF_SCALE_FACTOR = 0.5;
 	
 	protected static final int DOMAIN = 9; // [-4 ... 4]
 	protected static final int LEN_DF = new DefaultFitness().getC().length;
@@ -29,7 +29,7 @@ public class SurfaceFitness implements CoefficientFitness {
 
 	@Override
 	public double badness(Field before, Field after, ShapeType[] next) {
-		return (fs(after) - fs(before)) + (df.badness(before, after, next) / DF_SCALE_FACTOR);
+		return (fs(after) - fs(before)) + (df.badness(before, after, next) * DF_SCALE_FACTOR);
 	}
 	
 	protected double fs(Field field) {
@@ -64,11 +64,12 @@ public class SurfaceFitness implements CoefficientFitness {
 		
 		double score = c[OFF_I] * heights[9];
 		
-		for(int i = 0; i < 9; i++) {
-			score += c[OFF_SINGLE] * heights[i];
+		for(int i = 0; i < 8; i++) {
+			int d = deltas[i] + 4;
+			score += c[OFF_SINGLE + d];
 		}
 		
-		for(int i = 0; i < 8; i++) {
+		for(int i = 0; i < 7; i++) {
 			int d0 = deltas[i] + 4;
 			int d1 = deltas[i+1] + 4;
 			int off = OFF_PAIR + DOMAIN * d0 + d1;
