@@ -3,7 +3,7 @@ package org.eviline.core;
 import java.util.Arrays;
 
 public class XYShapes {
-	public static final int SHAPE_MAX = toXYShape(15, 19, Shape.values()[Shape.values().length - 1]);
+	public static final int SHAPE_MAX = toXYShape(9, 19, Shape.values()[Shape.values().length - 1]);
 	
 	public static final int[] CANONICAL_SHAPES;
 	static {
