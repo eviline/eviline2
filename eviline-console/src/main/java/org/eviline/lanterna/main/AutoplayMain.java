@@ -144,7 +144,7 @@ public class AutoplayMain {
 	
 	public static void main(String... args) throws Exception {
 		Field field = new Field();
-
+		
 		engine = new Engine(field, new Configuration(null, 1));
 
 		engine.setNext(new ShapeType[4]);

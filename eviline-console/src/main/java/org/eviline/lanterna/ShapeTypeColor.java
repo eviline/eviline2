@@ -20,6 +20,7 @@ public class ShapeTypeColor {
 		fg.put(ShapeType.T, Color.MAGENTA);
 		fg.put(ShapeType.Z, Color.RED);
 		fg.put(ShapeType.G, Color.WHITE);
+		fg.put(ShapeType.GH, Color.WHITE);
 		
 		bg.put(ShapeType.I, Color.BLUE);
 		bg.put(ShapeType.J, Color.BLUE);
@@ -28,7 +29,8 @@ public class ShapeTypeColor {
 		bg.put(ShapeType.S, Color.GREEN);
 		bg.put(ShapeType.T, Color.MAGENTA);
 		bg.put(ShapeType.Z, Color.RED);
-		bg.put(ShapeType.G, Color.WHITE);
+		bg.put(ShapeType.G, Color.BLACK);
+		bg.put(ShapeType.GH, Color.WHITE);
 	}
 	
 	public Color fg(ShapeType t) {

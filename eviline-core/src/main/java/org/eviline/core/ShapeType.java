@@ -37,6 +37,7 @@ public enum ShapeType {
 	S, Z, J, L, T, I, O,
 	// meta types
 	G, // garbage
+	GH, // ghost
 	;
 	
 	public static final int COUNT = 7;
