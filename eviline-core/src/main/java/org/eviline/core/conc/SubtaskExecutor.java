@@ -63,7 +63,7 @@ public class SubtaskExecutor implements Executor {
 		return future;
 	}
 
-	public void await(Future<?> future) {
+	public void await(Future<?> future) throws InterruptedException {
 		sync.lock();
 		try {
 			awaiting++;
@@ -91,7 +91,7 @@ public class SubtaskExecutor implements Executor {
 				}
 				if(!future.isDone() && tasks.size() == 0) {
 					if(!future.isDone() && tasks.size() == 0) {
-						mutex.awaitUninterruptibly();
+						mutex.await();
 						if(!future.isDone() && tasks.size() == 0)
 							mutex.signal();
 					}
@@ -103,15 +103,15 @@ public class SubtaskExecutor implements Executor {
 		}
 	}
 
-	public void call(Runnable task) throws ExecutionException {
+	public void call(Runnable task) throws ExecutionException, InterruptedException {
 		submit(task).get();
 	}
 
-	public <V> V call(Runnable task, V result) throws ExecutionException {
+	public <V> V call(Runnable task, V result) throws ExecutionException, InterruptedException {
 		return submit(task, result).get();
 	}
 
-	public <V> V call(Callable<V> task) throws ExecutionException {
+	public <V> V call(Callable<V> task) throws ExecutionException, InterruptedException {
 		return submit(task).get();
 	}
 
@@ -131,7 +131,7 @@ public class SubtaskExecutor implements Executor {
 		}
 
 		@Override
-		public V get() throws ExecutionException {
+		public V get() throws ExecutionException, InterruptedException {
 			await(this);
 			try {
 				return super.get();
