@@ -170,4 +170,8 @@ public class XYShapes {
 		else
 			return toXYShape(x, y+1, (id & ~3) | ShapeDirection.UP_ORD);
 	}
+	
+	public static String toString(int xyshape) {
+		return shapeFromInt(xyshape) + "[" + xFromInt(xyshape) + "," + yFromInt(xyshape) + "]";
+	}
 }
