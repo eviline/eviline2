@@ -52,8 +52,11 @@ public class CommandGraph {
 	protected int selectedShape;
 
 	protected boolean dropsOnly;
+	protected int start;
+	protected Field field;
 
 	public CommandGraph(Field field, int start, boolean dropsOnly) {
+		this.field = field;
 		this.dropsOnly = dropsOnly;
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			vertices[i * 3 + ORIGIN] = NULL_ORIGIN;
@@ -185,5 +188,17 @@ public class CommandGraph {
 
 	public void setSelectedShape(int selectedShape) {
 		this.selectedShape = selectedShape;
+	}
+
+	public boolean isDropsOnly() {
+		return dropsOnly;
+	}
+
+	public int getStart() {
+		return start;
+	}
+
+	public Field getField() {
+		return field;
 	}
 }
