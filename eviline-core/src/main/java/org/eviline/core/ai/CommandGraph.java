@@ -57,6 +57,7 @@ public class CommandGraph {
 
 	public CommandGraph(Field field, int start, boolean dropsOnly) {
 		this.field = field;
+		this.start = start;
 		this.dropsOnly = dropsOnly;
 		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
 			vertices[i * 3 + ORIGIN] = NULL_ORIGIN;
