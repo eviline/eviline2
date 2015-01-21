@@ -133,6 +133,38 @@ public class XYShapes {
 		return kicked;
 	}
 	
+	public static int[] inverseKickedLeft(int xyshape) {
+		Shape shape;
+		int x = xFromInt(xyshape);
+		int y = yFromInt(xyshape);
+		KickTable kt = (shape = shapeFromInt(xyshape)).leftKick();
+		int[] kicked = new int[kt.table().length];
+		for(int i = 0; i < kicked.length; i++) {
+			int kx = x + kt.table()[i][0];
+			int ky = y + kt.table()[i][1];
+			int ks = kicked[i] = toXYShape(kx, ky, shape);
+			if(xFromInt(ks) != kx || yFromInt(ks) != y)
+				kicked[i] = -1;
+		}
+		return kicked;
+	}
+	
+	public static int[] inverseKickedRight(int xyshape) {
+		Shape shape;
+		int x = xFromInt(xyshape);
+		int y = yFromInt(xyshape);
+		KickTable kt = (shape = shapeFromInt(xyshape)).rightKick();
+		int[] kicked = new int[kt.table().length];
+		for(int i = 0; i < kicked.length; i++) {
+			int kx = x + kt.table()[i][0];
+			int ky = y + kt.table()[i][1];
+			int ks = kicked[i] = toXYShape(kx, ky, shape);
+			if(xFromInt(ks) != kx || yFromInt(ks) != y)
+				kicked[i] = -1;
+		}
+		return kicked;
+	}
+	
 	private static final int UP = 1 << ShapeDirection.UP_ORD;
 	private static final int RIGHT = 1 << ShapeDirection.RIGHT_ORD;
 	private static final int DOWN = 1 << ShapeDirection.DOWN_ORD;
