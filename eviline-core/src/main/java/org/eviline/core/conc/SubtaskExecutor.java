@@ -17,6 +17,7 @@ public class SubtaskExecutor implements Executor {
 	protected Deque<SyncFutureTask<?>> tasks;
 	protected ReentrantLock sync;
 	protected Condition mutex;
+	protected boolean shutdown;
 
 	public SubtaskExecutor(Executor executor) {
 		this.executor = executor;
@@ -26,6 +27,26 @@ public class SubtaskExecutor implements Executor {
 
 	}
 
+	public void shutdown() {
+		sync.lock();
+		try {
+			shutdown = true;
+		} finally {
+			sync.unlock();
+		}
+	}
+	
+	public void shutdownNow() {
+		sync.lock();
+		try {
+			shutdown();
+			for(SyncFutureTask<?> t : tasks)
+				t.cancel(true);
+		} finally {
+			sync.unlock();
+		}
+	}
+	
 	@Override
 	public void execute(Runnable command) {
 		submit(command);
@@ -43,6 +64,8 @@ public class SubtaskExecutor implements Executor {
 		SyncFutureTask<V> future = new SyncFutureTask<V>(task);
 		sync.lock();
 		try {
+			if(shutdown)
+				throw new IllegalStateException(this + " has been shut down");
 //			if(awaiting == 0)
 				executor.execute(future);
 //			else {
