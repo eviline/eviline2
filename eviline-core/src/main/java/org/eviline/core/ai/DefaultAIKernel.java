@@ -107,7 +107,11 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	public DefaultAIKernel(ExecutorService exec, Fitness fitness) {
-		this.exec = new SubtaskExecutor(exec);
+		this(new SubtaskExecutor(exec), fitness);
+	}
+	
+	public DefaultAIKernel(SubtaskExecutor exec, Fitness fitness) {
+		this.exec = exec;
 		this.fitness = fitness;
 	}
 
