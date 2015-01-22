@@ -51,12 +51,12 @@ public class SubtaskExecutor implements Executor {
 		SyncFutureTask<V> future = new SyncFutureTask<V>(task);
 		sync.lock();
 		try {
-			if(awaiting == 0)
+//			if(awaiting == 0)
 				executor.execute(future);
-			else {
+//			else {
 				tasks.offer(future);
 				mutex.signal();
-			}
+//			}
 		} finally {
 			sync.unlock();
 		}
