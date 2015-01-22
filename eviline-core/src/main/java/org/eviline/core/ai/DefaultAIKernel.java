@@ -453,4 +453,12 @@ public class DefaultAIKernel implements AIKernel {
 	public void setAdjuster(BestAdjuster adjuster) {
 		this.adjuster = adjuster;
 	}
+
+	public SubtaskExecutor getExec() {
+		return exec;
+	}
+
+	public void setExec(SubtaskExecutor exec) {
+		this.exec = exec;
+	}
 }
