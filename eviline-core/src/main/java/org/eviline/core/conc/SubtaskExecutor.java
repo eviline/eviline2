@@ -12,22 +12,14 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SubtaskExecutor implements Executor {
-	public static final long DEFAULT_BUSY_WAIT_MILLIS = 10;
 
 	protected Executor executor;
 	protected Deque<SyncFutureTask<?>> tasks;
 	protected ReentrantLock sync;
 	protected Condition mutex;
-	protected long busyWaitMillis;
-	protected int awaiting = 0;
 
 	public SubtaskExecutor(Executor executor) {
-		this(executor, DEFAULT_BUSY_WAIT_MILLIS);
-	}
-
-	public SubtaskExecutor(Executor executor, long busyWaitMillis) {
 		this.executor = executor;
-		this.busyWaitMillis = busyWaitMillis;
 		tasks = new ArrayDeque<>();
 		sync = new ReentrantLock();
 		mutex = sync.newCondition();
@@ -66,27 +58,19 @@ public class SubtaskExecutor implements Executor {
 	public void await(Future<?> future) throws InterruptedException {
 		sync.lock();
 		try {
-			awaiting++;
 			while(!future.isDone()) {
-				long busyTimeout = System.currentTimeMillis() + busyWaitMillis;
-				while(System.currentTimeMillis() < busyTimeout
-						&& !future.isDone()
-						&& tasks.size() == 0)
-					;
 				if(future.isDone())
 					return;
 				FutureTask<?> subtask;
 				subtask = tasks.poll();
 				
 				if(subtask != null) {
-					awaiting--;
 					sync.unlock();
 					try {
 						subtask.run();
 						continue;
 					} finally {
 						sync.lock();
-						awaiting++;
 					}
 				}
 				if(!future.isDone() && tasks.size() == 0) {
@@ -98,7 +82,6 @@ public class SubtaskExecutor implements Executor {
 				}
 			}
 		} finally {
-			awaiting--;
 			sync.unlock();
 		}
 	}
