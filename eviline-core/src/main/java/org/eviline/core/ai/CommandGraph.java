@@ -76,6 +76,22 @@ public class CommandGraph {
 
 	protected void searchRoot(int shape, Field f) {
 		setVertex(shape, NULL_ORIGIN, NULL_COMMAND, 0);
+		int shifted = shape;
+		for(int i = 0; i < 5; i++) {
+			int prev = shifted;
+			shifted = XYShapes.shiftedRight(shifted);
+			if(f.intersects(shifted))
+				break;
+			maybeUpdate(shifted, prev, Command.SHIFT_RIGHT, i + 1, f);
+		}
+		shifted = shape;
+		for(int i = 0; i < 5; i++) {
+			int prev = shifted;
+			shifted = XYShapes.shiftedLeft(shifted);
+			if(f.intersects(shifted))
+				break;
+			maybeUpdate(shifted, prev, Command.SHIFT_LEFT, i + 1, f);
+		}
 		search(shape, f);
 		while(pendingHead != pendingTail) {
 			shape = pending.get()[pendingHead++];
