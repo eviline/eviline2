@@ -96,12 +96,10 @@ public class SubtaskExecutor implements Executor {
 						sync.lock();
 					}
 				}
-				if(!future.isDone() && tasks.size() == 0) {
-					if(!future.isDone() && tasks.size() == 0) {
-						mutex.await();
-						if(!future.isDone() && tasks.size() == 0)
-							mutex.signal();
-					}
+				while(!future.isDone() && tasks.size() == 0) {
+					mutex.await();
+					if(!future.isDone())
+						mutex.signal();
 				}
 			}
 		} finally {
