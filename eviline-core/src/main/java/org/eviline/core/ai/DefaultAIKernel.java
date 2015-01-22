@@ -270,7 +270,7 @@ public class DefaultAIKernel implements AIKernel {
 		}
 
 		for(QuietCallable<Best> task : tasks.values()) {
-			if(lookahead > 1 && futs.size() < pruneTop - depth - 1)
+			if(lookahead > 1 && futs.size() < pruneTop - 1 - (int)Math.pow(depth, 2) )
 				futs.add(exec.submit(task));
 			else {
 				futs.add(new ConstantFuture<>(task));
