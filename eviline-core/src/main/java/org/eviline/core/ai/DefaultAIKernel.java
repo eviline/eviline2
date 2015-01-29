@@ -326,7 +326,15 @@ public class DefaultAIKernel implements AIKernel {
 
 		bestPlayed.clearLines();
 
-		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null, null);
+		Best worst1 = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null, null);
+		Best worst2 = new Best(null, -1, Double.POSITIVE_INFINITY, null, null, null);
+		
+		Best worst;
+		if(order.compare(worst1, worst2) > 0)
+			worst = worst1;
+		else
+			worst = worst2;
+		
 		Collection<Future<Best>> futs = new ArrayList<>();
 
 		List<ShapeType> bag = Arrays.asList(shapes.getBag());
@@ -369,8 +377,15 @@ public class DefaultAIKernel implements AIKernel {
 
 		currentField.clearLines();
 
-		Best worst = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null, null);
-
+		Best worst1 = new Best(null, -1, Double.NEGATIVE_INFINITY, null, null, null);
+		Best worst2 = new Best(null, -1, Double.POSITIVE_INFINITY, null, null, null);
+		
+		Best worst;
+		if(order.compare(worst1, worst2) > 0)
+			worst = worst1;
+		else
+			worst = worst2;
+		
 		int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
 		final Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1, 1);
 		final List<ShapeType> nextBag = new ArrayList<>(bag);
