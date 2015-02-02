@@ -66,12 +66,9 @@ public class SubtaskExecutor implements Executor {
 		try {
 			if(shutdown)
 				throw new IllegalStateException(this + " has been shut down");
-//			if(awaiting == 0)
-				executor.execute(future);
-//			else {
-				tasks.offer(future);
-				mutex.signal();
-//			}
+			executor.execute(future);
+			tasks.offer(future);
+			mutex.signal();
 		} finally {
 			sync.unlock();
 		}
@@ -96,12 +93,10 @@ public class SubtaskExecutor implements Executor {
 						sync.lock();
 					}
 				}
-				if(!future.isDone() && tasks.size() == 0) {
-					if(!future.isDone() && tasks.size() == 0) {
-						mutex.await();
-						if(!future.isDone() && tasks.size() == 0)
-							mutex.signal();
-					}
+				while(!future.isDone() && tasks.size() == 0) {
+					mutex.await();
+					if(!future.isDone())
+						mutex.signal();
 				}
 			}
 		} finally {
