@@ -16,6 +16,14 @@ public class XYShapes {
 		CANONICAL_SHAPES = Arrays.copyOf(canon, count);
 	}
 	
+	public static final int MASK_X =    0b00000000001111;
+	public static final int MASK_Y =    0b00000111110000;
+	public static final int MASK_DIR =  0b00011000000000;
+	public static final int MASK_TYPE = 0b11100000000000;
+	
+	public static final int MASK_TYPE_POS = MASK_X | MASK_Y | MASK_DIR;
+	public static final int SIZE_TYPE_POS = 1 << 11;
+	
 	public static int startIntForTypeId(int type) {
 		return type << 11;
 	}

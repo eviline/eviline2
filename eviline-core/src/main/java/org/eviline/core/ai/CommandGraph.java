@@ -16,35 +16,40 @@ public class CommandGraph {
 	public static final int NULL_COMMAND = -1;
 
 	public static int originOf(int[] vertices, int shape) {
+		shape &= XYShapes.MASK_TYPE_POS;
 		return vertices[shape * 3 + ORIGIN];
 	}
 
 	private static final Command[] COMMANDS = Command.values();
 
 	public static Command commandOf(int[] vertices, int shape) {
+		shape &= XYShapes.MASK_TYPE_POS;
 		if(vertices[shape * 3 + COMMAND] == NULL_COMMAND)
 			return null;
 		return COMMANDS[vertices[shape * 3 + COMMAND]];
 	}
 
 	public static int pathLengthOf(int[] vertices, int shape) {
+		shape &= XYShapes.MASK_TYPE_POS;
 		return vertices[shape * 3 + PATH_LENGTH];
 	}
 
 	private static ThreadLocal<int[]> pending = new ThreadLocal<int[]>() {
 		@Override
 		protected int[] initialValue() {
-			return new int[XYShapes.SHAPE_MAX];
+			return new int[XYShapes.SIZE_TYPE_POS];
 		}
 	};
 
 	private static ThreadLocal<boolean[]> enqueued = new ThreadLocal<boolean[]>() {
 		protected boolean[] initialValue() {
-			return new boolean[XYShapes.SHAPE_MAX];
+			return new boolean[XYShapes.SIZE_TYPE_POS];
 		}
 	};
 
-	protected int[] vertices = new int[XYShapes.SHAPE_MAX * 3];
+	protected int typeMask;
+	
+	protected int[] vertices = new int[XYShapes.SIZE_TYPE_POS * 3];
 
 	protected int pendingHead = 0;
 	protected int pendingTail = 0;
@@ -56,10 +61,11 @@ public class CommandGraph {
 	protected Field field;
 
 	public CommandGraph(Field field, int start, boolean dropsOnly) {
+		typeMask = start & XYShapes.MASK_TYPE;
 		this.field = field;
 		this.start = start;
 		this.dropsOnly = dropsOnly;
-		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
+		for(int i = 0; i < XYShapes.SIZE_TYPE_POS; i++) {
 			vertices[i * 3 + ORIGIN] = NULL_ORIGIN;
 			vertices[i * 3 + COMMAND] = NULL_COMMAND;
 			vertices[i * 3 + PATH_LENGTH] = Integer.MAX_VALUE;
@@ -69,6 +75,7 @@ public class CommandGraph {
 	}
 
 	protected void setVertex(int shape, int origin, int command, int pathLength) {
+		shape &= XYShapes.MASK_TYPE_POS;
 		vertices[shape * 3 + ORIGIN] = origin;
 		vertices[shape * 3 + COMMAND] = command;
 		vertices[shape * 3 + PATH_LENGTH] = pathLength;
@@ -95,8 +102,8 @@ public class CommandGraph {
 		search(shape, f);
 		while(pendingHead != pendingTail) {
 			shape = pending.get()[pendingHead++];
-			enqueued.get()[shape] = false;
-			pendingHead %= XYShapes.SHAPE_MAX;
+			enqueued.get()[shape & XYShapes.MASK_TYPE_POS] = false;
+			pendingHead %= XYShapes.SIZE_TYPE_POS;
 			search(shape, f);
 		}
 	}
@@ -105,11 +112,11 @@ public class CommandGraph {
 		if(pathLength >= pathLengthOf(vertices, shape))
 			return;
 		setVertex(shape, origin, command.ordinal(), pathLength);
-		if(enqueued.get()[shape])
+		if(enqueued.get()[shape & XYShapes.MASK_TYPE_POS])
 			return;
-		enqueued.get()[shape] = true;
+		enqueued.get()[shape & XYShapes.MASK_TYPE_POS] = true;
 		pending.get()[pendingTail++] = shape;
-		pendingTail %= XYShapes.SHAPE_MAX;
+		pendingTail %= XYShapes.SIZE_TYPE_POS;
 	}
 
 	protected void search(int shape, Field f) {
