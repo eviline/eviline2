@@ -116,22 +116,28 @@ public class DefaultAIKernel implements AIKernel {
 		this.fitness = fitness;
 	}
 
+	protected int starter(Field field, ShapeType type) {
+		return XYShapes.toXYShape(type.startX(), type.startY(), type.start());
+	}
+
+	protected int starter(Field field, ShapeType[] next, int lookahead) {
+		if(lookahead <= 0 || next.length == 0)
+			return -1;
+		return starter(field, next[0]);
+	}
+	
 	@Override
-	public CommandGraph bestPlacement(final Field field, int current, ShapeType[] next, final int lookahead) {
+	public CommandGraph bestPlacement(final Field field, int current, final ShapeType[] next, final int lookahead) {
 		final CommandGraph g = new CommandGraph(field, current, dropsOnly);
 
 		Best best = new Best(null, current, Double.POSITIVE_INFINITY, field, null, null);
 
-		final int nextShape;
 		final ShapeType[] nextNext;
 		if(lookahead == 0) {
-			nextShape = -1;
 			nextNext = Arrays.copyOf(next, next.length);
 		} else if(next.length > 0) {
-			nextShape = XYShapes.toXYShape(next[0].startX(), next[0].startY(), next[0].start());
 			nextNext = Arrays.copyOfRange(next, 1, next.length);
 		} else {
-			nextShape = -1;
 			nextNext = null;
 		}
 
@@ -168,6 +174,7 @@ public class DefaultAIKernel implements AIKernel {
 			QuietCallable<Best> task = new QuietCallable<Best>() {
 				@Override
 				public Best call() {
+					int nextShape = starter(after, next, lookahead);
 					Best b = bestPlacement(field, after, nextShape, nextNext, lookahead, 1);
 					Best best = new Best(g, shape, b.score, after, XYShapes.shapeFromInt(shape).type(), b);
 					return best;
@@ -208,7 +215,7 @@ public class DefaultAIKernel implements AIKernel {
 		return g;
 	}
 
-	public Best bestPlacement(final Field originalField, final Field currentField, int currentShape, ShapeType[] next, final int lookahead, final int depth) {
+	public Best bestPlacement(final Field originalField, final Field currentField, int currentShape, final ShapeType[] next, final int lookahead, final int depth) {
 		if(Thread.interrupted())
 			throw new RuntimeException(new InterruptedException());
 		
@@ -224,13 +231,10 @@ public class DefaultAIKernel implements AIKernel {
 		final CommandGraph g = new CommandGraph(currentField, currentShape, dropsOnly);
 		Best best = new Best(g, currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
 
-		final int nextShape;
 		final ShapeType[] nextNext;
 		if(next.length > 0) {
-			nextShape = XYShapes.toXYShape(next[0].startX(), next[0].startY(), next[0].start());
 			nextNext = Arrays.copyOfRange(next, 1, next.length);
 		} else {
-			nextShape = -1;
 			nextNext = null;
 		}
 
@@ -266,6 +270,7 @@ public class DefaultAIKernel implements AIKernel {
 			QuietCallable<Best> task = new QuietCallable<Best>() {
 				@Override
 				public Best call() {
+					int nextShape = starter(nextField, next, lookahead);
 					Best nextBest = bestPlacement(originalField, nextField, nextShape, nextNext, lookahead - 1, depth + 1);
 					return new Best(g, shape, nextBest.score, nextField, XYShapes.shapeFromInt(shape).type(), nextBest);
 				}
@@ -325,7 +330,7 @@ public class DefaultAIKernel implements AIKernel {
 			final int lookahead) {
 		Field bestPlayed = field;
 		if(next.length > 0) {
-			int nextShape = XYShapes.toXYShape(next[0].startX(), next[0].startY(), next[0].start());
+			int nextShape = starter(field, next[0]);
 			ShapeType[] nextNext = Arrays.copyOfRange(next, 1, next.length);
 			bestPlayed = bestPlacement(field, field, nextShape, nextNext, nextNext.length, 0).after;
 		}
@@ -354,7 +359,7 @@ public class DefaultAIKernel implements AIKernel {
 				@Override
 				public Best call() throws Exception {
 					Best worst = searchNext(order, field, fbestPlayed, typeBag, lookahead, type);
-					return new Best(null, XYShapes.toXYShape(type.startX(), type.startY(), type.start()), worst.score, worst.after, type, worst);
+					return new Best(null, starter(fbestPlayed, type), worst.score, worst.after, type, worst);
 				}
 			};
 			futs.add(exec.submit(task));
@@ -396,7 +401,7 @@ public class DefaultAIKernel implements AIKernel {
 		else
 			worst = worst2;
 		
-		int currentShape = XYShapes.toXYShape(type.startX(), type.startY(), type.start());
+		int currentShape = starter(currentField, type);
 		final Best shapeBest = bestPlacement(originalField, currentField, currentShape, ShapeType.NONE, 1, 1);
 		final List<ShapeType> nextBag = new ArrayList<>(bag);
 		nextBag.remove(type);
@@ -409,7 +414,7 @@ public class DefaultAIKernel implements AIKernel {
 					@Override
 					public Best call() throws Exception {
 						Best worst = searchNext(order, originalField, shapeBest.after, nextBag, lookahead - 1, next);
-						return new Best(null, XYShapes.toXYShape(next.startX(), next.startY(), next.start()), worst.score, worst.after, next, worst);
+						return new Best(null, starter(shapeBest.after, next), worst.score, worst.after, next, worst);
 					}
 				};
 				futs.add(exec.submit(task));
