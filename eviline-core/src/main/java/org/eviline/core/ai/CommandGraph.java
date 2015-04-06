@@ -33,14 +33,14 @@ public class CommandGraph {
 		return vertices[shape * 3 + PATH_LENGTH];
 	}
 
-	private static ThreadLocal<int[]> pending = new ThreadLocal<int[]>() {
+	protected static ThreadLocal<int[]> pending = new ThreadLocal<int[]>() {
 		@Override
 		protected int[] initialValue() {
 			return new int[XYShapes.SIZE_TYPE_POS];
 		}
 	};
 
-	private static ThreadLocal<boolean[]> enqueued = new ThreadLocal<boolean[]>() {
+	protected static ThreadLocal<boolean[]> enqueued = new ThreadLocal<boolean[]>() {
 		protected boolean[] initialValue() {
 			return new boolean[XYShapes.SIZE_TYPE_POS];
 		}

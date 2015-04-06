@@ -126,9 +126,13 @@ public class DefaultAIKernel implements AIKernel {
 		return starter(field, next[0]);
 	}
 	
+	protected CommandGraph graph(Field field, int start, boolean dropsOnly) {
+		return new CommandGraph(field, start, dropsOnly);
+	}
+	
 	@Override
 	public CommandGraph bestPlacement(final Field field, int current, final ShapeType[] next, final int lookahead) {
-		final CommandGraph g = new CommandGraph(field, current, dropsOnly);
+		final CommandGraph g = graph(field, current, dropsOnly);
 
 		Best best = new Best(null, current, Double.POSITIVE_INFINITY, field, null, null);
 
@@ -220,15 +224,15 @@ public class DefaultAIKernel implements AIKernel {
 			throw new RuntimeException(new InterruptedException());
 		
 		if(currentShape != -1 && currentField.intersects(currentShape))
-			return adjuster.adjust(new Best(new CommandGraph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null));
+			return adjuster.adjust(new Best(graph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null));
 
 		if(currentShape == -1 || lookahead <= 0) {
 			if(currentField.isSpawnEndangered())
-				return adjuster.adjust(new Best(new CommandGraph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null));
+				return adjuster.adjust(new Best(graph(currentField, currentShape, dropsOnly), currentShape, Double.POSITIVE_INFINITY, currentField, null, null));
 			return adjuster.adjust(new Best(null, currentShape, fitness.badness(originalField, currentField, next), currentField, null, null));
 		}
 
-		final CommandGraph g = new CommandGraph(currentField, currentShape, dropsOnly);
+		final CommandGraph g = graph(currentField, currentShape, dropsOnly);
 		Best best = new Best(g, currentShape, Double.POSITIVE_INFINITY, currentField, null, null);
 
 		final ShapeType[] nextNext;
