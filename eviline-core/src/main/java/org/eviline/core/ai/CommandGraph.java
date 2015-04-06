@@ -10,7 +10,6 @@ public class CommandGraph {
 	public static final int ORIGIN = 0;
 	public static final int COMMAND = 1;
 	public static final int PATH_LENGTH = 2;
-	public static final int SHAPE = 3;
 
 	public static final int NULL_ORIGIN = -1;
 	public static final int NULL_COMMAND = -1;
