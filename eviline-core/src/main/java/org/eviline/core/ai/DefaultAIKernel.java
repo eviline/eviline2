@@ -21,6 +21,7 @@ import org.eviline.core.Field;
 import org.eviline.core.ShapeSource;
 import org.eviline.core.ShapeType;
 import org.eviline.core.XYShapes;
+import org.eviline.core.conc.ActiveCompletor;
 import org.eviline.core.conc.ConstantFuture;
 import org.eviline.core.conc.QuietCallable;
 import org.eviline.core.conc.SubtaskExecutor;
@@ -90,7 +91,7 @@ public class DefaultAIKernel implements AIKernel {
 	}
 	
 	protected Fitness fitness;
-	protected SubtaskExecutor exec;
+	protected ActiveCompletor exec;
 
 	protected boolean dropsOnly;
 
@@ -106,11 +107,11 @@ public class DefaultAIKernel implements AIKernel {
 		this(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()), fitness);
 	}
 	
-	public DefaultAIKernel(ExecutorService exec, Fitness fitness) {
-		this(new SubtaskExecutor(exec), fitness);
+	public DefaultAIKernel(Executor exec, Fitness fitness) {
+		this(new ActiveCompletor(exec), fitness);
 	}
 	
-	public DefaultAIKernel(SubtaskExecutor exec, Fitness fitness) {
+	public DefaultAIKernel(ActiveCompletor exec, Fitness fitness) {
 		this.exec = exec;
 		this.fitness = fitness;
 	}
@@ -136,7 +137,7 @@ public class DefaultAIKernel implements AIKernel {
 
 		int[] vertices = g.getVertices();
 
-		Collection<Future<Best>> futs = new ArrayList<Future<Best>>();
+		Collection<FutureTask<Best>> futs = new ArrayList<>();
 
 		Set<Integer> blitted = new HashSet<>();
 
@@ -180,12 +181,14 @@ public class DefaultAIKernel implements AIKernel {
 			if(lookahead > 1 && futs.size() < pruneTop - 1)
 				futs.add(exec.submit(task));
 			else {
-				futs.add(new ConstantFuture<>(task));
+				futs.add(exec.submit(task));
 				break;
 			}
 			if(futs.size() >= pruneTop)
 				break;
 		}
+		
+		exec.await(futs);
 
 		for(Future<Best> fut : futs) {
 			Best b;
@@ -230,7 +233,7 @@ public class DefaultAIKernel implements AIKernel {
 			nextNext = null;
 		}
 
-		Collection<Future<Best>> futs = new ArrayList<Future<Best>>();
+		Collection<FutureTask<Best>> futs = new ArrayList<>();
 
 		Set<Integer> blitted = new HashSet<>();
 
@@ -273,13 +276,15 @@ public class DefaultAIKernel implements AIKernel {
 			if(lookahead > 1 && futs.size() < pruneTop - 1 - (int)Math.pow(depth, 2) )
 				futs.add(exec.submit(task));
 			else {
-				futs.add(new ConstantFuture<>(task));
+				futs.add(exec.submit(task));
 				break;
 			}
 			if(futs.size() >= pruneTop - depth)
 				break;
 		}
 
+		exec.await(futs);
+		
 		for(Future<Best> fut : futs) {
 			Best shapeBest;
 			try {
@@ -335,7 +340,7 @@ public class DefaultAIKernel implements AIKernel {
 		else
 			worst = worst2;
 		
-		Collection<Future<Best>> futs = new ArrayList<>();
+		Collection<FutureTask<Best>> futs = new ArrayList<>();
 
 		List<ShapeType> bag = Arrays.asList(shapes.getBag());
 
@@ -352,6 +357,8 @@ public class DefaultAIKernel implements AIKernel {
 			futs.add(exec.submit(task));
 		}
 
+		exec.await(futs);
+		
 		try {
 			for(Future<Best> fut : futs) {
 				if(order.compare(fut.get(), worst) < 0)
@@ -391,7 +398,7 @@ public class DefaultAIKernel implements AIKernel {
 		final List<ShapeType> nextBag = new ArrayList<>(bag);
 		nextBag.remove(type);
 
-		Collection<Future<Best>> futs = new ArrayList<Future<Best>>();
+		Collection<FutureTask<Best>> futs = new ArrayList<>();
 
 		if(nextBag.size() > 0) {
 			for(final ShapeType next : EnumSet.copyOf(nextBag)) {
@@ -414,6 +421,8 @@ public class DefaultAIKernel implements AIKernel {
 			};
 			futs.add(exec.submit(task));
 		}
+		
+		exec.await(futs);
 
 		for(Future<Best> fut : futs) {
 			Best shapeWorst;
@@ -469,11 +478,11 @@ public class DefaultAIKernel implements AIKernel {
 		this.adjuster = adjuster;
 	}
 
-	public SubtaskExecutor getExec() {
+	public ActiveCompletor getExec() {
 		return exec;
 	}
 
-	public void setExec(SubtaskExecutor exec) {
+	public void setExec(ActiveCompletor exec) {
 		this.exec = exec;
 	}
 }
