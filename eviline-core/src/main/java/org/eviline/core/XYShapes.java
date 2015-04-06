@@ -16,6 +16,14 @@ public class XYShapes {
 		CANONICAL_SHAPES = Arrays.copyOf(canon, count);
 	}
 	
+	public static int startIntForTypeId(int type) {
+		return type << 11;
+	}
+	
+	public static int stopIntForTypeId(int type) {
+		return Math.min((type + 1) << 11, SHAPE_MAX);
+	}
+	
 	public static boolean has(int xyshape, int x, int y) {
 		int this_x = xFromInt(xyshape);
 		int this_y = yFromInt(xyshape);

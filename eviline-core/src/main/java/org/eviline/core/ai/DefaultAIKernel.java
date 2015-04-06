@@ -143,7 +143,10 @@ public class DefaultAIKernel implements AIKernel {
 
 		Map<Double, QuietCallable<Best>> tasks = new TreeMap<Double, QuietCallable<Best>>();
 
-		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
+		int start = XYShapes.startIntForTypeId(XYShapes.shapeTypeIdFromInt(current));
+		int stop = XYShapes.stopIntForTypeId(XYShapes.shapeTypeIdFromInt(current));
+		
+		for(int i = start; i < stop; i++) {
 			if(Thread.interrupted())
 				throw new RuntimeException(new InterruptedException());
 			final int shape;
@@ -237,11 +240,15 @@ public class DefaultAIKernel implements AIKernel {
 
 		Map<Double, QuietCallable<Best>> tasks = new TreeMap<Double, QuietCallable<Best>>();
 
-		for(int i = 0; i < XYShapes.SHAPE_MAX; i++) {
+		int start = XYShapes.startIntForTypeId(XYShapes.shapeTypeIdFromInt(currentShape));
+		int stop = XYShapes.stopIntForTypeId(XYShapes.shapeTypeIdFromInt(currentShape));
+
+		for(int i = start; i < stop; i++) {
 			if(Thread.interrupted())
 				throw new RuntimeException(new InterruptedException());
 			if(CommandGraph.originOf(g.getVertices(), i) == CommandGraph.NULL_ORIGIN)
 				continue;
+			
 			final int shape = i;
 			if(!currentField.intersects(XYShapes.shiftedDown(shape)))
 				continue;
