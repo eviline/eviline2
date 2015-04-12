@@ -110,6 +110,7 @@ public class Engine implements Cloneable {
 		short tm = 0b1111111111;
 		short thm = (short)(1 << (int)(field.WIDTH * Math.random()));
 		tm = (short)(tm & ~thm);
+		tm = (short)(tm << 3);
 		for(int i = 0; i < lines; i++)
 			field.shiftUp(tm);
 	}
