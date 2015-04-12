@@ -195,7 +195,7 @@ public class Field implements Cloneable {
 	}
 
 	public void shiftUp(short trashMask) {
-		trashMask |= (short) 0b11100000000111;
+		trashMask |= (short) 0b1110000000000111;
 		for(int i = -8+1; i < HEIGHT; i++)
 			set(i-1, get(i));
 		set(HEIGHT - 1, trashMask);
