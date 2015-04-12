@@ -201,13 +201,13 @@ public class Field implements Cloneable {
 		set(HEIGHT - 1, trashMask);
 		if(!noBlocks) {
 			System.arraycopy(blocks, WIDTH, blocks, 0, WIDTH * (HEIGHT + 8-1));
-			long m = 0b1000;
-			for(int x = WIDTH-1; x >= 0; x--) {
+			long m = 0b1000000000000;
+			for(int x = 0; x < WIDTH; x++) {
 				Block b = null;
 				if((trashMask & m) == m)
 					b = GARBAGE_BLOCK;
 				blocks[x + WIDTH * (HEIGHT + 8-1)] = b;
-				m = m << 1;
+				m = m >>> 1;
 			}
 		}
 	}
