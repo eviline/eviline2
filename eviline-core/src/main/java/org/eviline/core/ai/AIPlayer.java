@@ -4,6 +4,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
 import org.eviline.core.Command;
 import org.eviline.core.Engine;
@@ -56,17 +59,45 @@ public class AIPlayer implements Player {
 				return Command.HOLD;
 			}
 			
-			best = ai.bestPlacement(engine.getField(), engine.getField(), engine.getShape(), engine.getNext(), lookahead + 1, 0);
 			
 			if(engine.isHoldable()) {
-				Field heldField = engine.getField().clone();
-				heldField.setHold(XYShapes.shapeFromInt(engine.getShape()).type());
-				Best heldBest = ai.bestPlacement(heldField, heldField, engine.getHold().xystart(), engine.getNext(), lookahead + 1, 0);
-				if(heldBest.score < best.score) {
-					after = engine.getField().clone();
-					after.setHold(XYShapes.shapeFromInt(engine.getShape()).type());
-					return Command.HOLD;
+				
+				Callable<Best> bestTask = new Callable<DefaultAIKernel.Best>() {
+					@Override
+					public Best call() throws Exception {
+						return ai.bestPlacement(engine.getField(), engine.getField(), engine.getShape(), engine.getNext(), lookahead + 1, 0);
+					}
+				};
+
+				Callable<Best> heldTask = new Callable<DefaultAIKernel.Best>() {
+					@Override
+					public Best call() throws Exception {
+						Field heldField = engine.getField().clone();
+						heldField.setHold(XYShapes.shapeFromInt(engine.getShape()).type());
+						return ai.bestPlacement(heldField, heldField, engine.getHold().xystart(), engine.getNext(), lookahead + 1, 0);
+					}
+				};
+				
+				List<FutureTask<Best>> futs = new ArrayList<>();
+				futs.add(ai.getExec().submit(bestTask));
+				futs.add(ai.getExec().submit(heldTask));
+				ai.getExec().await(futs);
+
+				try {
+					best = futs.get(0).get();
+					Best heldBest = futs.get(1).get();
+					if(heldBest.score < best.score) {
+						best = heldBest;
+						after = engine.getField().clone();
+						after.setHold(XYShapes.shapeFromInt(engine.getShape()).type());
+						return Command.HOLD;
+					}
+				} catch(Exception e) {
+					throw new RuntimeException(e);
 				}
+				
+			} else {
+				best = ai.bestPlacement(engine.getField(), engine.getField(), engine.getShape(), engine.getNext(), lookahead + 1, 0);
 			}
 			
 			graph = best.graph;
