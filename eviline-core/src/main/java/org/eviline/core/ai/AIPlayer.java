@@ -1,10 +1,13 @@
 package org.eviline.core.ai;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 
 import org.eviline.core.Command;
 import org.eviline.core.Engine;
+import org.eviline.core.Field;
 import org.eviline.core.XYShapes;
 import org.eviline.core.ai.DefaultAIKernel.Best;
 
@@ -16,6 +19,7 @@ public class AIPlayer implements Player {
 	protected CommandGraph graph;
 	protected int dest;
 	protected Deque<Command> commands = new ArrayDeque<>();
+	protected Field after;
 	
 	protected int lookahead;
 	protected boolean allowDrops = true;
@@ -45,7 +49,26 @@ public class AIPlayer implements Player {
 				best = null;
 				return Command.NOP;
 			}
+			
+			if(engine.isHoldable() && engine.getHold() == null) {
+				after = engine.getField().clone();
+				after.setHold(XYShapes.shapeFromInt(engine.getShape()).type());
+				return Command.HOLD;
+			}
+			
 			best = ai.bestPlacement(engine.getField(), engine.getField(), engine.getShape(), engine.getNext(), lookahead + 1, 0);
+			
+			if(engine.isHoldable()) {
+				Field heldField = engine.getField().clone();
+				heldField.setHold(XYShapes.shapeFromInt(engine.getShape()).type());
+				Best heldBest = ai.bestPlacement(heldField, heldField, engine.getHold().xystart(), engine.getNext(), lookahead + 1, 0);
+				if(heldBest.score < best.score) {
+					after = engine.getField().clone();
+					after.setHold(XYShapes.shapeFromInt(engine.getShape()).type());
+					return Command.HOLD;
+				}
+			}
+			
 			graph = best.graph;
 			int shape = graph.getSelectedShape();
 			dest = shape;
@@ -111,5 +134,9 @@ public class AIPlayer implements Player {
 
 	public void setAllowDrops(boolean allowDrops) {
 		this.allowDrops = allowDrops;
+	}
+	
+	public Field getAfter() {
+		return after;
 	}
 }

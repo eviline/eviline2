@@ -50,6 +50,10 @@ public enum ShapeType {
 	public static final int I_ORD = 5;
 	public static final int O_ORD = 6;
 	
+	public int xystart() {
+		return XYShapes.toXYShape(startX(), startY(), start());
+	}
+	
 	public Shape start() {
 		switch(this) {
 		case S: return S_UP;

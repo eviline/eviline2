@@ -33,6 +33,9 @@ public class Field implements Cloneable {
 	protected long[] typeBlitCounts;
 
 	protected boolean noBlocks;
+	
+	protected ShapeType hold;
+	protected ShapeType[] next = new ShapeType[1];
 
 	public Field() {
 		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -86,6 +89,8 @@ public class Field implements Cloneable {
 		score = 0;
 		comboMultiplier = 0;
 		typeBlitCounts = new long[ShapeType.COUNT];
+		hold = null;
+		Arrays.fill(next, null);
 	}
 
 	protected short get(int y) {
@@ -293,5 +298,21 @@ public class Field implements Cloneable {
 
 	public void setNoBlocks(boolean noBlocks) {
 		this.noBlocks = noBlocks;
+	}
+
+	public ShapeType getHold() {
+		return hold;
+	}
+
+	public void setHold(ShapeType hold) {
+		this.hold = hold;
+	}
+
+	public ShapeType[] getNext() {
+		return next;
+	}
+
+	public void setNext(ShapeType[] next) {
+		this.next = next;
 	}
 }
