@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.eviline</groupId>
 		<artifactId>eviline-parent</artifactId>
-		<version>2.1.7</version>
+		<version>2.1.8-SNAPSHOT</version>
 		<relativePath>../eviline-parent</relativePath>
 	</parent>
 	<packaging>war</packaging>
@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>org.eviline</groupId>
 			<artifactId>eviline-core</artifactId>
-			<version>2.1.7</version>
+			<version>2.1.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
