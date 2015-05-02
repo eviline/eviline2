@@ -53,7 +53,7 @@ public class AWTColorAdapter {
 			for(Color bg : Color.values()) {
 				for(int ci = 0; ci < cs.length; ci++) {
 					char c = cs[ci];
-					double fgAlpha = ci / ((double) cs.length - 0.5);
+					double fgAlpha = ci / (cs.length - .825);
 					g.setColor(getAWTBackground(bg, p));
 					g.fillRect(0, 0, 1, 1);
 					java.awt.Color afg = getAWTForeground(fg, p);
