@@ -53,7 +53,7 @@ public class AWTColorAdapter {
 			for(Color bg : Color.values()) {
 				for(int ci = 0; ci < cs.length; ci++) {
 					char c = cs[ci];
-					double fgAlpha = ci / ((double) cs.length - 0.75);
+					double fgAlpha = ci / ((double) cs.length - 0.5);
 					g.setColor(getAWTBackground(bg, p));
 					g.fillRect(0, 0, 1, 1);
 					java.awt.Color afg = getAWTForeground(fg, p);
@@ -66,19 +66,21 @@ public class AWTColorAdapter {
 		}
 	}
 	
+	protected static final double SATURATION_MULT = .75;
+	
 	public static ColorAdaption get(java.awt.Color c) {
 		if(cache.containsKey(c))
 			return cache.get(c);
 		float[] chsb = java.awt.Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
-		double cx = chsb[1] * Math.cos(chsb[0] * 2 * Math.PI);
-		double cy = chsb[1] * Math.sin(chsb[0] * 2 * Math.PI);
+		double cx = SATURATION_MULT * chsb[1] * Math.cos(chsb[0] * 2 * Math.PI);
+		double cy = SATURATION_MULT * chsb[1] * Math.sin(chsb[0] * 2 * Math.PI);
 		double cz = chsb[2];
 		double dist = Double.POSITIVE_INFINITY;
 		ColorAdaption entry = null;
 		for(ColorAdaption e : colors) {
 			float[] ehsb = java.awt.Color.RGBtoHSB(e.getAwt().getRed(), e.getAwt().getGreen(), e.getAwt().getBlue(), null);
-			double ex = ehsb[1] * Math.cos(ehsb[0] * 2 * Math.PI);
-			double ey = ehsb[1] * Math.sin(ehsb[0] * 2 * Math.PI);
+			double ex = SATURATION_MULT * ehsb[1] * Math.cos(ehsb[0] * 2 * Math.PI);
+			double ey = SATURATION_MULT * ehsb[1] * Math.sin(ehsb[0] * 2 * Math.PI);
 			double ez = ehsb[2];
 			double edist = Math.sqrt(Math.pow(ex - cx, 2) + Math.pow(ey - cy, 2) + Math.pow(ez - cz, 2));
 			if(edist < dist) {
