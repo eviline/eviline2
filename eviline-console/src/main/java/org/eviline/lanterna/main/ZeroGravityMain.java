@@ -89,7 +89,7 @@ public class ZeroGravityMain {
 			TerminalAppearance appearance = new TerminalAppearance(
 					TerminalAppearance.DEFAULT_NORMAL_FONT,
 					TerminalAppearance.DEFAULT_BOLD_FONT,
-					TerminalPalette.XTERM,
+					TerminalPalette.DEFAULT,
 					true);
 			term = TerminalFacade.createSwingTerminal(appearance, 160, 50);
 			Screen screen = TerminalFacade.createScreen(term);

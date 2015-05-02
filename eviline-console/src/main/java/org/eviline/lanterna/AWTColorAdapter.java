@@ -45,7 +45,7 @@ public class AWTColorAdapter {
 	protected static Map<java.awt.Color, ColorAdaption> cache = new HashMap<java.awt.Color, ColorAdaption>();
 	
 	static {
-		TerminalPalette p = TerminalPalette.XTERM;
+		TerminalPalette p = TerminalPalette.DEFAULT;
 		BufferedImage i = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = (Graphics2D) i.getGraphics();
 		char[] cs = new char[] {' ', '\u2591', '\u2592', '\u2593', '\u2588'};
