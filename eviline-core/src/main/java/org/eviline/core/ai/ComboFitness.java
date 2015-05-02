@@ -4,10 +4,10 @@ import org.eviline.core.Field;
 import org.eviline.core.ShapeType;
 import org.eviline.core.Shorts;
 
-public class ScoreFitness implements CoefficientFitness {
+public class ComboFitness implements CoefficientFitness {
 
 	protected double[] c = new double[] {
-			-0.8067531267132483, 0.3696252272701461, 2.720995948654717, 7.14512365324218, -0.4660745041243869, -5.62625178614574
+			-1.1906488477054622, 0.4065158792585576, 2.9164355635889074, 7.374976586314691, -0.8749677418806416, -5.078300695442548
 	};
 	
 	@Override
@@ -68,7 +68,7 @@ public class ScoreFitness implements CoefficientFitness {
 				+ c[2] * (mhAfter - mhBefore)
 				+ c[3] * (holesAfter-holesBefore)
 				+ c[4] * (pitsAfter - pitsBefore)
-				+ c[5] * (after.getScore() - before.getScore())
+				+ c[5] * (after.getComboScore() - before.getComboScore())
 				;
 	}
 

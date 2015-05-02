@@ -16,12 +16,12 @@ import org.eviline.core.ai.AIKernel;
 import org.eviline.core.ai.DefaultAIKernel;
 import org.eviline.core.ai.NextFitness;
 
-public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
-	public static final EngineFactory<ShapeSource> FACTORY = EngineFactories.createSourceFactory(EvilBag7NShapeSource.class);
+public class AngelBag7NShapeSource implements ShapeSource, Cloneable {
+	public static final EngineFactory<ShapeSource> FACTORY = EngineFactories.createSourceFactory(AngelBag7NShapeSource.class);
 	
 	public static EngineFactory<ShapeSource> createFactory(int n, int lookahead) {
 		return new EngineFactories.ShapeSourceFactory(
-				EvilBag7NShapeSource.class, 
+				AngelBag7NShapeSource.class, 
 				new Class<?>[]{int.class, int.class}, 
 				new Object[]{n, lookahead});
 	}
@@ -39,11 +39,11 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 	
 	protected int lookahead = 2;
 	
-	public EvilBag7NShapeSource() {
+	public AngelBag7NShapeSource() {
 		this(DEFAULT_N, DEFAULT_LOOKAHEAD);
 	}
 	
-	public EvilBag7NShapeSource(int n, int lookahead) {
+	public AngelBag7NShapeSource(int n, int lookahead) {
 		this.n = n;
 		for(int i = 0; i < n; i++)
 			bag.addAll(Arrays.asList(ShapeType.blocks()));
@@ -61,7 +61,7 @@ public class EvilBag7NShapeSource implements ShapeSource, Cloneable {
 		try {
 			Set<ShapeType> types = new HashSet<>();
 			types.addAll(bag);
-			ShapeType chosen = ai.worstNext(engine.getField(), this, engine.getNext(), lookahead);
+			ShapeType chosen = ai.bestNext(engine.getField(), this, engine.getNext(), lookahead);
 			return bag.remove(bag.indexOf(chosen));
 		} finally {
 			if(bag.size() == 0)

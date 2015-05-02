@@ -48,7 +48,9 @@ public class EngineComponent extends AbstractComponent {
 				ShapeType t = null;
 				if(ghosting && b == null && engine.getGhost() != -1 && XYShapes.has(engine.getGhost(), x, y))
 					t = ShapeType.G;
-				if(t == null && b != null)
+				else if(b != null && (b.getFlags() & Block.MASK_GARBAGE) != 0)
+					t = ShapeType.G;
+				else if(b != null && b.shape() != null)
 					t = b.shape().type();
 				if(t != null) {
 					g.setBackgroundColor(color.bg(t));

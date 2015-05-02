@@ -89,7 +89,7 @@ public class ZeroGravityMain {
 			TerminalAppearance appearance = new TerminalAppearance(
 					TerminalAppearance.DEFAULT_NORMAL_FONT,
 					TerminalAppearance.DEFAULT_BOLD_FONT,
-					TerminalPalette.XTERM,
+					TerminalPalette.DEFAULT,
 					true);
 			term = TerminalFacade.createSwingTerminal(appearance, 160, 50);
 			Screen screen = TerminalFacade.createScreen(term);
@@ -142,7 +142,7 @@ public class ZeroGravityMain {
 		Panel bp = new Panel("bag remaining", Orientation.VERTICAL);
 		bag = new Label[ShapeType.values().length - 1];
 		for(ShapeType t : ShapeType.values()) {
-			if(t == ShapeType.G)
+			if(t == ShapeType.G || t == ShapeType.GH)
 				continue;
 			Label ll = bag[t.ordinal()] = new Label("", new ShapeTypeColor().fg(t), true);
 			ll.setStyle(Category.SHADOW);

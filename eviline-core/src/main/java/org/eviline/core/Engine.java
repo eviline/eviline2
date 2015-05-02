@@ -22,6 +22,11 @@ public class Engine implements Cloneable {
 		public ShapeType[] getBag() {
 			return bag;
 		}
+		
+		@Override
+		public boolean remove(ShapeType type) {
+			return false;
+		}
 	}
 
 	protected Configuration conf;
@@ -37,8 +42,10 @@ public class Engine implements Cloneable {
 	protected long shapeId;
 	protected Integer downFramesRemaining;
 	protected Integer respawnFramesRemaining;
-	protected ShapeType[] next = new ShapeType[1];
 	protected boolean paused;
+	
+	protected boolean holdEnabled;
+	protected boolean holdable;
 	
 	protected EngineListener[] listeners = null;
 	
@@ -60,7 +67,6 @@ public class Engine implements Cloneable {
 			
 			c.field = field.clone();
 			c.shapes = new ImmutableBagSource(shapes.getBag());
-			c.next = next.clone();
 			if(listeners != null)
 				c.listeners = listeners.clone();
 			
@@ -80,7 +86,6 @@ public class Engine implements Cloneable {
 		downFramesRemaining = conf.downFramesRemaining(this);
 		respawnFramesRemaining = conf.respawnFramesRemaining(this);
 		over = false;
-		Arrays.fill(next, null);
 	}
 	
 	public Block block(int x, int y) {
@@ -93,11 +98,13 @@ public class Engine implements Cloneable {
 	}
 	
 	protected ShapeType enqueue(ShapeType type) {
+		ShapeType[] next = getNext();
 		if(next.length == 0)
 			return type;
 		ShapeType ret = next[0];
 		System.arraycopy(next, 1, next, 0, next.length - 1);
 		next[next.length - 1] = type;
+		setNext(next);
 		return ret;
 	}
 	
@@ -105,6 +112,7 @@ public class Engine implements Cloneable {
 		short tm = 0b1111111111;
 		short thm = (short)(1 << (int)(field.WIDTH * Math.random()));
 		tm = (short)(tm & ~thm);
+		tm = (short)(tm << 3);
 		for(int i = 0; i < lines; i++)
 			field.shiftUp(tm);
 	}
@@ -112,16 +120,22 @@ public class Engine implements Cloneable {
 	public synchronized boolean tick(Command c) {
 		if(isPaused())
 			return false;
-		if(shape == -1) {
-			int cleared = field.clearLines();
-			if(cleared > 0) {
-				return true;
-			}
-		}
 		boolean success = false;
 		boolean locked = false;
 		switch(c) {
 		case NOP:
+			success = true;
+			break;
+		case HOLD:
+			if(shape == -1 || !holdable)
+				break;
+			ShapeType held = getHold();
+			setHold(XYShapes.shapeFromInt(shape).type());
+			if(held == null)
+				shape = -1;
+			else
+				shape = XYShapes.toXYShape(held.startX(), held.startY(), held.start());
+			holdable = false;
 			success = true;
 			break;
 		case SHIFT_LEFT:
@@ -264,11 +278,10 @@ public class Engine implements Cloneable {
 			}
 		}
 		
-//		if(locked) {
-//			int cleared = field.clearLines();
-//			lines += cleared;
-//			score += cleared * cleared * cleared;
-//		}
+		if(locked) {
+			field.clearLines();
+			holdable = holdEnabled;
+		}
 		
 		if(shape == -1) {
 			if(respawnFramesRemaining == null) {
@@ -358,10 +371,7 @@ public class Engine implements Cloneable {
 	}
 	
 	public ShapeType[] getNext() {
-		List<ShapeType> next = new ArrayList<>(Arrays.asList(this.next));
-		while(next.contains(null))
-			next.remove(null);
-		return next.toArray(new ShapeType[next.size()]);
+		return field.getNext();
 	}
 	
 	public long getTickCount() {
@@ -389,10 +399,38 @@ public class Engine implements Cloneable {
 	}
 
 	public void setNext(ShapeType[] next) {
-		this.next = next;
+		field.setNext(next);
 	}
 
 	public long getShapeId() {
 		return shapeId;
+	}
+	
+	public void setShapes(ShapeSource shapes) {
+		this.shapes = shapes;
+	}
+	
+	public ShapeType getHold() {
+		return field.getHold();
+	}
+	
+	public void setHold(ShapeType hold) {
+		field.setHold(hold);
+	}
+
+	public boolean isHoldable() {
+		return holdable;
+	}
+
+	public void setHoldable(boolean holdable) {
+		this.holdable = holdable;
+	}
+
+	public boolean isHoldEnabled() {
+		return holdEnabled;
+	}
+
+	public void setHoldEnabled(boolean holdEnabled) {
+		this.holdEnabled = holdEnabled;
 	}
 }

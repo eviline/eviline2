@@ -37,7 +37,10 @@ public enum ShapeType {
 	S, Z, J, L, T, I, O,
 	// meta types
 	G, // garbage
+	GH, // ghost
 	;
+	
+	public static final int COUNT = 7;
 	
 	public static final int S_ORD = 0;
 	public static final int Z_ORD = 1;
@@ -46,6 +49,10 @@ public enum ShapeType {
 	public static final int T_ORD = 4;
 	public static final int I_ORD = 5;
 	public static final int O_ORD = 6;
+	
+	public int xystart() {
+		return XYShapes.toXYShape(startX(), startY(), start());
+	}
 	
 	public Shape start() {
 		switch(this) {

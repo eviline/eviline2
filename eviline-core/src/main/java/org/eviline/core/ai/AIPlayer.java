@@ -1,10 +1,16 @@
 package org.eviline.core.ai;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
 import org.eviline.core.Command;
 import org.eviline.core.Engine;
+import org.eviline.core.Field;
 import org.eviline.core.XYShapes;
 import org.eviline.core.ai.DefaultAIKernel.Best;
 
@@ -16,6 +22,7 @@ public class AIPlayer implements Player {
 	protected CommandGraph graph;
 	protected int dest;
 	protected Deque<Command> commands = new ArrayDeque<>();
+	protected Field after;
 	
 	protected int lookahead;
 	protected boolean allowDrops = true;
@@ -45,7 +52,54 @@ public class AIPlayer implements Player {
 				best = null;
 				return Command.NOP;
 			}
-			best = ai.bestPlacement(engine.getField(), engine.getField(), engine.getShape(), engine.getNext(), lookahead + 1, 0);
+			
+			if(engine.isHoldable() && engine.getHold() == null) {
+				after = engine.getField().clone();
+				after.setHold(XYShapes.shapeFromInt(engine.getShape()).type());
+				return Command.HOLD;
+			}
+			
+			
+			if(engine.isHoldable()) {
+				
+				Callable<Best> bestTask = new Callable<DefaultAIKernel.Best>() {
+					@Override
+					public Best call() throws Exception {
+						return ai.bestPlacement(engine.getField(), engine.getField(), engine.getShape(), engine.getNext(), lookahead + 1, 0);
+					}
+				};
+
+				Callable<Best> heldTask = new Callable<DefaultAIKernel.Best>() {
+					@Override
+					public Best call() throws Exception {
+						Field heldField = engine.getField().clone();
+						heldField.setHold(XYShapes.shapeFromInt(engine.getShape()).type());
+						return ai.bestPlacement(heldField, heldField, engine.getHold().xystart(), engine.getNext(), lookahead + 1, 0);
+					}
+				};
+				
+				List<FutureTask<Best>> futs = new ArrayList<>();
+				futs.add(ai.getExec().submit(bestTask));
+				futs.add(ai.getExec().submit(heldTask));
+				ai.getExec().await(futs);
+
+				try {
+					best = futs.get(0).get();
+					Best heldBest = futs.get(1).get();
+					if(heldBest.score < best.score) {
+						best = heldBest;
+						after = engine.getField().clone();
+						after.setHold(XYShapes.shapeFromInt(engine.getShape()).type());
+						return Command.HOLD;
+					}
+				} catch(Exception e) {
+					throw new RuntimeException(e);
+				}
+				
+			} else {
+				best = ai.bestPlacement(engine.getField(), engine.getField(), engine.getShape(), engine.getNext(), lookahead + 1, 0);
+			}
+			
 			graph = best.graph;
 			int shape = graph.getSelectedShape();
 			dest = shape;
@@ -111,5 +165,9 @@ public class AIPlayer implements Player {
 
 	public void setAllowDrops(boolean allowDrops) {
 		this.allowDrops = allowDrops;
+	}
+	
+	public Field getAfter() {
+		return after;
 	}
 }

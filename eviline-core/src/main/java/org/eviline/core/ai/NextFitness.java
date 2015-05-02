@@ -18,8 +18,6 @@ public class NextFitness implements CoefficientFitness {
 
 	};
 	
-//	protected DefaultFitness df = new DefaultFitness();
-	
 	@Override
 	public double badness(Field before, Field after, ShapeType[] next) {
 		int off = 0;

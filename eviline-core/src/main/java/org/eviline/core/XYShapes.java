@@ -3,7 +3,7 @@ package org.eviline.core;
 import java.util.Arrays;
 
 public class XYShapes {
-	public static final int SHAPE_MAX = toXYShape(15, 19, Shape.values()[Shape.values().length - 1]);
+	public static final int SHAPE_MAX = toXYShape(9, 19, Shape.values()[Shape.values().length - 1]);
 	
 	public static final int[] CANONICAL_SHAPES;
 	static {
@@ -14,6 +14,22 @@ public class XYShapes {
 				canon[count++] = i;
 		}
 		CANONICAL_SHAPES = Arrays.copyOf(canon, count);
+	}
+	
+	public static final int MASK_X =    0b00000000001111;
+	public static final int MASK_Y =    0b00000111110000;
+	public static final int MASK_DIR =  0b00011000000000;
+	public static final int MASK_TYPE = 0b11100000000000;
+	
+	public static final int MASK_TYPE_POS = MASK_X | MASK_Y | MASK_DIR;
+	public static final int SIZE_TYPE_POS = 1 << 11;
+	
+	public static int startIntForTypeId(int type) {
+		return type << 11;
+	}
+	
+	public static int stopIntForTypeId(int type) {
+		return Math.min((type + 1) << 11, SHAPE_MAX);
 	}
 	
 	public static boolean has(int xyshape, int x, int y) {
@@ -47,6 +63,10 @@ public class XYShapes {
 	
 	public static int shapeIdFromInt(int i) {
 		return (i >>> 9);
+	}
+	
+	public static int shapeTypeIdFromInt(int i) {
+		return shapeIdFromInt(i) >>> 2;
 	}
 	
 	public static Shape shapeFromInt(int i) {
@@ -129,6 +149,38 @@ public class XYShapes {
 		return kicked;
 	}
 	
+	public static int[] inverseKickedLeft(int xyshape) {
+		Shape shape;
+		int x = xFromInt(xyshape);
+		int y = yFromInt(xyshape);
+		KickTable kt = (shape = shapeFromInt(xyshape)).leftKick();
+		int[] kicked = new int[kt.table().length];
+		for(int i = 0; i < kicked.length; i++) {
+			int kx = x + kt.table()[i][0];
+			int ky = y + kt.table()[i][1];
+			int ks = kicked[i] = toXYShape(kx, ky, shape);
+			if(xFromInt(ks) != kx || yFromInt(ks) != y)
+				kicked[i] = -1;
+		}
+		return kicked;
+	}
+	
+	public static int[] inverseKickedRight(int xyshape) {
+		Shape shape;
+		int x = xFromInt(xyshape);
+		int y = yFromInt(xyshape);
+		KickTable kt = (shape = shapeFromInt(xyshape)).rightKick();
+		int[] kicked = new int[kt.table().length];
+		for(int i = 0; i < kicked.length; i++) {
+			int kx = x + kt.table()[i][0];
+			int ky = y + kt.table()[i][1];
+			int ks = kicked[i] = toXYShape(kx, ky, shape);
+			if(xFromInt(ks) != kx || yFromInt(ks) != y)
+				kicked[i] = -1;
+		}
+		return kicked;
+	}
+	
 	private static final int UP = 1 << ShapeDirection.UP_ORD;
 	private static final int RIGHT = 1 << ShapeDirection.RIGHT_ORD;
 	private static final int DOWN = 1 << ShapeDirection.DOWN_ORD;
@@ -165,5 +217,9 @@ public class XYShapes {
 			return toXYShape(x+1, y, (id & ~3) | ShapeDirection.LEFT_ORD);
 		else
 			return toXYShape(x, y+1, (id & ~3) | ShapeDirection.UP_ORD);
+	}
+	
+	public static String toString(int xyshape) {
+		return shapeFromInt(xyshape) + "[" + xFromInt(xyshape) + "," + yFromInt(xyshape) + "]";
 	}
 }

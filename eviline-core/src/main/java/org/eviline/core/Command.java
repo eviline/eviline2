@@ -12,6 +12,9 @@ public enum Command {
 	SOFT_DROP,
 	HARD_DROP,
 	
+	HOLD,
+	
+	
 	;
 	
 	private static final Command[] VALUES = values();
