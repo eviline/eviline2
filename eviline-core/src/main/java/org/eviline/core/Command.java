@@ -9,6 +9,7 @@ public enum Command {
 	SHIFT_LEFT,
 	SHIFT_RIGHT,
 	SHIFT_DOWN,
+	SHIFT_UP,
 	SOFT_DROP,
 	HARD_DROP,
 	

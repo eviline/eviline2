@@ -38,6 +38,7 @@ public class Engine implements Cloneable {
 	protected long shapeCount;
 	
 	protected int shape = -1;
+	protected boolean ghosting = true;
 	protected int ghost;
 	protected long shapeId;
 	protected Integer downFramesRemaining;
@@ -229,6 +230,16 @@ public class Engine implements Cloneable {
 			downFramesRemaining = null;
 			success = true;
 			break;
+		case SHIFT_UP:
+			if(shape == -1)
+				break;
+			moved = XYShapes.shiftedUp(shape);
+			if(!field.intersects(moved) && XYShapes.yFromInt(shape) > -Field.BUFFER) {
+				shape = moved;
+			}
+			downFramesRemaining = null;
+			success = true;
+			break;
 		case SOFT_DROP:
 			if(shape == -1)
 				break;
@@ -305,14 +316,16 @@ public class Engine implements Cloneable {
 			}
 		}
 		
-		if(shape == -1)
-			ghost = -1;
-		else {
-			ghost = shape;
-			if(!field.intersects(ghost)) {
-				while(!field.intersects(ghost))
-					ghost = XYShapes.shiftedDown(ghost);
-				ghost = XYShapes.shiftedUp(ghost);
+		if(ghosting) {
+			if(shape == -1)
+				ghost = -1;
+			else {
+				ghost = shape;
+				if(!field.intersects(ghost)) {
+					while(!field.intersects(ghost))
+						ghost = XYShapes.shiftedDown(ghost);
+					ghost = XYShapes.shiftedUp(ghost);
+				}
 			}
 		}
 		
@@ -364,6 +377,10 @@ public class Engine implements Cloneable {
 	
 	public int getGhost() {
 		return ghost;
+	}
+	
+	public void setGhost(int ghost) {
+		this.ghost = ghost;
 	}
 	
 	public void setShape(int shape) {
@@ -432,5 +449,13 @@ public class Engine implements Cloneable {
 
 	public void setHoldEnabled(boolean holdEnabled) {
 		this.holdEnabled = holdEnabled;
+	}
+
+	public boolean isGhosting() {
+		return ghosting;
+	}
+
+	public void setGhosting(boolean ghosting) {
+		this.ghosting = ghosting;
 	}
 }
