@@ -59,6 +59,24 @@
 							</transformers>
 						</configuration>
 					</execution>
+					<execution>
+						<id>hinting-shade</id>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<phase>package</phase>
+						<configuration>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>hinting</shadedClassifierName>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>org.eviline.swing.main.HintingTableUI</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>
