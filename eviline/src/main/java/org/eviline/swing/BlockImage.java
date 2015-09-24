@@ -28,6 +28,8 @@ public class BlockImage {
 		for(ShapeType type : ShapeType.values()) {
 			BufferedImage buf = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 			Color max = new ShapeTypeColor().get(type);
+			if(max == null)
+				max = Color.WHITE;
 			for(int x = 0; x < width; x++) {
 				for(int y = 0; y < height; y++) {
 					Color pt = new Color(this.base.getRGB(x, y), true);

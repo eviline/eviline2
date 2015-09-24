@@ -29,6 +29,7 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 		
 		c.setText(cc.c != null ? cc.c.toString() : null);
 		c.setForeground(cc.color != null ? cc.color : Color.BLACK);
+		c.setBackground(table.getBackground());
 
 		ll.set(c);
 		
@@ -46,10 +47,15 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 		public void set(JLabel c) {
 			setText(c.getText());
 			setForeground(c.getForeground());
+			setBackground(c.getBackground());
 		}
 		
 		@Override
 		protected void paintComponent(Graphics g) {
+			Color bg = getBackground();
+			g.setColor(bg);
+			g.fillRect(0, 0, getWidth(), getHeight());
+			setBackground(null);
 			Color fg = getForeground();
 			setForeground(Color.WHITE);
 			for(int x = 0; x <= 2; x++) {
@@ -62,6 +68,7 @@ public class StatisticsTableCellRenderer extends DefaultTableCellRenderer {
 			setForeground(fg);
 			Graphics gg = g.create();
 			super.paintComponent(gg);
+			setBackground(bg);
 		}
 	}
 }

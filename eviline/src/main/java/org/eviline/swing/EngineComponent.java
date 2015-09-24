@@ -101,8 +101,11 @@ public class EngineComponent extends JComponent {
 				Block b = engine.block(x, y);
 				
 				boolean ghost = false;
-				if(isGhosting() && b == null && engine.getGhost() != -1 && XYShapes.has(engine.getGhost(), x, y))
+				if(isGhosting() && b == null && engine.getGhost() != -1 && XYShapes.has(engine.getGhost(), x, y)) {
+					if(engine.getShape() != -1)
+						b = new Block(XYShapes.shapeFromInt(engine.getShape()).type());
 					ghost = true;
+				}
 				
 				if(y < 0 && !ghost) {
 					g.setColor(new Color(255,255,255,128));
@@ -127,11 +130,11 @@ public class EngineComponent extends JComponent {
 				}
 				
 				if(ghost) {
-					g.setColor(new Color(255,255,255));
+					g.setColor(new Color(255,255,255,127));
 					g.fillRect((int)(x*blockSizeX), (int)((y+field.BUFFER)*blockSizeY), (int) blockSizeX, (int) blockSizeY);
 				}
 
-				if(b != null) {
+				if(b != null && !ghost) {
 					g.setColor(Color.BLACK);
 					Block adj = (x > 0) ? engine.block(x-1, y) : null;
 					if(adj == null || b.id() != adj.id())
