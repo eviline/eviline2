@@ -236,7 +236,7 @@ public class HintingTableUI {
 
 		table.requestFocusInWindow();
 //		exec.schedule(ticker, 1000000L / 60, TimeUnit.MICROSECONDS);
-		exec.scheduleAtFixedRate(ticker, 0, 1000000L/60, TimeUnit.MICROSECONDS);
+		exec.scheduleAtFixedRate(ticker, 0, 1000000L, TimeUnit.MICROSECONDS);
 	}
 
 }
