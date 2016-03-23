@@ -48,14 +48,26 @@ public class LanternaPlayer extends WindowAdapter implements Player {
 			case 'x':
 				c = Command.ROTATE_RIGHT;
 				break;
-			case 'a':
+			case 'J':
 				c = Command.AUTOSHIFT_LEFT;
 				break;
-			case 's':
+			case 'j':
+				c = Command.SHIFT_LEFT;
+				break;
+			case 'K':
 				c = Command.SOFT_DROP;
 				break;
-			case 'd':
+			case 'k':
+				c = Command.SHIFT_DOWN;
+				break;
+			case 'L':
 				c = Command.AUTOSHIFT_RIGHT;
+				break;
+			case 'l':
+				c = Command.SHIFT_RIGHT;
+				break;
+			case ' ':
+				c = Command.HARD_DROP;
 				break;
 			}
 			break;

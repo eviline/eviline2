@@ -36,6 +36,7 @@ import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.GUIScreen.Position;
 import com.googlecode.lanterna.gui.Theme.Category;
 import com.googlecode.lanterna.gui.Window;
+import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.Label;
 import com.googlecode.lanterna.gui.component.Panel;
 import com.googlecode.lanterna.gui.component.Panel.Orientation;
@@ -130,13 +131,13 @@ public class ZeroGravityMain {
 		p.addComponent(new Label(""));
 		p.addComponent(new MarkupLabel("Press <b>Z</b> to rotate left"));
 		p.addComponent(new MarkupLabel("Press <b>X</b> to rotate right"));
-		p.addComponent(new MarkupLabel("Press <b>LEFT</b> to shift left"));
-		p.addComponent(new MarkupLabel("Press <b>A</b> to autoshift shift left"));
-		p.addComponent(new MarkupLabel("Press <b>RIGHT</b> to shift right"));
-		p.addComponent(new MarkupLabel("Press <b>D</b> to autoshift right"));
-		p.addComponent(new MarkupLabel("Press <b>DOWN</b> to shift down"));
-		p.addComponent(new MarkupLabel("Press <b>S</b> to soft drop"));
-		p.addComponent(new MarkupLabel("Press <b>UP</b> to hard drop"));
+		p.addComponent(new MarkupLabel("Press <b>j</b> to shift left"));
+		p.addComponent(new MarkupLabel("Press <b>J</b> to autoshift shift left"));
+		p.addComponent(new MarkupLabel("Press <b>l</b> to shift right"));
+		p.addComponent(new MarkupLabel("Press <b>L</b> to autoshift right"));
+		p.addComponent(new MarkupLabel("Press <b>k</b> to shift down"));
+		p.addComponent(new MarkupLabel("Press <b>K</b> to soft drop"));
+		p.addComponent(new MarkupLabel("Press <b>SPACE</b> to hard drop"));
 		p.addComponent(new Label(""));
 		p.addComponent(new Label("Available shapes:"));
 		Panel bp = new Panel("bag remaining", Orientation.VERTICAL);
@@ -190,10 +191,16 @@ public class ZeroGravityMain {
 						isOver = true;
 				}
 				if(isOver && !wasOver) {
-					w.close();
-					gui.showWindow(new SubmitScoreWindow(url, engine), Position.CENTER);
-					gui.showWindow(new HighScoreWindow(url), Position.CENTER);
-					gui.showWindow(w, Position.CENTER);
+					final Window lines = new Window("Game Over");
+					lines.addComponent(new Label("Total Lines: " + engine.getLines()));
+					Button ok = new Button("OK", new Action() {
+						@Override
+						public void doAction() {
+							lines.close();
+						}
+					});
+					lines.addComponent(ok);
+					gui.showWindow(lines, Position.CENTER);
 				}
 				wasOver = isOver;
 			}
@@ -237,8 +244,6 @@ public class ZeroGravityMain {
 			}
 		};
 
-		gui.showWindow(new HighScoreWindow(url), Position.CENTER);
-		
 		exec.scheduleWithFixedDelay(ticker, 0, 10, TimeUnit.MILLISECONDS);
 		exec.scheduleWithFixedDelay(drawer, 0, 10, TimeUnit.MILLISECONDS);
 

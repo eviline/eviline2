@@ -55,7 +55,10 @@ public class EngineComponent extends AbstractComponent {
 				if(t != null) {
 					g.setBackgroundColor(color.bg(t));
 					g.setForegroundColor(color.fg(t));
-					g.drawString(x*2, y + field.BUFFER, "\u2592\u2592", ScreenCharacterStyle.Bold);
+					String s = "\u2592\u2592";
+					if(t == ShapeType.G)
+						s = "\u2591\u2591";
+					g.drawString(x*2, y + field.BUFFER, s, ScreenCharacterStyle.Bold);
 				} else if(y == -1) {
 					g.setBackgroundColor(Color.BLACK);
 					g.setForegroundColor(Color.WHITE);
